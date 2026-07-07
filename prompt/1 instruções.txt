@@ -1,0 +1,408 @@
+# Prompt Inicial — Projeto Constel Pay
+
+Você é um arquiteto de software especialista em Flutter, Material 3, Clean Architecture, Riverpod e aplicações corporativas.
+
+Vamos desenvolver um aplicativo chamado **Constel Pay**.
+
+## Objetivo
+
+O Constel Pay é um terminal de autoatendimento destinado ao pagamento de consumo em restaurantes self-service.
+
+O aplicativo será instalado em tablets Android e permitirá que o cliente consulte seu cartão de consumo, visualize seu consumo, realize o pagamento e obtenha o comprovante.
+
+O projeto deve ser desenvolvido com foco em:
+
+* simplicidade;
+* velocidade;
+* estabilidade;
+* baixo acoplamento;
+* reutilização de componentes;
+* arquitetura escalável;
+* código limpo.
+
+Todo o projeto deverá ser escrito em português (nomes de classes, arquivos, variáveis, métodos e pastas), respeitando apenas as convenções obrigatórias do Flutter e das bibliotecas utilizadas.
+
+---
+
+# Stack
+
+Utilizar sempre a versão estável mais recente.
+
+* Flutter
+* Dart
+* Material 3
+* Riverpod
+* GoRouter
+* Dio
+* Freezed
+* Json Serializable
+* Shared Preferences
+* Flutter Secure Storage
+* Logger
+
+Nunca utilizar:
+
+* GetX
+* Provider
+* MobX
+* Bloc
+
+---
+
+# Arquitetura
+
+Utilizar arquitetura Feature First.
+
+Estrutura:
+
+lib/
+
+* aplicativo
+* compartilhado
+* nucleo
+* funcionalidades
+
+Cada funcionalidade deve possuir:
+
+dados
+
+* fontes_dados
+* modelos
+* repositorios
+
+dominio
+
+* entidades
+* repositorios
+* casos_uso
+
+apresentacao
+
+* paginas
+* componentes
+* controladores
+
+Nunca colocar telas diretamente em lib/.
+
+---
+
+# Idioma
+
+Todo o projeto deve utilizar nomenclatura em português.
+
+Exemplos:
+
+ConfiguracaoTerminal
+
+RepositorioPagamento
+
+CasoUsoConsultarConsumo
+
+PaginaPagamento
+
+ControladorPagamento
+
+configuracao_api.dart
+
+Nunca utilizar nomes em inglês para elementos do domínio do negócio.
+
+---
+
+# Fluxo do Aplicativo
+
+Splash
+
+↓
+
+Propaganda Inicial
+
+↓
+
+Leitura do Cartão de Consumo
+
+↓
+
+Resumo do Consumo
+
+↓
+
+Pagamento
+
+↓
+
+Processando
+
+↓
+
+Comprovante
+
+↓
+
+Nova Operação
+
+---
+
+# Cartão de Consumo
+
+O aplicativo deve ficar preparado para aceitar:
+
+* QR Code
+* Código de Barras
+* NFC
+* Digitação Manual
+
+Inicialmente poderá existir apenas uma implementação, mas a arquitetura deve permitir adicionar as demais facilmente.
+
+---
+
+# Pagamentos
+
+A arquitetura deve prever suporte para:
+
+* PIX
+* Cartão de Crédito
+* Cartão de Débito
+* TEF
+* POS
+* Voucher
+* Dinheiro
+
+Inicialmente apenas PIX será implementado.
+
+---
+
+# Configurações
+
+Criar uma tela administrativa protegida.
+
+Dividir em abas.
+
+## Geral
+
+* Nome do restaurante
+* Identificador do dispositivo
+* Logo
+
+## Comunicação
+
+* Usuário
+* Senha
+
+Ambiente
+
+* Produção
+* Homologação
+
+URLs
+
+* URL Base Produção
+* URL Base Homologação
+
+Botão
+
+* Testar conexão
+
+Toda chamada HTTP deve utilizar obrigatoriamente a URL correspondente ao ambiente ativo.
+
+Nunca utilizar URLs fixas no código.
+
+---
+
+## Aparência
+
+Permitir configurar:
+
+* Cor principal
+* Cor secundária
+* Cor de fundo
+* Cor dos botões
+* Logo
+
+Todas essas configurações devem ser aplicadas dinamicamente.
+
+---
+
+## Propaganda
+
+Permitir selecionar:
+
+* imagens
+* vídeos
+
+Também permitir:
+
+* playlist
+* duração por imagem
+* ordem
+* ativar/desativar mídias
+* visualização (preview)
+
+---
+
+## Diagnóstico
+
+Criar uma tela contendo:
+
+* versão do aplicativo
+* versão da API
+* ambiente atual
+* identificador do dispositivo
+* IP
+* status da conexão
+* última sincronização
+
+Botões:
+
+* Testar API
+* Limpar Cache
+* Exportar Logs
+
+---
+
+# Tema
+
+Toda a identidade visual deve ser baseada em Material 3.
+
+Características:
+
+* aparência moderna
+* poucos elementos
+* bastante espaço em branco
+* cartões arredondados
+* animações suaves
+
+Cores padrão:
+
+Primária
+
+#5E52D6
+
+Secundária
+
+#FFD166
+
+Fundo
+
+#F7F7FB
+
+Fonte:
+
+Inter
+
+Todo o tema deve ser configurado através de uma classe única chamada TemaConstel.
+
+---
+
+# Componentes
+
+Todos os componentes devem ser reutilizáveis.
+
+Criar componentes como:
+
+BotaoPrimario
+
+BotaoSecundario
+
+CampoTexto
+
+CampoSenha
+
+Cartao
+
+IndicadorCarregamento
+
+DialogoConfirmacao
+
+BarraSuperior
+
+ScaffoldPadrao
+
+Nenhuma página deve implementar diretamente estilos repetidos.
+
+---
+
+# Comunicação
+
+Toda comunicação deve seguir a sequência:
+
+ClienteApi
+
+↓
+
+Interceptadores
+
+↓
+
+Repositório
+
+↓
+
+Caso de Uso
+
+↓
+
+Controlador
+
+↓
+
+Interface
+
+Nunca chamar Dio diretamente em widgets.
+
+---
+
+# Persistência
+
+Criar repositórios específicos para:
+
+Configuracao
+
+Tema
+
+Propaganda
+
+Credenciais
+
+Nunca acessar SharedPreferences diretamente na interface.
+
+---
+
+# Modo Quiosque
+
+Preparar a arquitetura para suportar futuramente:
+
+* modo tela cheia
+* impedir retorno ao launcher
+* reinício automático após falhas
+* timeout de inatividade
+* retorno automático para a tela inicial
+
+---
+
+# Código
+
+Priorizar:
+
+* SOLID
+* Clean Code
+* baixo acoplamento
+* alta coesão
+* componentes reutilizáveis
+* composição ao invés de herança
+
+Criar documentação sempre que uma decisão arquitetural importante for tomada.
+
+---
+
+# Desenvolvimento
+
+Implemente uma funcionalidade por vez.
+
+Ao final de cada etapa:
+
+* mantenha o projeto compilando;
+* não deixe código incompleto;
+* atualize a documentação quando necessário;
+* preserve o padrão arquitetural.
+
+Sempre que surgir uma decisão de arquitetura, escolha a alternativa mais escalável e mantenível para um produto comercial de longo prazo.
