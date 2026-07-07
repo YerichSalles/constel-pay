@@ -2,6 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../funcionalidades/leitura_cartao/dados/fontes_dados/fonte_leitura_mock.dart';
+import '../funcionalidades/leitura_cartao/dados/repositorios/repositorio_leitura_impl.dart';
+import '../funcionalidades/leitura_cartao/dominio/casos_uso/caso_uso_ler_cartao.dart';
+import '../funcionalidades/leitura_cartao/dominio/repositorios/repositorio_leitura.dart';
 import '../funcionalidades/configuracoes/dados/repositorios/repositorio_configuracao_impl.dart';
 import '../funcionalidades/configuracoes/dados/repositorios/repositorio_credencial_impl.dart';
 import '../funcionalidades/configuracoes/dados/repositorios/repositorio_tema_impl.dart';
@@ -58,4 +62,16 @@ final provedorCasoUsoTestarConexao = Provider<CasoUsoTestarConexao>(
     repositorioConfiguracao: ref.watch(provedorRepositorioConfiguracao),
     preferencias: ref.watch(provedorSharedPreferences),
   ),
+);
+
+final provedorFonteLeituraMock = Provider<FonteLeituraMock>(
+  (ref) => FonteLeituraMock(),
+);
+
+final provedorRepositorioLeitura = Provider<RepositorioLeitura>(
+  (ref) => RepositorioLeituraImpl(ref.watch(provedorFonteLeituraMock)),
+);
+
+final provedorCasoUsoLerCartao = Provider<CasoUsoLerCartao>(
+  (ref) => CasoUsoLerCartao(ref.watch(provedorRepositorioLeitura)),
 );
