@@ -9,6 +9,8 @@ import '../funcionalidades/configuracoes/dominio/entidades/tema_personalizado.da
 import '../funcionalidades/configuracoes/dominio/repositorios/repositorio_configuracao.dart';
 import '../funcionalidades/configuracoes/dominio/repositorios/repositorio_credencial.dart';
 import '../funcionalidades/configuracoes/dominio/repositorios/repositorio_tema.dart';
+import '../funcionalidades/propaganda/dados/repositorios/repositorio_propaganda_impl.dart';
+import '../funcionalidades/propaganda/dominio/repositorios/repositorio_propaganda.dart';
 import '../nucleo/constantes/constantes_app.dart';
 import 'tema/controlador_tema.dart';
 
@@ -37,4 +39,8 @@ final provedorArmazenamentoSeguro = Provider<FlutterSecureStorage>(
 
 final provedorRepositorioCredencial = Provider<RepositorioCredencial>(
   (ref) => RepositorioCredencialImpl(ref.watch(provedorArmazenamentoSeguro)),
+);
+
+final provedorRepositorioPropaganda = Provider<RepositorioPropaganda>(
+  (ref) => RepositorioPropagandaImpl(ref.watch(provedorSharedPreferences)),
 );
