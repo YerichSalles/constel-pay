@@ -6,6 +6,12 @@ import '../funcionalidades/leitura_cartao/dados/fontes_dados/fonte_leitura_mock.
 import '../funcionalidades/leitura_cartao/dados/repositorios/repositorio_leitura_impl.dart';
 import '../funcionalidades/leitura_cartao/dominio/casos_uso/caso_uso_ler_cartao.dart';
 import '../funcionalidades/leitura_cartao/dominio/repositorios/repositorio_leitura.dart';
+import '../funcionalidades/pagamento/dados/fontes_dados/fonte_pagamento_mock.dart';
+import '../funcionalidades/pagamento/dados/repositorios/repositorio_pagamento_impl.dart';
+import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_gerar_pix.dart';
+import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_processar_pagamento.dart';
+import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_verificar_pagamento.dart';
+import '../funcionalidades/pagamento/dominio/repositorios/repositorio_pagamento.dart';
 import '../funcionalidades/configuracoes/dados/repositorios/repositorio_configuracao_impl.dart';
 import '../funcionalidades/configuracoes/dados/repositorios/repositorio_credencial_impl.dart';
 import '../funcionalidades/configuracoes/dados/repositorios/repositorio_tema_impl.dart';
@@ -74,4 +80,24 @@ final provedorRepositorioLeitura = Provider<RepositorioLeitura>(
 
 final provedorCasoUsoLerCartao = Provider<CasoUsoLerCartao>(
   (ref) => CasoUsoLerCartao(ref.watch(provedorRepositorioLeitura)),
+);
+
+final provedorFontePagamentoMock = Provider<FontePagamentoMock>(
+  (ref) => FontePagamentoMock(),
+);
+
+final provedorRepositorioPagamento = Provider<RepositorioPagamento>(
+  (ref) => RepositorioPagamentoImpl(ref.watch(provedorFontePagamentoMock)),
+);
+
+final provedorCasoUsoGerarPix = Provider<CasoUsoGerarPix>(
+  (ref) => CasoUsoGerarPix(ref.watch(provedorRepositorioPagamento)),
+);
+
+final provedorCasoUsoProcessarPagamento = Provider<CasoUsoProcessarPagamento>(
+  (ref) => CasoUsoProcessarPagamento(ref.watch(provedorRepositorioPagamento)),
+);
+
+final provedorCasoUsoVerificarPagamento = Provider<CasoUsoVerificarPagamento>(
+  (ref) => CasoUsoVerificarPagamento(ref.watch(provedorRepositorioPagamento)),
 );
