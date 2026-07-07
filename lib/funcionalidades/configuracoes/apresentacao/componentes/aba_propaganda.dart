@@ -42,6 +42,7 @@ class AbaPropaganda extends ConsumerWidget {
     final controlador = ref.read(provedorMidias.notifier);
     final nomeArquivo = midia.caminho.split(RegExp(r'[\\/]')).last;
     return Container(
+      key: ValueKey(midia.id),
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
