@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../compartilhado/feedback/estado_vazio.dart';
 import '../../../../compartilhado/feedback/snackbar_padrao.dart';
+import '../componentes/aba_aparencia.dart';
 import '../componentes/aba_comunicacao.dart';
 import '../componentes/aba_geral.dart';
 import '../controladores/controlador_configuracoes.dart';
@@ -41,16 +42,15 @@ class PaginaConfiguracoes extends ConsumerWidget {
             ],
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
-            AbaGeral(),
-            AbaComunicacao(),
+            const AbaGeral(),
+            const AbaComunicacao(),
             // Substituídas nas Tasks 21-23:
-            EstadoVazio(
-                emoji: '🎨', titulo: 'Aparência', mensagem: 'Em construção'),
-            EstadoVazio(
+            const AbaAparencia(),
+            const EstadoVazio(
                 emoji: '🎬', titulo: 'Propaganda', mensagem: 'Em construção'),
-            EstadoVazio(
+            const EstadoVazio(
                 emoji: '🩺', titulo: 'Diagnóstico', mensagem: 'Em construção'),
           ],
         ),
