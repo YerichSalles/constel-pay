@@ -7,6 +7,7 @@ import '../../../../compartilhado/feedback/snackbar_padrao.dart';
 import '../componentes/aba_aparencia.dart';
 import '../componentes/aba_comunicacao.dart';
 import '../componentes/aba_geral.dart';
+import '../componentes/aba_propaganda.dart';
 import '../controladores/controlador_configuracoes.dart';
 
 class PaginaConfiguracoes extends ConsumerWidget {
@@ -48,8 +49,7 @@ class PaginaConfiguracoes extends ConsumerWidget {
             const AbaComunicacao(),
             // Substituídas nas Tasks 21-23:
             const AbaAparencia(),
-            const EstadoVazio(
-                emoji: '🎬', titulo: 'Propaganda', mensagem: 'Em construção'),
+            const AbaPropaganda(),
             const EstadoVazio(
                 emoji: '🩺', titulo: 'Diagnóstico', mensagem: 'Em construção'),
           ],
