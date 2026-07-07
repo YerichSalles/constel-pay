@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../compartilhado/feedback/estado_vazio.dart';
 import '../../../../compartilhado/feedback/snackbar_padrao.dart';
 import '../componentes/aba_aparencia.dart';
 import '../componentes/aba_comunicacao.dart';
+import '../componentes/aba_diagnostico.dart';
 import '../componentes/aba_geral.dart';
 import '../componentes/aba_propaganda.dart';
 import '../controladores/controlador_configuracoes.dart';
@@ -43,15 +43,14 @@ class PaginaConfiguracoes extends ConsumerWidget {
             ],
           ),
         ),
-        body: TabBarView(
+        body: const TabBarView(
           children: [
-            const AbaGeral(),
-            const AbaComunicacao(),
+            AbaGeral(),
+            AbaComunicacao(),
             // Substituídas nas Tasks 21-23:
-            const AbaAparencia(),
-            const AbaPropaganda(),
-            const EstadoVazio(
-                emoji: '🩺', titulo: 'Diagnóstico', mensagem: 'Em construção'),
+            AbaAparencia(),
+            AbaPropaganda(),
+            AbaDiagnostico(),
           ],
         ),
       ),
