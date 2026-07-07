@@ -1,6 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const MaterialApp(
-      home: Scaffold(body: Center(child: Text('Constel Pay')))));
+import 'aplicativo/constel_pay_app.dart';
+import 'aplicativo/injecao.dart';
+import 'aplicativo/rotas.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final preferencias = await SharedPreferences.getInstance();
+  final container = ProviderContainer(
+    overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+  );
+  await container.read(provedorTema.notifier).carregar();
+  final configuracao =
+      await container.read(provedorRepositorioConfiguracao).obter();
+  final roteador = criarRoteador(
+    localInicial: configuracao.pinHash.isEmpty ? '/pin' : '/splash',
+  );
+  runApp(
+    UncontrolledProviderScope(
+      container: container,
+      child: ConstelPayApp(roteador: roteador),
+    ),
+  );
 }
