@@ -22,6 +22,8 @@ class _AbaComunicacaoState extends ConsumerState<AbaComunicacao> {
   final _senha = TextEditingController();
   final _urlProducao = TextEditingController();
   final _urlHomologacao = TextEditingController();
+  final _urlNuvemProducao = TextEditingController();
+  final _urlNuvemHomologacao = TextEditingController();
   Ambiente _ambiente = Ambiente.homologacao;
   bool _preenchido = false;
 
@@ -31,6 +33,8 @@ class _AbaComunicacaoState extends ConsumerState<AbaComunicacao> {
     _senha.dispose();
     _urlProducao.dispose();
     _urlHomologacao.dispose();
+    _urlNuvemProducao.dispose();
+    _urlNuvemHomologacao.dispose();
     super.dispose();
   }
 
@@ -50,6 +54,8 @@ class _AbaComunicacaoState extends ConsumerState<AbaComunicacao> {
       _senha.text = estado.senha;
       _urlProducao.text = estado.configuracao.urlBaseProducao;
       _urlHomologacao.text = estado.configuracao.urlBaseHomologacao;
+      _urlNuvemProducao.text = estado.configuracao.urlNuvemProducao;
+      _urlNuvemHomologacao.text = estado.configuracao.urlNuvemHomologacao;
       _ambiente = estado.configuracao.ambiente;
       _preenchido = true;
     }
@@ -71,15 +77,33 @@ class _AbaComunicacaoState extends ConsumerState<AbaComunicacao> {
                 setState(() => _ambiente = selecao.first),
           ),
           const SizedBox(height: 20),
+          const Text('API local (consumo do cartão)',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+          const SizedBox(height: 10),
           CampoTexto(
-              rotulo: 'URL Base Produção',
+              rotulo: 'URL Local Produção',
               controlador: _urlProducao,
               validador: _validarUrl,
               tipoTeclado: TextInputType.url),
           const SizedBox(height: 14),
           CampoTexto(
-              rotulo: 'URL Base Homologação',
+              rotulo: 'URL Local Homologação',
               controlador: _urlHomologacao,
+              validador: _validarUrl,
+              tipoTeclado: TextInputType.url),
+          const SizedBox(height: 20),
+          const Text('API na nuvem (login)',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+          const SizedBox(height: 10),
+          CampoTexto(
+              rotulo: 'URL Nuvem Produção',
+              controlador: _urlNuvemProducao,
+              validador: _validarUrl,
+              tipoTeclado: TextInputType.url),
+          const SizedBox(height: 14),
+          CampoTexto(
+              rotulo: 'URL Nuvem Homologação',
+              controlador: _urlNuvemHomologacao,
               validador: _validarUrl,
               tipoTeclado: TextInputType.url),
           const SizedBox(height: 24),
@@ -99,6 +123,8 @@ class _AbaComunicacaoState extends ConsumerState<AbaComunicacao> {
                 ambiente: _ambiente,
                 urlProducao: _urlProducao.text,
                 urlHomologacao: _urlHomologacao.text,
+                urlNuvemProducao: _urlNuvemProducao.text,
+                urlNuvemHomologacao: _urlNuvemHomologacao.text,
               );
             },
           ),

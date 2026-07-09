@@ -18,9 +18,14 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$ConfiguracaoTerminal {
   String get nomeRestaurante => throw _privateConstructorUsedError;
   String get identificadorDispositivo => throw _privateConstructorUsedError;
-  Ambiente get ambiente => throw _privateConstructorUsedError;
+  String get idDispositivo => throw _privateConstructorUsedError;
+  Ambiente get ambiente =>
+      throw _privateConstructorUsedError; // URLs da API local (consumo do cartão no estabelecimento).
   String get urlBaseProducao => throw _privateConstructorUsedError;
-  String get urlBaseHomologacao => throw _privateConstructorUsedError;
+  String get urlBaseHomologacao =>
+      throw _privateConstructorUsedError; // URLs da API na nuvem (login/autenticação).
+  String get urlNuvemProducao => throw _privateConstructorUsedError;
+  String get urlNuvemHomologacao => throw _privateConstructorUsedError;
   String get pinHash => throw _privateConstructorUsedError;
 
   /// Create a copy of ConfiguracaoTerminal
@@ -39,9 +44,12 @@ abstract class $ConfiguracaoTerminalCopyWith<$Res> {
   $Res call(
       {String nomeRestaurante,
       String identificadorDispositivo,
+      String idDispositivo,
       Ambiente ambiente,
       String urlBaseProducao,
       String urlBaseHomologacao,
+      String urlNuvemProducao,
+      String urlNuvemHomologacao,
       String pinHash});
 }
 
@@ -63,9 +71,12 @@ class _$ConfiguracaoTerminalCopyWithImpl<$Res,
   $Res call({
     Object? nomeRestaurante = null,
     Object? identificadorDispositivo = null,
+    Object? idDispositivo = null,
     Object? ambiente = null,
     Object? urlBaseProducao = null,
     Object? urlBaseHomologacao = null,
+    Object? urlNuvemProducao = null,
+    Object? urlNuvemHomologacao = null,
     Object? pinHash = null,
   }) {
     return _then(_value.copyWith(
@@ -76,6 +87,10 @@ class _$ConfiguracaoTerminalCopyWithImpl<$Res,
       identificadorDispositivo: null == identificadorDispositivo
           ? _value.identificadorDispositivo
           : identificadorDispositivo // ignore: cast_nullable_to_non_nullable
+              as String,
+      idDispositivo: null == idDispositivo
+          ? _value.idDispositivo
+          : idDispositivo // ignore: cast_nullable_to_non_nullable
               as String,
       ambiente: null == ambiente
           ? _value.ambiente
@@ -88,6 +103,14 @@ class _$ConfiguracaoTerminalCopyWithImpl<$Res,
       urlBaseHomologacao: null == urlBaseHomologacao
           ? _value.urlBaseHomologacao
           : urlBaseHomologacao // ignore: cast_nullable_to_non_nullable
+              as String,
+      urlNuvemProducao: null == urlNuvemProducao
+          ? _value.urlNuvemProducao
+          : urlNuvemProducao // ignore: cast_nullable_to_non_nullable
+              as String,
+      urlNuvemHomologacao: null == urlNuvemHomologacao
+          ? _value.urlNuvemHomologacao
+          : urlNuvemHomologacao // ignore: cast_nullable_to_non_nullable
               as String,
       pinHash: null == pinHash
           ? _value.pinHash
@@ -108,9 +131,12 @@ abstract class _$$ConfiguracaoTerminalImplCopyWith<$Res>
   $Res call(
       {String nomeRestaurante,
       String identificadorDispositivo,
+      String idDispositivo,
       Ambiente ambiente,
       String urlBaseProducao,
       String urlBaseHomologacao,
+      String urlNuvemProducao,
+      String urlNuvemHomologacao,
       String pinHash});
 }
 
@@ -129,9 +155,12 @@ class __$$ConfiguracaoTerminalImplCopyWithImpl<$Res>
   $Res call({
     Object? nomeRestaurante = null,
     Object? identificadorDispositivo = null,
+    Object? idDispositivo = null,
     Object? ambiente = null,
     Object? urlBaseProducao = null,
     Object? urlBaseHomologacao = null,
+    Object? urlNuvemProducao = null,
+    Object? urlNuvemHomologacao = null,
     Object? pinHash = null,
   }) {
     return _then(_$ConfiguracaoTerminalImpl(
@@ -142,6 +171,10 @@ class __$$ConfiguracaoTerminalImplCopyWithImpl<$Res>
       identificadorDispositivo: null == identificadorDispositivo
           ? _value.identificadorDispositivo
           : identificadorDispositivo // ignore: cast_nullable_to_non_nullable
+              as String,
+      idDispositivo: null == idDispositivo
+          ? _value.idDispositivo
+          : idDispositivo // ignore: cast_nullable_to_non_nullable
               as String,
       ambiente: null == ambiente
           ? _value.ambiente
@@ -154,6 +187,14 @@ class __$$ConfiguracaoTerminalImplCopyWithImpl<$Res>
       urlBaseHomologacao: null == urlBaseHomologacao
           ? _value.urlBaseHomologacao
           : urlBaseHomologacao // ignore: cast_nullable_to_non_nullable
+              as String,
+      urlNuvemProducao: null == urlNuvemProducao
+          ? _value.urlNuvemProducao
+          : urlNuvemProducao // ignore: cast_nullable_to_non_nullable
+              as String,
+      urlNuvemHomologacao: null == urlNuvemHomologacao
+          ? _value.urlNuvemHomologacao
+          : urlNuvemHomologacao // ignore: cast_nullable_to_non_nullable
               as String,
       pinHash: null == pinHash
           ? _value.pinHash
@@ -169,9 +210,12 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
   const _$ConfiguracaoTerminalImpl(
       {this.nomeRestaurante = 'Constel Pay',
       this.identificadorDispositivo = 'TERMINAL-01',
+      this.idDispositivo = '',
       this.ambiente = Ambiente.homologacao,
       this.urlBaseProducao = '',
       this.urlBaseHomologacao = '',
+      this.urlNuvemProducao = '',
+      this.urlNuvemHomologacao = '',
       this.pinHash = ''})
       : super._();
 
@@ -183,20 +227,31 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
   final String identificadorDispositivo;
   @override
   @JsonKey()
+  final String idDispositivo;
+  @override
+  @JsonKey()
   final Ambiente ambiente;
+// URLs da API local (consumo do cartão no estabelecimento).
   @override
   @JsonKey()
   final String urlBaseProducao;
   @override
   @JsonKey()
   final String urlBaseHomologacao;
+// URLs da API na nuvem (login/autenticação).
+  @override
+  @JsonKey()
+  final String urlNuvemProducao;
+  @override
+  @JsonKey()
+  final String urlNuvemHomologacao;
   @override
   @JsonKey()
   final String pinHash;
 
   @override
   String toString() {
-    return 'ConfiguracaoTerminal(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, pinHash: $pinHash)';
+    return 'ConfiguracaoTerminal(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, idDispositivo: $idDispositivo, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, urlNuvemProducao: $urlNuvemProducao, urlNuvemHomologacao: $urlNuvemHomologacao, pinHash: $pinHash)';
   }
 
   @override
@@ -209,12 +264,18 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
             (identical(
                     other.identificadorDispositivo, identificadorDispositivo) ||
                 other.identificadorDispositivo == identificadorDispositivo) &&
+            (identical(other.idDispositivo, idDispositivo) ||
+                other.idDispositivo == idDispositivo) &&
             (identical(other.ambiente, ambiente) ||
                 other.ambiente == ambiente) &&
             (identical(other.urlBaseProducao, urlBaseProducao) ||
                 other.urlBaseProducao == urlBaseProducao) &&
             (identical(other.urlBaseHomologacao, urlBaseHomologacao) ||
                 other.urlBaseHomologacao == urlBaseHomologacao) &&
+            (identical(other.urlNuvemProducao, urlNuvemProducao) ||
+                other.urlNuvemProducao == urlNuvemProducao) &&
+            (identical(other.urlNuvemHomologacao, urlNuvemHomologacao) ||
+                other.urlNuvemHomologacao == urlNuvemHomologacao) &&
             (identical(other.pinHash, pinHash) || other.pinHash == pinHash));
   }
 
@@ -223,9 +284,12 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
       runtimeType,
       nomeRestaurante,
       identificadorDispositivo,
+      idDispositivo,
       ambiente,
       urlBaseProducao,
       urlBaseHomologacao,
+      urlNuvemProducao,
+      urlNuvemHomologacao,
       pinHash);
 
   /// Create a copy of ConfiguracaoTerminal
@@ -243,9 +307,12 @@ abstract class _ConfiguracaoTerminal extends ConfiguracaoTerminal {
   const factory _ConfiguracaoTerminal(
       {final String nomeRestaurante,
       final String identificadorDispositivo,
+      final String idDispositivo,
       final Ambiente ambiente,
       final String urlBaseProducao,
       final String urlBaseHomologacao,
+      final String urlNuvemProducao,
+      final String urlNuvemHomologacao,
       final String pinHash}) = _$ConfiguracaoTerminalImpl;
   const _ConfiguracaoTerminal._() : super._();
 
@@ -254,11 +321,18 @@ abstract class _ConfiguracaoTerminal extends ConfiguracaoTerminal {
   @override
   String get identificadorDispositivo;
   @override
-  Ambiente get ambiente;
+  String get idDispositivo;
+  @override
+  Ambiente
+      get ambiente; // URLs da API local (consumo do cartão no estabelecimento).
   @override
   String get urlBaseProducao;
   @override
-  String get urlBaseHomologacao;
+  String get urlBaseHomologacao; // URLs da API na nuvem (login/autenticação).
+  @override
+  String get urlNuvemProducao;
+  @override
+  String get urlNuvemHomologacao;
   @override
   String get pinHash;
 

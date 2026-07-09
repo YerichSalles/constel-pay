@@ -16,12 +16,14 @@ class AbaGeral extends ConsumerStatefulWidget {
 class _AbaGeralState extends ConsumerState<AbaGeral> {
   final _nome = TextEditingController();
   final _identificador = TextEditingController();
+  final _idDispositivo = TextEditingController();
   bool _preenchido = false;
 
   @override
   void dispose() {
     _nome.dispose();
     _identificador.dispose();
+    _idDispositivo.dispose();
     super.dispose();
   }
 
@@ -31,6 +33,7 @@ class _AbaGeralState extends ConsumerState<AbaGeral> {
     if (!estado.carregando && !_preenchido) {
       _nome.text = estado.configuracao.nomeRestaurante;
       _identificador.text = estado.configuracao.identificadorDispositivo;
+      _idDispositivo.text = estado.configuracao.idDispositivo;
       _preenchido = true;
     }
     return ListView(
@@ -41,6 +44,9 @@ class _AbaGeralState extends ConsumerState<AbaGeral> {
         CampoTexto(
             rotulo: 'Identificador do dispositivo',
             controlador: _identificador),
+        const SizedBox(height: 14),
+        CampoTexto(
+            rotulo: 'ID do dispositivo (UUID)', controlador: _idDispositivo),
         const SizedBox(height: 18),
         const SeletorLogo(),
         const SizedBox(height: 24),
@@ -52,6 +58,7 @@ class _AbaGeralState extends ConsumerState<AbaGeral> {
                     estado.configuracao.copyWith(
                       nomeRestaurante: _nome.text.trim(),
                       identificadorDispositivo: _identificador.text.trim(),
+                      idDispositivo: _idDispositivo.text.trim(),
                     ),
                   ),
         ),

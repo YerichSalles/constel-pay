@@ -1,14 +1,22 @@
 import 'package:dio/dio.dart';
 
+import '../../funcionalidades/configuracoes/dominio/entidades/configuracao_terminal.dart';
 import '../../funcionalidades/configuracoes/dominio/repositorios/repositorio_configuracao.dart';
 import '../erros/falha.dart';
 import '../erros/resultado.dart';
 import '../utils/registrador.dart';
 
+/// Seleciona qual base URL usar a partir da configuração do terminal.
+/// Permite reaproveitar o mesmo cliente para a API local e a API na nuvem.
+typedef SeletorBaseUrl = String Function(ConfiguracaoTerminal configuracao);
+
 class ClienteApi {
-  ClienteApi(
-      {required RepositorioConfiguracao repositorioConfiguracao, Dio? dio})
-      : _repositorioConfiguracao = repositorioConfiguracao,
+  ClienteApi({
+    required RepositorioConfiguracao repositorioConfiguracao,
+    Dio? dio,
+    SeletorBaseUrl? seletorBase,
+  })  : _repositorioConfiguracao = repositorioConfiguracao,
+        _seletorBase = seletorBase ?? ((c) => c.urlBaseAtiva),
         _dio = dio ?? Dio() {
     _dio.options.connectTimeout = const Duration(seconds: 30);
     _dio.options.receiveTimeout = const Duration(seconds: 30);
@@ -16,7 +24,7 @@ class ClienteApi {
       InterceptorsWrapper(
         onRequest: (opcoes, manipulador) async {
           final configuracao = await _repositorioConfiguracao.obter();
-          final base = configuracao.urlBaseAtiva;
+          final base = _seletorBase(configuracao);
           if (base.isEmpty) {
             return manipulador.reject(
               DioException(
@@ -39,6 +47,7 @@ class ClienteApi {
 
   final Dio _dio;
   final RepositorioConfiguracao _repositorioConfiguracao;
+  final SeletorBaseUrl _seletorBase;
 
   Future<Resultado<Response<dynamic>>> get(String caminho) async {
     try {

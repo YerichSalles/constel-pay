@@ -24,7 +24,10 @@ class _AbaAparenciaState extends ConsumerState<AbaAparencia> {
   TemaPersonalizado get _tema => _rascunho ?? ref.read(provedorTema);
 
   Future<void> _aplicar() async {
-    await ref.read(provedorTema.notifier).atualizar(_tema);
+    final atual = ref.read(provedorTema);
+    await ref
+        .read(provedorTema.notifier)
+        .atualizar(_tema.copyWith(logoPath: atual.logoPath));
     if (mounted) mostrarSnackbarPadrao(context, 'Tema aplicado.');
   }
 

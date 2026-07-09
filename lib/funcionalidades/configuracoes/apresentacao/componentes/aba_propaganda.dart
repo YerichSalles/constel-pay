@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../compartilhado/feedback/estado_vazio.dart';
+import '../../../../compartilhado/feedback/snackbar_padrao.dart';
 import '../../../../compartilhado/widgets/botao_primario.dart';
 import '../../../../compartilhado/widgets/botao_secundario.dart';
 import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
@@ -14,7 +19,23 @@ import '../controladores/controlador_midias.dart';
 class AbaPropaganda extends ConsumerWidget {
   const AbaPropaganda({super.key});
 
-  Future<void> _adicionar(WidgetRef ref) async {
+  static const Uuid _uuid = Uuid();
+
+  Future<String> _copiarParaDiretorioApp(String caminhoOrigem) async {
+    final documentos = await getApplicationDocumentsDirectory();
+    final diretorio =
+        Directory('${documentos.path}${Platform.pathSeparator}propaganda');
+    await diretorio.create(recursive: true);
+    final nomeOriginal = caminhoOrigem.split(RegExp(r'[\\/]')).last;
+    final extensao =
+        nomeOriginal.contains('.') ? '.${nomeOriginal.split('.').last}' : '';
+    final destino = File(
+        '${diretorio.path}${Platform.pathSeparator}${_uuid.v4()}$extensao');
+    await File(caminhoOrigem).copy(destino.path);
+    return destino.path;
+  }
+
+  Future<void> _adicionar(BuildContext context, WidgetRef ref) async {
     final resultado = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
@@ -32,8 +53,23 @@ class AbaPropaganda extends ConsumerWidget {
     final caminhos =
         resultado?.files.map((f) => f.path).whereType<String>().toList() ??
             const [];
-    if (caminhos.isNotEmpty) {
-      await ref.read(provedorMidias.notifier).adicionarArquivos(caminhos);
+    if (caminhos.isEmpty) return;
+    final copiados = <String>[];
+    var houveFalha = false;
+    for (final caminho in caminhos) {
+      try {
+        copiados.add(await _copiarParaDiretorioApp(caminho));
+      } catch (_) {
+        houveFalha = true;
+      }
+    }
+    if (houveFalha && context.mounted) {
+      mostrarSnackbarPadrao(
+          context, 'Não foi possível importar um dos arquivos.',
+          erro: true);
+    }
+    if (copiados.isNotEmpty) {
+      await ref.read(provedorMidias.notifier).adicionarArquivos(copiados);
     }
   }
 
@@ -146,7 +182,8 @@ class AbaPropaganda extends ConsumerWidget {
           ...estado.midias.map((midia) => _cardMidia(context, ref, midia)),
         const SizedBox(height: 12),
         BotaoPrimario(
-            rotulo: 'Adicionar mídias', aoTocar: () => _adicionar(ref)),
+            rotulo: 'Adicionar mídias',
+            aoTocar: () => _adicionar(context, ref)),
         const SizedBox(height: 10),
         BotaoSecundario(
           rotulo: 'Visualizar',

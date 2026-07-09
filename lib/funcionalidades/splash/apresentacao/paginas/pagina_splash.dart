@@ -79,7 +79,7 @@ class _PaginaSplashState extends ConsumerState<PaginaSplash> {
                   width: 130,
                   height: 130,
                   decoration: BoxDecoration(
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(28),
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(

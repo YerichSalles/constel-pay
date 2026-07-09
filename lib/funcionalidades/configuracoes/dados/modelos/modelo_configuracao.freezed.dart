@@ -22,9 +22,12 @@ ModeloConfiguracao _$ModeloConfiguracaoFromJson(Map<String, dynamic> json) {
 mixin _$ModeloConfiguracao {
   String get nomeRestaurante => throw _privateConstructorUsedError;
   String get identificadorDispositivo => throw _privateConstructorUsedError;
+  String get idDispositivo => throw _privateConstructorUsedError;
   Ambiente get ambiente => throw _privateConstructorUsedError;
   String get urlBaseProducao => throw _privateConstructorUsedError;
   String get urlBaseHomologacao => throw _privateConstructorUsedError;
+  String get urlNuvemProducao => throw _privateConstructorUsedError;
+  String get urlNuvemHomologacao => throw _privateConstructorUsedError;
   String get pinHash => throw _privateConstructorUsedError;
 
   /// Serializes this ModeloConfiguracao to a JSON map.
@@ -46,9 +49,12 @@ abstract class $ModeloConfiguracaoCopyWith<$Res> {
   $Res call(
       {String nomeRestaurante,
       String identificadorDispositivo,
+      String idDispositivo,
       Ambiente ambiente,
       String urlBaseProducao,
       String urlBaseHomologacao,
+      String urlNuvemProducao,
+      String urlNuvemHomologacao,
       String pinHash});
 }
 
@@ -69,9 +75,12 @@ class _$ModeloConfiguracaoCopyWithImpl<$Res, $Val extends ModeloConfiguracao>
   $Res call({
     Object? nomeRestaurante = null,
     Object? identificadorDispositivo = null,
+    Object? idDispositivo = null,
     Object? ambiente = null,
     Object? urlBaseProducao = null,
     Object? urlBaseHomologacao = null,
+    Object? urlNuvemProducao = null,
+    Object? urlNuvemHomologacao = null,
     Object? pinHash = null,
   }) {
     return _then(_value.copyWith(
@@ -82,6 +91,10 @@ class _$ModeloConfiguracaoCopyWithImpl<$Res, $Val extends ModeloConfiguracao>
       identificadorDispositivo: null == identificadorDispositivo
           ? _value.identificadorDispositivo
           : identificadorDispositivo // ignore: cast_nullable_to_non_nullable
+              as String,
+      idDispositivo: null == idDispositivo
+          ? _value.idDispositivo
+          : idDispositivo // ignore: cast_nullable_to_non_nullable
               as String,
       ambiente: null == ambiente
           ? _value.ambiente
@@ -94,6 +107,14 @@ class _$ModeloConfiguracaoCopyWithImpl<$Res, $Val extends ModeloConfiguracao>
       urlBaseHomologacao: null == urlBaseHomologacao
           ? _value.urlBaseHomologacao
           : urlBaseHomologacao // ignore: cast_nullable_to_non_nullable
+              as String,
+      urlNuvemProducao: null == urlNuvemProducao
+          ? _value.urlNuvemProducao
+          : urlNuvemProducao // ignore: cast_nullable_to_non_nullable
+              as String,
+      urlNuvemHomologacao: null == urlNuvemHomologacao
+          ? _value.urlNuvemHomologacao
+          : urlNuvemHomologacao // ignore: cast_nullable_to_non_nullable
               as String,
       pinHash: null == pinHash
           ? _value.pinHash
@@ -114,9 +135,12 @@ abstract class _$$ModeloConfiguracaoImplCopyWith<$Res>
   $Res call(
       {String nomeRestaurante,
       String identificadorDispositivo,
+      String idDispositivo,
       Ambiente ambiente,
       String urlBaseProducao,
       String urlBaseHomologacao,
+      String urlNuvemProducao,
+      String urlNuvemHomologacao,
       String pinHash});
 }
 
@@ -135,9 +159,12 @@ class __$$ModeloConfiguracaoImplCopyWithImpl<$Res>
   $Res call({
     Object? nomeRestaurante = null,
     Object? identificadorDispositivo = null,
+    Object? idDispositivo = null,
     Object? ambiente = null,
     Object? urlBaseProducao = null,
     Object? urlBaseHomologacao = null,
+    Object? urlNuvemProducao = null,
+    Object? urlNuvemHomologacao = null,
     Object? pinHash = null,
   }) {
     return _then(_$ModeloConfiguracaoImpl(
@@ -148,6 +175,10 @@ class __$$ModeloConfiguracaoImplCopyWithImpl<$Res>
       identificadorDispositivo: null == identificadorDispositivo
           ? _value.identificadorDispositivo
           : identificadorDispositivo // ignore: cast_nullable_to_non_nullable
+              as String,
+      idDispositivo: null == idDispositivo
+          ? _value.idDispositivo
+          : idDispositivo // ignore: cast_nullable_to_non_nullable
               as String,
       ambiente: null == ambiente
           ? _value.ambiente
@@ -160,6 +191,14 @@ class __$$ModeloConfiguracaoImplCopyWithImpl<$Res>
       urlBaseHomologacao: null == urlBaseHomologacao
           ? _value.urlBaseHomologacao
           : urlBaseHomologacao // ignore: cast_nullable_to_non_nullable
+              as String,
+      urlNuvemProducao: null == urlNuvemProducao
+          ? _value.urlNuvemProducao
+          : urlNuvemProducao // ignore: cast_nullable_to_non_nullable
+              as String,
+      urlNuvemHomologacao: null == urlNuvemHomologacao
+          ? _value.urlNuvemHomologacao
+          : urlNuvemHomologacao // ignore: cast_nullable_to_non_nullable
               as String,
       pinHash: null == pinHash
           ? _value.pinHash
@@ -175,9 +214,12 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
   const _$ModeloConfiguracaoImpl(
       {required this.nomeRestaurante,
       required this.identificadorDispositivo,
+      this.idDispositivo = '',
       required this.ambiente,
       required this.urlBaseProducao,
       required this.urlBaseHomologacao,
+      this.urlNuvemProducao = '',
+      this.urlNuvemHomologacao = '',
       required this.pinHash})
       : super._();
 
@@ -189,17 +231,26 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
   @override
   final String identificadorDispositivo;
   @override
+  @JsonKey()
+  final String idDispositivo;
+  @override
   final Ambiente ambiente;
   @override
   final String urlBaseProducao;
   @override
   final String urlBaseHomologacao;
   @override
+  @JsonKey()
+  final String urlNuvemProducao;
+  @override
+  @JsonKey()
+  final String urlNuvemHomologacao;
+  @override
   final String pinHash;
 
   @override
   String toString() {
-    return 'ModeloConfiguracao(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, pinHash: $pinHash)';
+    return 'ModeloConfiguracao(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, idDispositivo: $idDispositivo, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, urlNuvemProducao: $urlNuvemProducao, urlNuvemHomologacao: $urlNuvemHomologacao, pinHash: $pinHash)';
   }
 
   @override
@@ -212,12 +263,18 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
             (identical(
                     other.identificadorDispositivo, identificadorDispositivo) ||
                 other.identificadorDispositivo == identificadorDispositivo) &&
+            (identical(other.idDispositivo, idDispositivo) ||
+                other.idDispositivo == idDispositivo) &&
             (identical(other.ambiente, ambiente) ||
                 other.ambiente == ambiente) &&
             (identical(other.urlBaseProducao, urlBaseProducao) ||
                 other.urlBaseProducao == urlBaseProducao) &&
             (identical(other.urlBaseHomologacao, urlBaseHomologacao) ||
                 other.urlBaseHomologacao == urlBaseHomologacao) &&
+            (identical(other.urlNuvemProducao, urlNuvemProducao) ||
+                other.urlNuvemProducao == urlNuvemProducao) &&
+            (identical(other.urlNuvemHomologacao, urlNuvemHomologacao) ||
+                other.urlNuvemHomologacao == urlNuvemHomologacao) &&
             (identical(other.pinHash, pinHash) || other.pinHash == pinHash));
   }
 
@@ -227,9 +284,12 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
       runtimeType,
       nomeRestaurante,
       identificadorDispositivo,
+      idDispositivo,
       ambiente,
       urlBaseProducao,
       urlBaseHomologacao,
+      urlNuvemProducao,
+      urlNuvemHomologacao,
       pinHash);
 
   /// Create a copy of ModeloConfiguracao
@@ -253,9 +313,12 @@ abstract class _ModeloConfiguracao extends ModeloConfiguracao {
   const factory _ModeloConfiguracao(
       {required final String nomeRestaurante,
       required final String identificadorDispositivo,
+      final String idDispositivo,
       required final Ambiente ambiente,
       required final String urlBaseProducao,
       required final String urlBaseHomologacao,
+      final String urlNuvemProducao,
+      final String urlNuvemHomologacao,
       required final String pinHash}) = _$ModeloConfiguracaoImpl;
   const _ModeloConfiguracao._() : super._();
 
@@ -267,11 +330,17 @@ abstract class _ModeloConfiguracao extends ModeloConfiguracao {
   @override
   String get identificadorDispositivo;
   @override
+  String get idDispositivo;
+  @override
   Ambiente get ambiente;
   @override
   String get urlBaseProducao;
   @override
   String get urlBaseHomologacao;
+  @override
+  String get urlNuvemProducao;
+  @override
+  String get urlNuvemHomologacao;
   @override
   String get pinHash;
 

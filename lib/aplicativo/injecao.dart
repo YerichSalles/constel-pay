@@ -24,6 +24,7 @@ import '../funcionalidades/propaganda/dados/repositorios/repositorio_propaganda_
 import '../funcionalidades/propaganda/dominio/repositorios/repositorio_propaganda.dart';
 import '../nucleo/configuracao/cliente_api.dart';
 import '../nucleo/constantes/constantes_app.dart';
+import '../nucleo/dispositivo/info_aplicativo.dart';
 import 'tema/controlador_tema.dart';
 
 final provedorSharedPreferences = Provider<SharedPreferences>(
@@ -57,9 +58,22 @@ final provedorRepositorioPropaganda = Provider<RepositorioPropaganda>(
   (ref) => RepositorioPropagandaImpl(ref.watch(provedorSharedPreferences)),
 );
 
+// Cliente da API local (consumo do cartão) — usa a URL base do ambiente ativo.
 final provedorClienteApi = Provider<ClienteApi>(
   (ref) => ClienteApi(
       repositorioConfiguracao: ref.watch(provedorRepositorioConfiguracao)),
+);
+
+// Cliente da API na nuvem (login) — usa a URL de nuvem do ambiente ativo.
+final provedorClienteApiNuvem = Provider<ClienteApi>(
+  (ref) => ClienteApi(
+    repositorioConfiguracao: ref.watch(provedorRepositorioConfiguracao),
+    seletorBase: (configuracao) => configuracao.urlNuvemAtiva,
+  ),
+);
+
+final provedorInfoAplicativo = Provider<InfoAplicativo>(
+  (ref) => InfoAplicativoImpl(),
 );
 
 final provedorCasoUsoTestarConexao = Provider<CasoUsoTestarConexao>(

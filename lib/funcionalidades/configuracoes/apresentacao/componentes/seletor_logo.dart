@@ -3,22 +3,39 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/cores_app.dart';
+import '../../../../compartilhado/feedback/snackbar_padrao.dart';
 import '../../../../compartilhado/widgets/botao_secundario.dart';
 
 class SeletorLogo extends ConsumerWidget {
   const SeletorLogo({super.key});
 
-  Future<void> _escolher(WidgetRef ref) async {
+  Future<void> _escolher(BuildContext context, WidgetRef ref) async {
     final resultado = await FilePicker.platform.pickFiles(type: FileType.image);
-    final caminho = resultado?.files.single.path;
-    if (caminho == null) return;
-    final tema = ref.read(provedorTema);
-    await ref
-        .read(provedorTema.notifier)
-        .atualizar(tema.copyWith(logoPath: caminho));
+    final caminhoOrigem = resultado?.files.single.path;
+    if (caminhoOrigem == null) return;
+    try {
+      final documentos = await getApplicationDocumentsDirectory();
+      final nomeOriginal = caminhoOrigem.split(RegExp(r'[\\/]')).last;
+      final extensao =
+          nomeOriginal.contains('.') ? '.${nomeOriginal.split('.').last}' : '';
+      final destino =
+          File('${documentos.path}${Platform.pathSeparator}logo$extensao');
+      await File(caminhoOrigem).copy(destino.path);
+      final tema = ref.read(provedorTema);
+      await ref
+          .read(provedorTema.notifier)
+          .atualizar(tema.copyWith(logoPath: destino.path));
+    } catch (_) {
+      if (context.mounted) {
+        mostrarSnackbarPadrao(
+            context, 'Não foi possível importar um dos arquivos.',
+            erro: true);
+      }
+    }
   }
 
   @override
@@ -44,7 +61,7 @@ class SeletorLogo extends ConsumerWidget {
         const SizedBox(width: 14),
         Expanded(
           child: BotaoSecundario(
-              rotulo: 'Escolher logo', aoTocar: () => _escolher(ref)),
+              rotulo: 'Escolher logo', aoTocar: () => _escolher(context, ref)),
         ),
         if (temLogo) ...[
           const SizedBox(width: 8),

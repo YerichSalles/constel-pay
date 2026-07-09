@@ -11,9 +11,12 @@ _$ModeloConfiguracaoImpl _$$ModeloConfiguracaoImplFromJson(
     _$ModeloConfiguracaoImpl(
       nomeRestaurante: json['nomeRestaurante'] as String,
       identificadorDispositivo: json['identificadorDispositivo'] as String,
+      idDispositivo: json['idDispositivo'] as String? ?? '',
       ambiente: $enumDecode(_$AmbienteEnumMap, json['ambiente']),
       urlBaseProducao: json['urlBaseProducao'] as String,
       urlBaseHomologacao: json['urlBaseHomologacao'] as String,
+      urlNuvemProducao: json['urlNuvemProducao'] as String? ?? '',
+      urlNuvemHomologacao: json['urlNuvemHomologacao'] as String? ?? '',
       pinHash: json['pinHash'] as String,
     );
 
@@ -22,9 +25,12 @@ Map<String, dynamic> _$$ModeloConfiguracaoImplToJson(
     <String, dynamic>{
       'nomeRestaurante': instance.nomeRestaurante,
       'identificadorDispositivo': instance.identificadorDispositivo,
+      'idDispositivo': instance.idDispositivo,
       'ambiente': _$AmbienteEnumMap[instance.ambiente]!,
       'urlBaseProducao': instance.urlBaseProducao,
       'urlBaseHomologacao': instance.urlBaseHomologacao,
+      'urlNuvemProducao': instance.urlNuvemProducao,
+      'urlNuvemHomologacao': instance.urlNuvemHomologacao,
       'pinHash': instance.pinHash,
     };
 

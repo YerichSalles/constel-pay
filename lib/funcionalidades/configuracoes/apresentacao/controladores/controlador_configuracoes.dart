@@ -68,6 +68,8 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
     required Ambiente ambiente,
     required String urlProducao,
     required String urlHomologacao,
+    String? urlNuvemProducao,
+    String? urlNuvemHomologacao,
   }) async {
     state = state.copyWith(salvando: true, mensagem: null);
     if (usuario.isNotEmpty || senha.isNotEmpty) {
@@ -78,6 +80,10 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
       ambiente: ambiente,
       urlBaseProducao: urlProducao.trim(),
       urlBaseHomologacao: urlHomologacao.trim(),
+      urlNuvemProducao:
+          urlNuvemProducao?.trim() ?? state.configuracao.urlNuvemProducao,
+      urlNuvemHomologacao:
+          urlNuvemHomologacao?.trim() ?? state.configuracao.urlNuvemHomologacao,
     );
     await _repositorioConfiguracao.salvar(nova);
     state = state.copyWith(

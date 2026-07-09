@@ -13,9 +13,12 @@ class ModeloConfiguracao with _$ModeloConfiguracao {
   const factory ModeloConfiguracao({
     required String nomeRestaurante,
     required String identificadorDispositivo,
+    @Default('') String idDispositivo,
     required Ambiente ambiente,
     required String urlBaseProducao,
     required String urlBaseHomologacao,
+    @Default('') String urlNuvemProducao,
+    @Default('') String urlNuvemHomologacao,
     required String pinHash,
   }) = _ModeloConfiguracao;
 
@@ -26,18 +29,24 @@ class ModeloConfiguracao with _$ModeloConfiguracao {
       ModeloConfiguracao(
         nomeRestaurante: entidade.nomeRestaurante,
         identificadorDispositivo: entidade.identificadorDispositivo,
+        idDispositivo: entidade.idDispositivo,
         ambiente: entidade.ambiente,
         urlBaseProducao: entidade.urlBaseProducao,
         urlBaseHomologacao: entidade.urlBaseHomologacao,
+        urlNuvemProducao: entidade.urlNuvemProducao,
+        urlNuvemHomologacao: entidade.urlNuvemHomologacao,
         pinHash: entidade.pinHash,
       );
 
   ConfiguracaoTerminal paraEntidade() => ConfiguracaoTerminal(
         nomeRestaurante: nomeRestaurante,
         identificadorDispositivo: identificadorDispositivo,
+        idDispositivo: idDispositivo,
         ambiente: ambiente,
         urlBaseProducao: urlBaseProducao,
         urlBaseHomologacao: urlBaseHomologacao,
+        urlNuvemProducao: urlNuvemProducao,
+        urlNuvemHomologacao: urlNuvemHomologacao,
         pinHash: pinHash,
       );
 }

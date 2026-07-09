@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -32,6 +34,10 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
         setState(() => _nomeRestaurante = configuracao.nomeRestaurante);
       }
     });
+  }
+
+  void _abrirConfiguracoes() {
+    context.go('/pin?destino=/configuracoes');
   }
 
   void _prosseguir() {
@@ -79,7 +85,8 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
     );
   }
 
-  Widget _telaChamada(Color primaria) {
+  Widget _telaChamada(Color primaria, String? logoPath) {
+    final temLogo = logoPath != null && File(logoPath).existsSync();
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -95,8 +102,26 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('🍽️', style: TextStyle(fontSize: 72)),
-                  const SizedBox(height: 12),
+                  Container(
+                    width: 130,
+                    height: 130,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(28),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.black.withValues(alpha: .25),
+                            blurRadius: 40,
+                            offset: const Offset(0, 16)),
+                      ],
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    alignment: Alignment.center,
+                    child: temLogo
+                        ? Image.file(File(logoPath), fit: BoxFit.cover)
+                        : const Text('🍽️', style: TextStyle(fontSize: 60)),
+                  ),
+                  const SizedBox(height: 20),
                   Text(
                     _nomeRestaurante,
                     style: const TextStyle(
@@ -172,7 +197,7 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
     if (estado.carregando) {
       conteudo = ColoredBox(color: primaria);
     } else if (estado.midiaAtual == null) {
-      conteudo = _telaChamada(primaria);
+      conteudo = _telaChamada(primaria, tema.logoPath);
     } else {
       conteudo = Stack(
         fit: StackFit.expand,
@@ -207,10 +232,32 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
       );
     }
 
-    return GestureDetector(
-      onTap: _prosseguir,
-      behavior: HitTestBehavior.opaque,
-      child: Scaffold(body: conteudo),
+    return Scaffold(
+      body: Stack(
+        children: [
+          GestureDetector(
+            onTap: _prosseguir,
+            behavior: HitTestBehavior.opaque,
+            child: conteudo,
+          ),
+          // Botao temporario de acesso as configuracoes.
+          if (!widget.preview)
+            Positioned(
+              top: 12,
+              right: 12,
+              child: SafeArea(
+                child: IconButton(
+                  onPressed: _abrirConfiguracoes,
+                  tooltip: 'Configuracoes',
+                  icon: const Icon(Icons.settings, color: Colors.white),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.black.withValues(alpha: .45),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

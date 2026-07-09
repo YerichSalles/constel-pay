@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uuid/uuid.dart';
@@ -74,7 +76,15 @@ class ControladorMidias extends StateNotifier<EstadoMidias> {
   }
 
   Future<void> remover(String id) async {
+    final indice = state.midias.indexWhere((m) => m.id == id);
+    final midia = indice >= 0 ? state.midias[indice] : null;
     await _persistir(state.midias.where((m) => m.id != id).toList());
+    if (midia != null) {
+      try {
+        final arquivo = File(midia.caminho);
+        if (await arquivo.exists()) await arquivo.delete();
+      } catch (_) {}
+    }
   }
 
   Future<void> definirDuracao(String id, int segundos) async {
