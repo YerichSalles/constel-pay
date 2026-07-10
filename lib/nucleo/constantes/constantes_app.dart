@@ -10,4 +10,8 @@ abstract final class ConstantesApp {
   // (ex.: 'Atendimento') e 'dataVersaoAplicativo' a cada release.
   static const String nomeAplicativoLogin = 'Constel Pay';
   static const String dataVersaoAplicativo = '2026-07-08';
+
+  // Caminho do login na API de nuvem (relativo à urlNuvemAtiva, que deve
+  // terminar com '/'). Ex.: base 'http://host/api/' + 'auth/login'.
+  static const String caminhoLoginNuvem = 'auth/login';
 }
