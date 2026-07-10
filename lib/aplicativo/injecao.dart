@@ -78,10 +78,21 @@ final provedorRepositorioSessaoNuvem = Provider<RepositorioSessaoNuvem>(
   (ref) => RepositorioSessaoNuvemImpl(ref.watch(provedorArmazenamentoSeguro)),
 );
 
-// Cliente da API na nuvem (login/envio de vendas) — usa a URL de nuvem do
-// ambiente ativo e injeta o token da sessão, com re-login automático no 401.
-final Provider<ClienteApi> provedorClienteApiNuvem =
-    Provider<ClienteApi>((ref) {
+// Cliente da API na nuvem para LOGIN — SEM o interceptor de autenticação.
+// O login é isento de token e de retry; usar um Dio separado evita o
+// deadlock de re-login no QueuedInterceptor (mesma fila de erro).
+final provedorClienteApiNuvemLogin = Provider<ClienteApi>(
+  (ref) => ClienteApi(
+    repositorioConfiguracao: ref.watch(provedorRepositorioConfiguracao),
+    seletorBase: (configuracao) => configuracao.urlNuvemAtiva,
+  ),
+);
+
+// Cliente da API na nuvem para REQUISIÇÕES AUTENTICADAS (envio de vendas) —
+// usa a URL de nuvem do ambiente ativo, injeta o token da sessão e faz
+// re-login automático no 401. O re-login roda no cliente de login separado
+// (provedorClienteApiNuvemLogin), nunca neste mesmo Dio.
+final provedorClienteApiNuvem = Provider((ref) {
   final dio = Dio();
   dio.interceptors.add(
     InterceptadorAutenticacaoNuvem(
@@ -103,7 +114,7 @@ final Provider<ClienteApi> provedorClienteApiNuvem =
 });
 
 final provedorFonteAutenticacaoNuvem = Provider<FonteAutenticacaoNuvem>(
-  (ref) => FonteAutenticacaoNuvem(ref.watch(provedorClienteApiNuvem)),
+  (ref) => FonteAutenticacaoNuvem(ref.watch(provedorClienteApiNuvemLogin)),
 );
 
 final provedorCasoUsoLoginNuvem = Provider<CasoUsoLoginNuvem>(
