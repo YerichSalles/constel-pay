@@ -1,7 +1,15 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../funcionalidades/autenticacao/dados/fontes_dados/fonte_autenticacao_nuvem.dart';
+import '../funcionalidades/autenticacao/dados/interceptadores/interceptador_autenticacao_nuvem.dart';
+import '../funcionalidades/autenticacao/dados/repositorios/repositorio_sessao_nuvem_impl.dart';
+import '../funcionalidades/autenticacao/dominio/casos_uso/caso_uso_garantir_sessao.dart';
+import '../funcionalidades/autenticacao/dominio/casos_uso/caso_uso_login_nuvem.dart';
+import '../funcionalidades/autenticacao/dominio/entidades/sessao_nuvem.dart';
+import '../funcionalidades/autenticacao/dominio/repositorios/repositorio_sessao_nuvem.dart';
 import '../funcionalidades/leitura_cartao/dados/fontes_dados/fonte_leitura_mock.dart';
 import '../funcionalidades/leitura_cartao/dados/repositorios/repositorio_leitura_impl.dart';
 import '../funcionalidades/leitura_cartao/dominio/casos_uso/caso_uso_ler_cartao.dart';
@@ -25,6 +33,7 @@ import '../funcionalidades/propaganda/dominio/repositorios/repositorio_propagand
 import '../nucleo/configuracao/cliente_api.dart';
 import '../nucleo/constantes/constantes_app.dart';
 import '../nucleo/dispositivo/info_aplicativo.dart';
+import '../nucleo/erros/resultado.dart';
 import 'tema/controlador_tema.dart';
 
 final provedorSharedPreferences = Provider<SharedPreferences>(
@@ -64,11 +73,53 @@ final provedorClienteApi = Provider<ClienteApi>(
       repositorioConfiguracao: ref.watch(provedorRepositorioConfiguracao)),
 );
 
-// Cliente da API na nuvem (login) — usa a URL de nuvem do ambiente ativo.
-final provedorClienteApiNuvem = Provider<ClienteApi>(
-  (ref) => ClienteApi(
+// Repositório da sessão de nuvem (token + dados do login) no secure storage.
+final provedorRepositorioSessaoNuvem = Provider<RepositorioSessaoNuvem>(
+  (ref) => RepositorioSessaoNuvemImpl(ref.watch(provedorArmazenamentoSeguro)),
+);
+
+// Cliente da API na nuvem (login/envio de vendas) — usa a URL de nuvem do
+// ambiente ativo e injeta o token da sessão, com re-login automático no 401.
+final Provider<ClienteApi> provedorClienteApiNuvem =
+    Provider<ClienteApi>((ref) {
+  final dio = Dio();
+  dio.interceptors.add(
+    InterceptadorAutenticacaoNuvem(
+      dio: dio,
+      caminhoLogin: ConstantesApp.caminhoLoginNuvem,
+      tokenAtual: () async =>
+          (await ref.read(provedorRepositorioSessaoNuvem).obter())?.token,
+      renovarSessao: () async {
+        final resultado = await ref.read(provedorCasoUsoLoginNuvem).executar();
+        return resultado is Sucesso<SessaoNuvem>;
+      },
+    ),
+  );
+  return ClienteApi(
     repositorioConfiguracao: ref.watch(provedorRepositorioConfiguracao),
     seletorBase: (configuracao) => configuracao.urlNuvemAtiva,
+    dio: dio,
+  );
+});
+
+final provedorFonteAutenticacaoNuvem = Provider<FonteAutenticacaoNuvem>(
+  (ref) => FonteAutenticacaoNuvem(ref.watch(provedorClienteApiNuvem)),
+);
+
+final provedorCasoUsoLoginNuvem = Provider<CasoUsoLoginNuvem>(
+  (ref) => CasoUsoLoginNuvem(
+    fonte: ref.watch(provedorFonteAutenticacaoNuvem),
+    repositorioConfiguracao: ref.watch(provedorRepositorioConfiguracao),
+    repositorioCredencial: ref.watch(provedorRepositorioCredencial),
+    repositorioSessao: ref.watch(provedorRepositorioSessaoNuvem),
+    infoAplicativo: ref.watch(provedorInfoAplicativo),
+  ),
+);
+
+final provedorCasoUsoGarantirSessao = Provider<CasoUsoGarantirSessao>(
+  (ref) => CasoUsoGarantirSessao(
+    repositorioSessao: ref.watch(provedorRepositorioSessaoNuvem),
+    casoUsoLogin: ref.watch(provedorCasoUsoLoginNuvem),
   ),
 );
 

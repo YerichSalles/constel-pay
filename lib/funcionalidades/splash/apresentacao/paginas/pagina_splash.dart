@@ -9,6 +9,7 @@ import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/tema_constel.dart';
 import '../../../../compartilhado/widgets/detector_toque_longo.dart';
 import '../../../../nucleo/constantes/constantes_app.dart';
+import '../../../../nucleo/utils/registrador.dart';
 
 class PaginaSplash extends ConsumerStatefulWidget {
   const PaginaSplash({super.key});
@@ -32,6 +33,21 @@ class _PaginaSplashState extends ConsumerState<PaginaSplash> {
         setState(() => _nomeRestaurante = configuracao.nomeRestaurante);
       }
     });
+    _autenticarEmSegundoPlano();
+  }
+
+  /// Login automático na nuvem sem bloquear a navegação. Falhas apenas
+  /// registram no log; a URL/credencial inválida não dispara chamada de rede.
+  void _autenticarEmSegundoPlano() {
+    unawaited(
+      ref.read(provedorCasoUsoGarantirSessao).executar().then(
+            (resultado) => resultado.quando(
+              sucesso: (_) {},
+              erro: (falha) =>
+                  registrador.w('Login automático: ${falha.mensagem}'),
+            ),
+          ),
+    );
   }
 
   @override
