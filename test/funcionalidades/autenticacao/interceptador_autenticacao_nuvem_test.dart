@@ -79,4 +79,24 @@ void main() {
     expect(renovacoes, 0);
     expect(adaptador.autorizacoes.first, isNull);
   });
+
+  test(
+      'não trava quando renovarSessao lança: propaga o 401 original',
+      () async {
+    final dio = Dio(BaseOptions(baseUrl: 'http://x/api/'));
+    final adaptador = _AdaptadorSequencia();
+    dio.httpClientAdapter = adaptador;
+
+    dio.interceptors.add(InterceptadorAutenticacaoNuvem(
+      dio: dio,
+      caminhoLogin: 'auth/login',
+      tokenAtual: () async => 'antigo',
+      renovarSessao: () async => throw Exception('storage falhou'),
+    ));
+
+    await expectLater(
+      dio.get<dynamic>('vendas'),
+      throwsA(isA<DioException>()),
+    ).timeout(const Duration(seconds: 5));
+  });
 }

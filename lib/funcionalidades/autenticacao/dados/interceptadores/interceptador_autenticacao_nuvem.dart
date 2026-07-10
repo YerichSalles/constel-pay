@@ -25,11 +25,15 @@ class InterceptadorAutenticacaoNuvem extends QueuedInterceptor {
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
-    if (!_ehLogin(options.path)) {
-      final token = await _tokenAtual();
-      if (token != null && token.isNotEmpty) {
-        options.headers['Authorization'] = 'Bearer $token';
+    try {
+      if (!_ehLogin(options.path)) {
+        final token = await _tokenAtual();
+        if (token != null && token.isNotEmpty) {
+          options.headers['Authorization'] = 'Bearer $token';
+        }
       }
+    } catch (_) {
+      // Falha ao obter o token não deve travar a requisição: segue sem header.
     }
     handler.next(options);
   }
@@ -41,19 +45,22 @@ class InterceptadorAutenticacaoNuvem extends QueuedInterceptor {
     if (err.response?.statusCode == 401 &&
         !jaRenovou &&
         !_ehLogin(options.path)) {
-      final renovado = await _renovarSessao();
-      if (renovado) {
-        options.extra['auth_retry'] = true;
-        final token = await _tokenAtual();
-        if (token != null && token.isNotEmpty) {
-          options.headers['Authorization'] = 'Bearer $token';
-        }
-        try {
+      try {
+        final renovado = await _renovarSessao();
+        if (renovado) {
+          options.extra['auth_retry'] = true;
+          final token = await _tokenAtual();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
           final resposta = await _dio.fetch<dynamic>(options);
           return handler.resolve(resposta);
-        } on DioException catch (excecao) {
-          return handler.next(excecao);
         }
+      } on DioException catch (excecao) {
+        return handler.next(excecao);
+      } catch (_) {
+        // Qualquer falha na renovação propaga o erro original — nunca trava.
+        return handler.next(err);
       }
     }
     handler.next(err);
