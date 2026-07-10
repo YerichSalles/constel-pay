@@ -40,4 +40,9 @@ void main() {
     final sessao = RespostaLoginNuvem.paraEntidade(json);
     expect(sessao.estabelecimento.ambientes, isEmpty);
   });
+
+  test('paraEntidade lanca quando validade esta ausente (fonte captura)', () {
+    final json = Map<String, dynamic>.from(respostaApi)..remove('validade');
+    expect(() => RespostaLoginNuvem.paraEntidade(json), throwsA(anything));
+  });
 }

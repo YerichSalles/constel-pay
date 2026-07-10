@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../aplicativo/injecao.dart';
 import '../../../../nucleo/configuracao/ambiente.dart';
 import '../../../../nucleo/formatadores/formatador_data.dart';
+import '../../../../nucleo/utils/url_base.dart';
 import '../../dominio/casos_uso/caso_uso_testar_conexao.dart';
 import '../../dominio/entidades/configuracao_terminal.dart';
 import '../../dominio/entidades/credencial.dart';
@@ -80,10 +81,10 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
       ambiente: ambiente,
       urlBaseProducao: urlProducao.trim(),
       urlBaseHomologacao: urlHomologacao.trim(),
-      urlNuvemProducao:
-          urlNuvemProducao?.trim() ?? state.configuracao.urlNuvemProducao,
-      urlNuvemHomologacao:
-          urlNuvemHomologacao?.trim() ?? state.configuracao.urlNuvemHomologacao,
+      urlNuvemProducao: comBarraFinal(
+          urlNuvemProducao?.trim() ?? state.configuracao.urlNuvemProducao),
+      urlNuvemHomologacao: comBarraFinal(
+          urlNuvemHomologacao?.trim() ?? state.configuracao.urlNuvemHomologacao),
     );
     await _repositorioConfiguracao.salvar(nova);
     state = state.copyWith(

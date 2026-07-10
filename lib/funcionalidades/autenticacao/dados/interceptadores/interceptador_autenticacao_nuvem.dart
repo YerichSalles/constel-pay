@@ -20,7 +20,7 @@ class InterceptadorAutenticacaoNuvem extends QueuedInterceptor {
   final Future<String?> Function() _tokenAtual;
   final Future<bool> Function() _renovarSessao;
 
-  bool _ehLogin(String caminho) => caminho.contains(_caminhoLogin);
+  bool _ehLogin(String caminho) => caminho.endsWith(_caminhoLogin);
 
   @override
   void onRequest(
