@@ -30,6 +30,7 @@
 ### Task 1: Entidade `SessaoNuvem`
 
 **Files:**
+- Create: `build.yaml` (raiz do projeto)
 - Create: `lib/funcionalidades/autenticacao/dominio/entidades/sessao_nuvem.dart`
 - Test: `test/funcionalidades/autenticacao/sessao_nuvem_test.dart`
 - Generated: `sessao_nuvem.freezed.dart`, `sessao_nuvem.g.dart`
@@ -42,6 +43,21 @@
   - `class DispositivoSessao{String id, nome}`
   - `class AmbienteSessao{String id, nome; bool padrao}`
   - `class EstabelecimentoSessao{String id, nome; List<AmbienteSessao> ambientes}`
+
+- [ ] **Step 0: Criar `build.yaml` (raiz do projeto)**
+
+`SessaoNuvem` é o primeiro modelo do projeto com objetos JSON aninhados. Sem `explicit_to_json`, o `toJson` gerado não chama `.toJson()` nos objetos aninhados e o round-trip quebra. Crie `build.yaml` na raiz com:
+
+```yaml
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          explicit_to_json: true
+```
+
+Os modelos json existentes são flat (primitivos/enums), então essa opção não altera o comportamento deles.
 
 - [ ] **Step 1: Write the entity file**
 
@@ -184,9 +200,11 @@ Expected: PASS (3 testes).
 - [ ] **Step 5: Commit**
 
 ```bash
-git add lib/funcionalidades/autenticacao/dominio/entidades/ test/funcionalidades/autenticacao/sessao_nuvem_test.dart
-git commit -m "feat: entidade SessaoNuvem para autenticacao de nuvem"
+git add build.yaml lib/funcionalidades/autenticacao/dominio/entidades/ test/funcionalidades/autenticacao/sessao_nuvem_test.dart lib/funcionalidades/configuracoes/dados/modelos/ lib/funcionalidades/propaganda/dados/modelos/
+git commit -m "feat: entidade SessaoNuvem e build.yaml com explicit_to_json"
 ```
+
+> O codegen regenera também os `.g.dart`/`.freezed.dart` dos modelos existentes (sem mudança funcional). Inclua-os no commit se o `git status` os listar como modificados.
 
 ---
 
