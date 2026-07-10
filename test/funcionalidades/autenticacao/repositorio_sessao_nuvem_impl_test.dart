@@ -11,7 +11,7 @@ class _StorageMock extends Mock implements FlutterSecureStorage {}
 SessaoNuvem _sessao() => SessaoNuvem(
       token: 'jwt',
       validade: DateTime.utc(2026, 7, 11),
-      usuario: const UsuarioSessao(nome: 'Ana', credencial: 'a@x.com', imagem: ''),
+      usuario: const UsuarioSessao(nome: 'Ana', imagem: ''),
       empresa: const EmpresaSessao(id: 'e1', nome: 'Empresa'),
       dispositivo: const DispositivoSessao(id: 'd1', nome: 'Terminal'),
       estabelecimento: const EstabelecimentoSessao(id: 's1', nome: 'Loja'),

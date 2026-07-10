@@ -31,14 +31,12 @@ Map<String, dynamic> _$$SessaoNuvemImplToJson(_$SessaoNuvemImpl instance) =>
 _$UsuarioSessaoImpl _$$UsuarioSessaoImplFromJson(Map<String, dynamic> json) =>
     _$UsuarioSessaoImpl(
       nome: json['nome'] as String,
-      credencial: json['credencial'] as String,
       imagem: json['imagem'] as String,
     );
 
 Map<String, dynamic> _$$UsuarioSessaoImplToJson(_$UsuarioSessaoImpl instance) =>
     <String, dynamic>{
       'nome': instance.nome,
-      'credencial': instance.credencial,
       'imagem': instance.imagem,
     };
 

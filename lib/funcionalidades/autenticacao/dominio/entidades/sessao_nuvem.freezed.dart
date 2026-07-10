@@ -337,7 +337,6 @@ UsuarioSessao _$UsuarioSessaoFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$UsuarioSessao {
   String get nome => throw _privateConstructorUsedError;
-  String get credencial => throw _privateConstructorUsedError;
   String get imagem => throw _privateConstructorUsedError;
 
   /// Serializes this UsuarioSessao to a JSON map.
@@ -356,7 +355,7 @@ abstract class $UsuarioSessaoCopyWith<$Res> {
           UsuarioSessao value, $Res Function(UsuarioSessao) then) =
       _$UsuarioSessaoCopyWithImpl<$Res, UsuarioSessao>;
   @useResult
-  $Res call({String nome, String credencial, String imagem});
+  $Res call({String nome, String imagem});
 }
 
 /// @nodoc
@@ -375,17 +374,12 @@ class _$UsuarioSessaoCopyWithImpl<$Res, $Val extends UsuarioSessao>
   @override
   $Res call({
     Object? nome = null,
-    Object? credencial = null,
     Object? imagem = null,
   }) {
     return _then(_value.copyWith(
       nome: null == nome
           ? _value.nome
           : nome // ignore: cast_nullable_to_non_nullable
-              as String,
-      credencial: null == credencial
-          ? _value.credencial
-          : credencial // ignore: cast_nullable_to_non_nullable
               as String,
       imagem: null == imagem
           ? _value.imagem
@@ -403,7 +397,7 @@ abstract class _$$UsuarioSessaoImplCopyWith<$Res>
       __$$UsuarioSessaoImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String nome, String credencial, String imagem});
+  $Res call({String nome, String imagem});
 }
 
 /// @nodoc
@@ -420,17 +414,12 @@ class __$$UsuarioSessaoImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? nome = null,
-    Object? credencial = null,
     Object? imagem = null,
   }) {
     return _then(_$UsuarioSessaoImpl(
       nome: null == nome
           ? _value.nome
           : nome // ignore: cast_nullable_to_non_nullable
-              as String,
-      credencial: null == credencial
-          ? _value.credencial
-          : credencial // ignore: cast_nullable_to_non_nullable
               as String,
       imagem: null == imagem
           ? _value.imagem
@@ -443,8 +432,7 @@ class __$$UsuarioSessaoImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UsuarioSessaoImpl implements _UsuarioSessao {
-  const _$UsuarioSessaoImpl(
-      {required this.nome, required this.credencial, required this.imagem});
+  const _$UsuarioSessaoImpl({required this.nome, required this.imagem});
 
   factory _$UsuarioSessaoImpl.fromJson(Map<String, dynamic> json) =>
       _$$UsuarioSessaoImplFromJson(json);
@@ -452,13 +440,11 @@ class _$UsuarioSessaoImpl implements _UsuarioSessao {
   @override
   final String nome;
   @override
-  final String credencial;
-  @override
   final String imagem;
 
   @override
   String toString() {
-    return 'UsuarioSessao(nome: $nome, credencial: $credencial, imagem: $imagem)';
+    return 'UsuarioSessao(nome: $nome, imagem: $imagem)';
   }
 
   @override
@@ -467,14 +453,12 @@ class _$UsuarioSessaoImpl implements _UsuarioSessao {
         (other.runtimeType == runtimeType &&
             other is _$UsuarioSessaoImpl &&
             (identical(other.nome, nome) || other.nome == nome) &&
-            (identical(other.credencial, credencial) ||
-                other.credencial == credencial) &&
             (identical(other.imagem, imagem) || other.imagem == imagem));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, nome, credencial, imagem);
+  int get hashCode => Object.hash(runtimeType, nome, imagem);
 
   /// Create a copy of UsuarioSessao
   /// with the given fields replaced by the non-null parameter values.
@@ -495,7 +479,6 @@ class _$UsuarioSessaoImpl implements _UsuarioSessao {
 abstract class _UsuarioSessao implements UsuarioSessao {
   const factory _UsuarioSessao(
       {required final String nome,
-      required final String credencial,
       required final String imagem}) = _$UsuarioSessaoImpl;
 
   factory _UsuarioSessao.fromJson(Map<String, dynamic> json) =
@@ -503,8 +486,6 @@ abstract class _UsuarioSessao implements UsuarioSessao {
 
   @override
   String get nome;
-  @override
-  String get credencial;
   @override
   String get imagem;
 

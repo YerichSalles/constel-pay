@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 SessaoNuvem _sessao(DateTime validade) => SessaoNuvem(
       token: 'jwt',
       validade: validade,
-      usuario: const UsuarioSessao(nome: 'Ana', credencial: 'a@x.com', imagem: ''),
+      usuario: const UsuarioSessao(nome: 'Ana', imagem: ''),
       empresa: const EmpresaSessao(id: 'e1', nome: 'Empresa'),
       dispositivo: const DispositivoSessao(id: 'd1', nome: 'Terminal'),
       estabelecimento: const EstabelecimentoSessao(

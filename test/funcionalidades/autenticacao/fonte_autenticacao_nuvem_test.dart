@@ -35,6 +35,10 @@ class _AdaptadorResposta implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+// JWT real capturado do log (exp = 1783812111 -> 2026-07-11T23:21:51Z).
+const _token =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjp7ImlkIjoiODVhODNhZmItM2M4MS00Y2RkLWE2YWEtMTU3NTg1NjRkODQxIiwibm9tZSI6IlllcmljaCBTYWxlcyIsImltYWdlbSI6Imh0dHBzOi8vczMuYW1hem9uYXdzLmNvbS9hdGxhcy5jb25zdGVsLmNsb3VkL2ZpbGVzL2RkZmU0NzliLTliMTEtNGVhMi04ZTMwLWFjZDk4NWRjMmZmOC5qcGcifSwiZW1wcmVzYSI6eyJpZCI6IjBkMTU0MmUxLTcxZmQtNDBmOS1iMWY3LWFlMDBhYjA4NjI2YyIsIm5vbWUiOiJEdXJhbmdvIEJ1aWxkZXIncyJ9LCJkaXNwb3NpdGl2byI6eyJpZCI6ImJlN2I1YjNmLTJjZjEtNGU3OC1iYjAyLWZkY2RkYjcyNzY4YiIsIm5vbWUiOiJOQllFUklDSCBDQUlYQSJ9LCJlc3RhYmVsZWNpbWVudG8iOnsiaWQiOiJmZTViNDIyZS1iZmIyLTQzMjgtODNkNC03ODc2MDIwYWNlZjkiLCJub21lIjoiRGlvbsOtc2lvIFRvcnJlcyJ9LCJmdXNvIjoiR01ULTAzIiwiaWF0IjoxNzgzNjM5MzExLCJleHAiOjE3ODM4MTIxMTF9.50n8zdd69zfxTWBgflX23w0uUbe0uyReP3C_efUY3xw';
+
 const _requisicao = RequisicaoLoginNuvem(
   username: 'admin@audax.com',
   password: 'segredo',
@@ -63,18 +67,16 @@ void main() {
 
   test('login com 201 devolve Sucesso com a sessão parseada', () async {
     final fonte = FonteAutenticacaoNuvem(_cliente(_AdaptadorResposta(const {
-      'token': 'jwt',
-      'validade': '2026-07-11T00:00:13.000Z',
-      'nome': 'Ana',
-      'credencial': 'a@x.com',
-      'imagem': '',
+      'token': _token,
+      'usuario': {'nome': 'Ana', 'imagem': ''},
       'empresa': {'id': 'e1', 'nome': 'Empresa'},
       'dispositivo': {'id': 'd1', 'nome': 'Terminal'},
       'estabelecimento': {'id': 's1', 'nome': 'Loja'},
+      'fuso': 'GMT-03',
     }, 201)));
     final resultado = await fonte.login(_requisicao);
     expect(resultado, isA<Sucesso<SessaoNuvem>>());
-    expect((resultado as Sucesso<SessaoNuvem>).valor.token, 'jwt');
+    expect((resultado as Sucesso<SessaoNuvem>).valor.token, _token);
   });
 
   test('login com erro HTTP devolve Erro', () async {

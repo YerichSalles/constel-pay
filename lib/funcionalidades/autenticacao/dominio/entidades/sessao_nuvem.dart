@@ -27,7 +27,6 @@ class SessaoNuvem with _$SessaoNuvem {
 class UsuarioSessao with _$UsuarioSessao {
   const factory UsuarioSessao({
     required String nome,
-    required String credencial,
     required String imagem,
   }) = _UsuarioSessao;
 
