@@ -25,28 +25,43 @@ class SeletorAjusteMidia extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Ajuste:',
-            style: TextStyle(fontSize: 11.5, color: CoresApp.textoSecundario)),
+        Flexible(
+          child: const Text('Ajuste:',
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style:
+                  TextStyle(fontSize: 11.5, color: CoresApp.textoSecundario)),
+        ),
         const SizedBox(width: 6),
-        DropdownButtonHideUnderline(
-          child: DropdownButton<AjusteMidia>(
-            value: valor,
-            isDense: true,
-            style: const TextStyle(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w600,
-              color: CoresApp.textoPrincipal,
-            ),
-            items: [
-              for (final entrada in rotulos.entries)
-                DropdownMenuItem<AjusteMidia>(
-                  value: entrada.key,
-                  child: Text(entrada.value),
+        Flexible(
+          // IntrinsicWidth mede a largura que o dropdown realmente precisa e
+          // a usa como teto: com espaco sobrando ele fica do tamanho do
+          // conteudo (visual identico ao anterior); apertado, encolhe ate o
+          // limite oferecido pelo Row em vez de estourar.
+          child: IntrinsicWidth(
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<AjusteMidia>(
+                value: valor,
+                isDense: true,
+                isExpanded: true,
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                  color: CoresApp.textoPrincipal,
                 ),
-            ],
-            onChanged: (novo) {
-              if (novo != null) aoMudar(novo);
-            },
+                items: [
+                  for (final entrada in rotulos.entries)
+                    DropdownMenuItem<AjusteMidia>(
+                      value: entrada.key,
+                      child: Text(entrada.value,
+                          overflow: TextOverflow.ellipsis, maxLines: 1),
+                    ),
+                ],
+                onChanged: (novo) {
+                  if (novo != null) aoMudar(novo);
+                },
+              ),
+            ),
           ),
         ),
       ],

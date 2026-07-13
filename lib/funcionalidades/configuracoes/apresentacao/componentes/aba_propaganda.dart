@@ -118,25 +118,31 @@ class AbaPropaganda extends ConsumerWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text('Duração:',
-                              style: TextStyle(
-                                  fontSize: 11.5,
-                                  color: CoresApp.textoSecundario)),
+                          Flexible(
+                            child: const Text('Duração:',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: TextStyle(
+                                    fontSize: 11.5,
+                                    color: CoresApp.textoSecundario)),
+                          ),
                           const SizedBox(width: 6),
-                          SizedBox(
-                            width: 44,
-                            child: TextFormField(
-                              initialValue: '${midia.duracaoSegundos}',
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 6)),
-                              onFieldSubmitted: (valor) =>
-                                  controlador.definirDuracao(
-                                      midia.id,
-                                      int.tryParse(valor) ??
-                                          midia.duracaoSegundos),
+                          Flexible(
+                            child: SizedBox(
+                              width: 44,
+                              child: TextFormField(
+                                initialValue: '${midia.duracaoSegundos}',
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 6)),
+                                onFieldSubmitted: (valor) =>
+                                    controlador.definirDuracao(
+                                        midia.id,
+                                        int.tryParse(valor) ??
+                                            midia.duracaoSegundos),
+                              ),
                             ),
                           ),
                           const Text(' s',
