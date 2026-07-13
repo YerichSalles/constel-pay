@@ -1,4 +1,5 @@
 import 'package:constel_pay/aplicativo/injecao.dart';
+import 'package:constel_pay/compartilhado/widgets/faixa_pagamento.dart';
 import 'package:constel_pay/funcionalidades/propaganda/apresentacao/controladores/controlador_propaganda.dart';
 import 'package:constel_pay/funcionalidades/propaganda/apresentacao/paginas/pagina_propaganda.dart';
 import 'package:constel_pay/funcionalidades/propaganda/dados/repositorios/repositorio_propaganda_impl.dart';
@@ -54,8 +55,10 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(FaixaPagamento), findsOneWidget);
     expect(find.text('Toque para pagar'), findsOneWidget);
-    expect(find.text('Escaneie'), findsOneWidget);
+    // O card branco e os tres passos sairam da tela junto com o botao fixo.
+    expect(find.text('Escaneie'), findsNothing);
     await tester.tap(find.text('Toque para pagar'));
     await tester.pump();
     await tester.pump();
