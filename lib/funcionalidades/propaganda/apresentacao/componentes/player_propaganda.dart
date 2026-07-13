@@ -1,11 +1,19 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../dominio/entidades/midia_propaganda.dart';
 import '../ajuste_tela.dart';
+
+/// Sigma suficiente para descaracterizar a borda sem custo excessivo.
+const double _sigmaFundoBorrado = 24;
+
+/// O fundo do video e pintado reduzido por este fator e ampliado de volta:
+/// o blur roda numa textura 16x menor, cortando o custo por frame.
+const double _reducaoFundoVideo = 4;
 
 class PlayerPropaganda extends StatefulWidget {
   const PlayerPropaganda({
@@ -111,24 +119,114 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
     super.dispose();
   }
 
-  Widget _conteudo(BoxFit fit) {
+  bool get _mostraFundoBorrado {
+    if (!modoDeixaSobra(widget.midia.ajuste)) return false;
+    final fundo =
+        fundoEfetivo(tipo: widget.midia.tipo, fundo: widget.midia.fundo);
+    if (fundo != FundoMidia.borrado) return false;
+    // Sem midia pronta nao ha o que borrar: fica na cor de fundo.
+    if (widget.midia.tipo == TipoMidia.imagem) {
+      return File(widget.midia.caminho).existsSync();
+    }
+    return _video?.value.isInitialized ?? false;
+  }
+
+  Widget _fundoBorrado() {
+    if (widget.midia.tipo == TipoMidia.imagem) {
+      // Estatico: o RepaintBoundary rasteriza o blur uma vez e reaproveita.
+      return RepaintBoundary(
+        key: const ValueKey('fundo-borrado'),
+        child: ImageFiltered(
+          imageFilter: ui.ImageFilter.blur(
+              sigmaX: _sigmaFundoBorrado,
+              sigmaY: _sigmaFundoBorrado,
+              tileMode: ui.TileMode.clamp),
+          child: Image.file(File(widget.midia.caminho),
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity),
+        ),
+      );
+    }
+    final video = _video!;
+    // Mesma textura do video nitido (nenhum segundo decoder): a copia e
+    // pintada reduzida, borrada em baixa resolucao e ampliada de volta.
+    return LayoutBuilder(
+      key: const ValueKey('fundo-borrado'),
+      builder: (context, restricoes) {
+        final caixa = restricoes.biggest;
+        return ClipRect(
+          child: OverflowBox(
+            maxWidth: double.infinity,
+            maxHeight: double.infinity,
+            child: Transform.scale(
+              scale: _reducaoFundoVideo,
+              child: SizedBox(
+                width: caixa.width / _reducaoFundoVideo,
+                height: caixa.height / _reducaoFundoVideo,
+                child: ImageFiltered(
+                  imageFilter: ui.ImageFilter.blur(
+                      sigmaX: _sigmaFundoBorrado / _reducaoFundoVideo,
+                      sigmaY: _sigmaFundoBorrado / _reducaoFundoVideo,
+                      tileMode: ui.TileMode.clamp),
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    clipBehavior: Clip.hardEdge,
+                    child: SizedBox(
+                      width: video.value.size.width,
+                      height: video.value.size.height,
+                      child: VideoPlayer(video),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _conteudo() {
     final arquivo = File(widget.midia.caminho);
     if (!arquivo.existsSync()) return const SizedBox.expand();
+    final ajuste = widget.midia.ajuste;
+    final fit = resolverBoxFit(ajuste);
+    final alinhamento = ajuste == AjusteMidia.preencher
+        ? resolverAlinhamento(widget.midia.ancora)
+        : Alignment.center;
+    final Widget conteudo;
     if (widget.midia.tipo == TipoMidia.imagem) {
-      return Image.file(arquivo,
-          fit: fit, width: double.infinity, height: double.infinity);
+      conteudo = Image.file(arquivo,
+          key: const ValueKey('midia-nitida'),
+          fit: fit,
+          alignment: alinhamento,
+          width: double.infinity,
+          height: double.infinity);
+    } else {
+      final video = _video;
+      if (video == null || !video.value.isInitialized) {
+        return const SizedBox.expand();
+      }
+      conteudo = FittedBox(
+        key: const ValueKey('midia-nitida'),
+        fit: fit,
+        alignment: alinhamento,
+        clipBehavior: Clip.hardEdge,
+        child: SizedBox(
+          width: video.value.size.width,
+          height: video.value.size.height,
+          child: VideoPlayer(video),
+        ),
+      );
     }
-    final video = _video;
-    if (video == null || !video.value.isInitialized) {
-      return const SizedBox.expand();
-    }
-    return FittedBox(
-      fit: fit,
-      clipBehavior: Clip.hardEdge,
-      child: SizedBox(
-        width: video.value.size.width,
-        height: video.value.size.height,
-        child: VideoPlayer(video),
+    if (ajuste != AjusteMidia.preencher) return conteudo;
+    // Zoom so existe no preencher: amplia a partir da ancora e corta a sobra.
+    return ClipRect(
+      child: Transform.scale(
+        scale: resolverEscala(widget.midia.zoomPercentual),
+        alignment: alinhamento,
+        child: conteudo,
       ),
     );
   }
@@ -137,8 +235,12 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
   Widget build(BuildContext context) {
     return ColoredBox(
       color: widget.corFundo,
-      child: SizedBox.expand(
-        child: _conteudo(resolverBoxFit(widget.midia.ajuste)),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (_mostraFundoBorrado) _fundoBorrado(),
+          _conteudo(),
+        ],
       ),
     );
   }

@@ -26,13 +26,22 @@ void main() {
     await temporaria.delete(recursive: true);
   });
 
-  MidiaPropaganda midiaCom(AjusteMidia ajuste, String caminho) =>
+  MidiaPropaganda midiaCom(
+    AjusteMidia ajuste,
+    String caminho, {
+    FundoMidia fundo = FundoMidia.borrado,
+    AncoraMidia ancora = AncoraMidia.centro,
+    int zoomPercentual = 100,
+  }) =>
       MidiaPropaganda(
           id: 'a',
           tipo: TipoMidia.imagem,
           caminho: caminho,
           ordem: 1,
-          ajuste: ajuste);
+          ajuste: ajuste,
+          fundo: fundo,
+          ancora: ancora,
+          zoomPercentual: zoomPercentual);
 
   Future<void> montar(WidgetTester tester, MidiaPropaganda midia, Size tela) {
     return tester.pumpWidget(MaterialApp(
@@ -48,7 +57,7 @@ void main() {
   }
 
   BoxFit? fitAplicado(WidgetTester tester) =>
-      tester.widget<Image>(find.byType(Image)).fit;
+      tester.widget<Image>(find.byKey(const ValueKey('midia-nitida'))).fit;
 
   testWidgets('modos explicitos aplicam o BoxFit sem precisar medir a imagem',
       (tester) async {
@@ -97,5 +106,69 @@ void main() {
     expect(fundo.color, _corFundo);
     // Deixa o temporizador de 1s do arquivo ausente disparar antes do teardown.
     await tester.pump(const Duration(seconds: 2));
+  });
+
+  testWidgets('sobra com fundo borrado ganha a camada desfocada da midia',
+      (tester) async {
+    await montar(tester, midiaCom(AjusteMidia.automatico, caminhoImagem),
+        const Size(90, 160));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('fundo-borrado')), findsOneWidget);
+    expect(
+        find.descendant(
+            of: find.byKey(const ValueKey('fundo-borrado')),
+            matching: find.byType(ImageFiltered)),
+        findsOneWidget,
+        reason: 'a camada de fundo precisa estar de fato desfocada');
+  });
+
+  testWidgets('fundo=cor mantem a tarja chapada, sem camada borrada',
+      (tester) async {
+    await montar(
+        tester,
+        midiaCom(AjusteMidia.automatico, caminhoImagem, fundo: FundoMidia.cor),
+        const Size(90, 160));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('fundo-borrado')), findsNothing);
+  });
+
+  testWidgets(
+      'preencher nao tem sobra: sem camada borrada mesmo com '
+      'fundo=borrado', (tester) async {
+    await montar(tester, midiaCom(AjusteMidia.preencher, caminhoImagem),
+        const Size(90, 160));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('fundo-borrado')), findsNothing);
+  });
+
+  testWidgets('preencher aplica ancora e zoom; demais modos nao escalam',
+      (tester) async {
+    await montar(
+        tester,
+        midiaCom(AjusteMidia.preencher, caminhoImagem,
+            ancora: AncoraMidia.topo, zoomPercentual: 140),
+        const Size(90, 160));
+    await tester.pump();
+    final imagem =
+        tester.widget<Image>(find.byKey(const ValueKey('midia-nitida')));
+    expect(imagem.alignment, Alignment.topCenter,
+        reason: 'a ancora diz qual parte da midia sobrevive ao corte');
+    final transformes = tester.widgetList<Transform>(find.descendant(
+        of: find.byType(PlayerPropaganda), matching: find.byType(Transform)));
+    expect(transformes, hasLength(1));
+    expect(
+        transformes.single.transform.getMaxScaleOnAxis(), closeTo(1.4, 0.001));
+    expect(transformes.single.alignment, Alignment.topCenter,
+        reason: 'o zoom amplia a partir da ancora, nao do centro');
+
+    await montar(tester, midiaCom(AjusteMidia.automatico, caminhoImagem),
+        const Size(90, 160));
+    await tester.pump();
+    expect(
+        find.descendant(
+            of: find.byType(PlayerPropaganda),
+            matching: find.byType(Transform)),
+        findsNothing,
+        reason: 'zoom so existe no preencher');
   });
 }
