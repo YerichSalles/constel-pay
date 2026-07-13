@@ -65,28 +65,18 @@ void main() {
     }
   });
 
-  testWidgets('automatico encaixa imagem quadrada em tela retrato',
+  testWidgets('automatico nunca corta, qualquer que seja a tela',
       (tester) async {
-    await tester.runAsync(() async {
-      await montar(tester, midiaCom(AjusteMidia.automatico, caminhoImagem),
-          const Size(90, 160));
-      await tester.pump();
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-      await tester.pump();
-    });
+    // Tela quadrada com imagem quadrada dava cover; agora tudo e contain.
+    await montar(tester, midiaCom(AjusteMidia.automatico, caminhoImagem),
+        const Size(120, 120));
+    await tester.pump();
     expect(fitAplicado(tester), BoxFit.contain);
-  });
 
-  testWidgets('automatico preenche imagem quadrada em tela quadrada',
-      (tester) async {
-    await tester.runAsync(() async {
-      await montar(tester, midiaCom(AjusteMidia.automatico, caminhoImagem),
-          const Size(120, 120));
-      await tester.pump();
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-      await tester.pump();
-    });
-    expect(fitAplicado(tester), BoxFit.cover);
+    await montar(tester, midiaCom(AjusteMidia.automatico, caminhoImagem),
+        const Size(90, 160));
+    await tester.pump();
+    expect(fitAplicado(tester), BoxFit.contain);
   });
 
   testWidgets('arquivo ausente mostra a cor de fundo, nao preto',

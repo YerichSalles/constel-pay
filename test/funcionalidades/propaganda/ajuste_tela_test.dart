@@ -4,45 +4,66 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  // Tela do totem em pe: 9:16 = 0,5625.
-  const razaoRetrato = 9 / 16;
-
-  BoxFit fit(AjusteMidia ajuste, double? razaoMidia,
-          [double razaoTela = razaoRetrato]) =>
-      resolverBoxFit(
-          ajuste: ajuste, razaoMidia: razaoMidia, razaoTela: razaoTela);
-
-  test('modos explicitos ignoram as razoes', () {
-    expect(fit(AjusteMidia.preencher, 16 / 9), BoxFit.cover);
-    expect(fit(AjusteMidia.encaixar, 9 / 16), BoxFit.contain);
-    expect(fit(AjusteMidia.esticar, 16 / 9), BoxFit.fill);
-    expect(fit(AjusteMidia.preencher, null), BoxFit.cover);
+  test('automatico nunca corta: contain incondicional', () {
+    // Antes, midia com razao proxima da tela levava cover e perdia ate 25%
+    // da peca. Agora nao existe razao que produza corte no automatico.
+    expect(resolverBoxFit(AjusteMidia.automatico), BoxFit.contain);
   });
 
-  test('automatico preenche quando a midia acompanha a tela', () {
-    expect(fit(AjusteMidia.automatico, 9 / 16), BoxFit.cover); // 1,00
-    expect(fit(AjusteMidia.automatico, 3 / 4), BoxFit.cover); // 0,75: no limite
+  test('modos explicitos seguem valendo', () {
+    expect(resolverBoxFit(AjusteMidia.preencher), BoxFit.cover);
+    expect(resolverBoxFit(AjusteMidia.encaixar), BoxFit.contain);
+    expect(resolverBoxFit(AjusteMidia.esticar), BoxFit.fill);
   });
 
-  test('automatico encaixa quando o corte destruiria a midia', () {
-    expect(fit(AjusteMidia.automatico, 1), BoxFit.contain); // 0,56
-    expect(fit(AjusteMidia.automatico, 16 / 9), BoxFit.contain); // 0,32
+  test('cada ancora mapeia para o Alignment correspondente', () {
+    const esperados = {
+      AncoraMidia.topoEsquerda: Alignment.topLeft,
+      AncoraMidia.topo: Alignment.topCenter,
+      AncoraMidia.topoDireita: Alignment.topRight,
+      AncoraMidia.esquerda: Alignment.centerLeft,
+      AncoraMidia.centro: Alignment.center,
+      AncoraMidia.direita: Alignment.centerRight,
+      AncoraMidia.baseEsquerda: Alignment.bottomLeft,
+      AncoraMidia.base: Alignment.bottomCenter,
+      AncoraMidia.baseDireita: Alignment.bottomRight,
+    };
+    expect(esperados, hasLength(AncoraMidia.values.length),
+        reason: 'toda ancora nova precisa entrar neste mapa');
+    for (final entrada in esperados.entries) {
+      expect(resolverAlinhamento(entrada.key), entrada.value,
+          reason: '${entrada.key}');
+    }
   });
 
-  test('automatico tambem decide com a tela deitada', () {
-    const razaoPaisagem = 16 / 9;
-    expect(fit(AjusteMidia.automatico, 16 / 9, razaoPaisagem), BoxFit.cover);
-    expect(fit(AjusteMidia.automatico, 9 / 16, razaoPaisagem), BoxFit.contain);
+  test('zoom converte percentual em escala', () {
+    expect(resolverEscala(100), 1.0);
+    expect(resolverEscala(150), 1.5);
+    expect(resolverEscala(300), 3.0);
   });
 
-  test('automatico nao corta o que ainda nao mediu', () {
-    expect(fit(AjusteMidia.automatico, null), BoxFit.contain);
+  test('zoom fora da faixa e corrigido, nao estoura', () {
+    expect(resolverEscala(40), 1.0);
+    expect(resolverEscala(999), 3.0);
+    expect(resolverEscala(-5), 1.0);
   });
 
-  test('automatico trata razao invalida como desconhecida', () {
-    expect(fit(AjusteMidia.automatico, 0), BoxFit.contain);
-    expect(fit(AjusteMidia.automatico, -1), BoxFit.contain);
-    expect(fit(AjusteMidia.automatico, double.nan), BoxFit.contain);
-    expect(fit(AjusteMidia.automatico, 9 / 16, 0), BoxFit.contain);
+  test('so automatico e encaixar deixam sobra', () {
+    expect(modoDeixaSobra(AjusteMidia.automatico), isTrue);
+    expect(modoDeixaSobra(AjusteMidia.encaixar), isTrue);
+    expect(modoDeixaSobra(AjusteMidia.preencher), isFalse);
+    expect(modoDeixaSobra(AjusteMidia.esticar), isFalse);
+  });
+
+  test('video cai para cor enquanto o gate do fundo borrado nao libera', () {
+    // Flipar fundoBorradoLiberadoParaVideo exige a medicao de 60fps em
+    // profile build (spec, secao Performance). Ao flipar, atualize junto.
+    expect(fundoBorradoLiberadoParaVideo, isFalse);
+    expect(fundoEfetivo(tipo: TipoMidia.video, fundo: FundoMidia.borrado),
+        FundoMidia.cor);
+    expect(fundoEfetivo(tipo: TipoMidia.video, fundo: FundoMidia.cor),
+        FundoMidia.cor);
+    expect(fundoEfetivo(tipo: TipoMidia.imagem, fundo: FundoMidia.borrado),
+        FundoMidia.borrado);
   });
 }

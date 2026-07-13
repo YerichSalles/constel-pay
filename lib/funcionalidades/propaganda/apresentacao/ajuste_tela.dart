@@ -1,42 +1,65 @@
-import 'dart:math' as math;
-
 import 'package:flutter/painting.dart';
 
 import '../dominio/entidades/midia_propaganda.dart';
 
-/// Fracao minima da midia que precisa sobreviver ao corte do `cover` para que o
-/// modo automatico prefira preencher a tela em vez de encaixar com tarjas.
-const double aproveitamentoMinimoParaPreencher = 0.75;
+/// Faixa valida do zoom do modo preencher, em percentual.
+const int zoomMinimo = 100;
+const int zoomMaximo = 300;
+
+/// Borrar video custa GPU a cada frame. So libera depois que a medicao em
+/// profile build provar 60fps no totem (gate da spec de enquadramento);
+/// enquanto false, video cai na cor do tema e a UI esconde a opcao.
+const bool fundoBorradoLiberadoParaVideo = false;
 
 /// Traduz o modo escolhido pelo operador no `BoxFit` que o player aplica.
-///
-/// [razaoMidia] e nulo enquanto as dimensoes da midia nao foram medidas (video
-/// inicializando, imagem decodificando). Nesse caso o modo automatico nunca
-/// corta: so decide preencher depois de saber o que estaria cortando.
-BoxFit resolverBoxFit({
-  required AjusteMidia ajuste,
-  required double? razaoMidia,
-  required double razaoTela,
-}) {
+/// O automatico nunca corta: encaixa sempre, e a sobra vira fundo borrado.
+BoxFit resolverBoxFit(AjusteMidia ajuste) {
   switch (ajuste) {
     case AjusteMidia.preencher:
       return BoxFit.cover;
     case AjusteMidia.encaixar:
+    case AjusteMidia.automatico:
       return BoxFit.contain;
     case AjusteMidia.esticar:
       return BoxFit.fill;
-    case AjusteMidia.automatico:
-      if (razaoMidia == null ||
-          !razaoMidia.isFinite ||
-          razaoMidia <= 0 ||
-          !razaoTela.isFinite ||
-          razaoTela <= 0) {
-        return BoxFit.contain;
-      }
-      final maior = math.max(razaoMidia, razaoTela);
-      final menor = math.min(razaoMidia, razaoTela);
-      return menor / maior >= aproveitamentoMinimoParaPreencher
-          ? BoxFit.cover
-          : BoxFit.contain;
   }
 }
+
+/// Qual parte da midia sobrevive ao corte do modo preencher.
+Alignment resolverAlinhamento(AncoraMidia ancora) {
+  switch (ancora) {
+    case AncoraMidia.topoEsquerda:
+      return Alignment.topLeft;
+    case AncoraMidia.topo:
+      return Alignment.topCenter;
+    case AncoraMidia.topoDireita:
+      return Alignment.topRight;
+    case AncoraMidia.esquerda:
+      return Alignment.centerLeft;
+    case AncoraMidia.centro:
+      return Alignment.center;
+    case AncoraMidia.direita:
+      return Alignment.centerRight;
+    case AncoraMidia.baseEsquerda:
+      return Alignment.bottomLeft;
+    case AncoraMidia.base:
+      return Alignment.bottomCenter;
+    case AncoraMidia.baseDireita:
+      return Alignment.bottomRight;
+  }
+}
+
+/// Converte o zoom percentual em escala. O clamp corrige JSON adulterado em
+/// vez de estourar.
+double resolverEscala(int zoomPercentual) =>
+    zoomPercentual.clamp(zoomMinimo, zoomMaximo) / 100;
+
+/// So automatico e encaixar deixam sobra; preencher e esticar cobrem tudo.
+bool modoDeixaSobra(AjusteMidia ajuste) =>
+    ajuste == AjusteMidia.automatico || ajuste == AjusteMidia.encaixar;
+
+/// Fundo que o player realmente pinta, respeitando o gate do video.
+FundoMidia fundoEfetivo({required TipoMidia tipo, required FundoMidia fundo}) =>
+    tipo == TipoMidia.video && !fundoBorradoLiberadoParaVideo
+        ? FundoMidia.cor
+        : fundo;
