@@ -4,6 +4,9 @@ part 'midia_propaganda.freezed.dart';
 
 enum TipoMidia { imagem, video }
 
+/// Como a midia se acomoda na tela da propaganda.
+enum AjusteMidia { automatico, preencher, encaixar, esticar }
+
 @freezed
 class MidiaPropaganda with _$MidiaPropaganda {
   const factory MidiaPropaganda({
