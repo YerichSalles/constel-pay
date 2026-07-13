@@ -33,7 +33,8 @@ SessaoNuvem _sessao(DateTime validade) => SessaoNuvem(
 void main() {
   test('sessão válida é reusada sem chamar o login', () async {
     final login = _LoginMock();
-    final repo = _SessaoFake(_sessao(DateTime.now().add(const Duration(days: 1))));
+    final repo =
+        _SessaoFake(_sessao(DateTime.now().add(const Duration(days: 1))));
     final caso =
         CasoUsoGarantirSessao(repositorioSessao: repo, casoUsoLogin: login);
     final resultado = await caso.executar();
@@ -45,8 +46,8 @@ void main() {
     final login = _LoginMock();
     final novaSessao = _sessao(DateTime.now().add(const Duration(days: 2)));
     when(() => login.executar()).thenAnswer((_) async => Sucesso(novaSessao));
-    final repo =
-        _SessaoFake(_sessao(DateTime.now().subtract(const Duration(minutes: 1))));
+    final repo = _SessaoFake(
+        _sessao(DateTime.now().subtract(const Duration(minutes: 1))));
     final caso =
         CasoUsoGarantirSessao(repositorioSessao: repo, casoUsoLogin: login);
     final resultado = await caso.executar();

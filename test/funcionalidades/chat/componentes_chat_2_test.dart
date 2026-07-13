@@ -1,9 +1,11 @@
+import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/area_acoes.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/barra_total.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/card_metodos_pagamento.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/card_pix.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/card_scanner.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/card_sucesso.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/chip_acao.dart';
+import 'package:constel_pay/funcionalidades/chat/apresentacao/controladores/estado_fluxo_pagamento.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/entidades/dados_pix.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/entidades/metodo_pagamento.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +25,26 @@ void main() {
     expect(escaneou, isTrue);
   });
 
+  testWidgets('CardScanner com aoDigitarComanda envia o número digitado',
+      (tester) async {
+    String? recebido;
+    await tester.pumpWidget(_app(CardScanner(
+      aoEscanear: () {},
+      aoDigitarComanda: (valor) => recebido = valor,
+    )));
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.enterText(find.byType(TextField), '502');
+    await tester.tap(find.text('Buscar'));
+    expect(recebido, '502');
+  });
+
+  testWidgets('CardScanner sem aoDigitarComanda esconde o campo',
+      (tester) async {
+    await tester.pumpWidget(_app(CardScanner(aoEscanear: () {})));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(TextField), findsNothing);
+  });
+
   testWidgets('CardScanner desabilitado nao dispara', (tester) async {
     var escaneou = false;
     await tester.pumpWidget(_app(
@@ -31,6 +53,26 @@ void main() {
     await tester.tap(find.textContaining('Simular leitura'),
         warnIfMissed: false);
     expect(escaneou, isFalse);
+  });
+
+  testWidgets(
+      'AreaAcoes oferece ler outro cartao mesmo sem contagem de restantes '
+      '(caso da API real, que nao informa quantos faltam)', (tester) async {
+    var leuOutro = false;
+    await tester.pumpWidget(_app(AreaAcoes(
+      estado: const EstadoFluxoPagamento(
+        etapa: EtapaFluxo.aguardandoMaisCartoes,
+        cartoesRestantes: 0,
+      ),
+      aoLerOutro: () => leuOutro = true,
+      aoIrPagamento: () {},
+      aoPagarRestante: () {},
+      aoEncerrar: () {},
+      aoNovaOperacao: () {},
+    )));
+    await tester.tap(find.text('Ler outro cartão'));
+    expect(leuOutro, isTrue);
+    expect(find.text('Ir para o pagamento'), findsOneWidget);
   });
 
   testWidgets('CardMetodosPagamento lista os metodos e seleciona',

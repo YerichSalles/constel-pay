@@ -1,6 +1,5 @@
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/bolha_mensagem.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/card_comanda.dart';
-import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/card_detalhe_comanda.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/card_mesa.dart';
 import 'package:constel_pay/funcionalidades/chat/dominio/entidades/mensagem.dart';
 import 'package:constel_pay/funcionalidades/chat/dominio/entidades/tipo_mensagem.dart';
@@ -12,6 +11,47 @@ import 'package:flutter_test/flutter_test.dart';
 
 Widget _app(Widget filho) =>
     MaterialApp(home: Scaffold(body: SingleChildScrollView(child: filho)));
+
+const _itens = [
+  ItemConsumo(
+      emoji: '🍲',
+      nome: 'Feijoada individual',
+      quantidade: 1,
+      valorCentavos: 4600),
+  ItemConsumo(
+      emoji: '🥩',
+      nome: 'Picanha na chapa',
+      quantidade: 1,
+      valorCentavos: 6400),
+  ItemConsumo(
+      emoji: '🍺', nome: 'Chopp 300ml', quantidade: 2, valorCentavos: 900),
+  ItemConsumo(
+      emoji: '🥤', nome: 'Guaraná lata', quantidade: 1, valorCentavos: 800),
+];
+
+CartaoConsumo _cartao({
+  String nome = 'Comanda 01',
+  String pessoa = 'João',
+  int servicoCentavos = 1360,
+  num servicoPercentual = 10,
+  int descontoCentavos = 0,
+  int totalCentavos = 14960,
+}) =>
+    CartaoConsumo(
+      id: 'c1',
+      codigo: '789100000001',
+      nome: nome,
+      pessoa: pessoa,
+      emoji: '🍲',
+      resumo: '2 pratos · 3 bebidas',
+      subtotalCentavos: 13600,
+      servicoCentavos: servicoCentavos,
+      servicoPercentual: servicoPercentual,
+      descontoCentavos: descontoCentavos,
+      totalCentavos: totalCentavos,
+      saldoCentavos: totalCentavos,
+      itens: _itens,
+    );
 
 void main() {
   testWidgets('BolhaMensagem do assistente mostra texto e subtexto',
@@ -41,78 +81,74 @@ void main() {
     expect(find.text('ABERTA'), findsOneWidget);
   });
 
-  testWidgets('CardComanda mostra dados e dispara ver itens', (tester) async {
-    final cartao = CartaoConsumo(
-      id: 'c1',
-      codigo: '789100000001',
-      nome: 'Comanda 01',
-      pessoa: 'João',
-      emoji: '🍲',
-      resumo: '2 pratos · 3 bebidas',
-      subtotalCentavos: 13600,
-      itens: const [
-        ItemConsumo(
-            emoji: '🍲',
-            nome: 'Feijoada individual',
-            quantidade: 1,
-            valorCentavos: 4600),
-        ItemConsumo(
-            emoji: '🥩',
-            nome: 'Picanha na chapa',
-            quantidade: 1,
-            valorCentavos: 6400),
-        ItemConsumo(
-            emoji: '🍺',
-            nome: 'Chopp 300ml',
-            quantidade: 2,
-            valorCentavos: 900),
-      ],
-    );
-    var visto = '';
-    await tester.pumpWidget(
-        _app(CardComanda(cartao: cartao, aoVerItens: (id) => visto = id)));
+  testWidgets('CardComanda lista os itens sem precisar tocar em nada',
+      (tester) async {
+    await tester.pumpWidget(_app(CardComanda(cartao: _cartao())));
     expect(find.textContaining('Comanda 01'), findsOneWidget);
-    expect(find.text(r'R$ 136,00'), findsOneWidget);
-    await tester.tap(find.byType(GestureDetector));
-    expect(visto, 'c1');
+    expect(find.text('Feijoada individual'), findsOneWidget);
+    expect(find.text('Picanha na chapa'), findsOneWidget);
+    expect(find.textContaining('2 un'), findsOneWidget);
+    expect(find.textContaining('ver itens'), findsNothing);
   });
 
-  testWidgets('CardDetalheComanda lista os itens com totais', (tester) async {
-    final cartao = CartaoConsumo(
-      id: 'c1',
-      codigo: '789100000001',
-      nome: 'Comanda 01',
-      pessoa: 'João',
-      emoji: '🍲',
-      resumo: '2 pratos · 3 bebidas',
-      subtotalCentavos: 13600,
-      itens: const [
-        ItemConsumo(
-            emoji: '🍲',
-            nome: 'Feijoada individual',
-            quantidade: 1,
-            valorCentavos: 4600),
-        ItemConsumo(
-            emoji: '🥩',
-            nome: 'Picanha na chapa',
-            quantidade: 1,
-            valorCentavos: 6400),
-        ItemConsumo(
-            emoji: '🍺',
-            nome: 'Chopp 300ml',
-            quantidade: 2,
-            valorCentavos: 900),
-        ItemConsumo(
-            emoji: '🥤',
-            nome: 'Guaraná lata',
-            quantidade: 1,
-            valorCentavos: 800),
-      ],
-    );
-    await tester.pumpWidget(_app(CardDetalheComanda(cartao: cartao)));
-    expect(find.text('Feijoada individual'), findsOneWidget);
-    expect(find.textContaining('2 un'), findsOneWidget);
-    expect(find.text('Total da comanda'), findsOneWidget);
+  testWidgets('CardComanda mostra subtotal, servico da API e total',
+      (tester) async {
+    await tester.pumpWidget(_app(CardComanda(cartao: _cartao())));
+    expect(find.text('Subtotal'), findsOneWidget);
     expect(find.text(r'R$ 136,00'), findsOneWidget);
+    expect(find.text('Taxa de serviço (10%)'), findsOneWidget);
+    expect(find.text(r'R$ 13,60'), findsOneWidget);
+    expect(find.text('Total da comanda'), findsOneWidget);
+    expect(find.text(r'R$ 149,60'), findsOneWidget);
+  });
+
+  testWidgets('CardComanda usa o percentual que a API mandar', (tester) async {
+    await tester.pumpWidget(_app(CardComanda(
+        cartao: _cartao(
+            servicoCentavos: 1167,
+            servicoPercentual: 8.58,
+            totalCentavos: 14767))));
+    expect(find.text('Taxa de serviço (8,58%)'), findsOneWidget);
+    expect(find.text(r'R$ 11,67'), findsOneWidget);
+    expect(find.text(r'R$ 147,67'), findsOneWidget);
+  });
+
+  testWidgets('CardComanda omite a taxa quando a API nao cobra servico',
+      (tester) async {
+    await tester.pumpWidget(_app(CardComanda(
+        cartao: _cartao(
+            servicoCentavos: 0, servicoPercentual: 0, totalCentavos: 13600))));
+    expect(find.textContaining('Taxa de serviço'), findsNothing);
+    expect(find.text('Total da comanda'), findsOneWidget);
+  });
+
+  testWidgets('CardComanda nao repete a referencia ja contida no nome',
+      (tester) async {
+    await tester.pumpWidget(
+        _app(CardComanda(cartao: _cartao(nome: 'Cartão 510', pessoa: '510'))));
+    expect(find.text('Cartão 510'), findsOneWidget);
+    expect(find.textContaining('510 · 510'), findsNothing);
+  });
+
+  testWidgets('CardComanda mostra a pessoa quando ela acrescenta informacao',
+      (tester) async {
+    await tester.pumpWidget(_app(CardComanda(cartao: _cartao())));
+    expect(find.textContaining('Comanda 01 · João'), findsOneWidget);
+  });
+
+  testWidgets('item sem foto mostra o emoji', (tester) async {
+    await tester.pumpWidget(_app(CardComanda(cartao: _cartao())));
+    expect(find.byType(Image), findsNothing);
+    expect(find.text('🍲'), findsWidgets);
+  });
+
+  testWidgets('item com foto renderiza a imagem da URL', (tester) async {
+    final comFoto = _cartao().copyWith(itens: [
+      _itens.first.copyWith(imagemUrl: 'https://s3.amazonaws.com/f/burger.png'),
+    ]);
+    await tester.pumpWidget(_app(CardComanda(cartao: comFoto)));
+    final imagem = tester.widget<Image>(find.byType(Image));
+    expect((imagem.image as NetworkImage).url,
+        'https://s3.amazonaws.com/f/burger.png');
   });
 }

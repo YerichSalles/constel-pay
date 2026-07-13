@@ -27,11 +27,13 @@ void main() {
   });
 
   test('salvar grava o JSON da sessão na chave sessao_nuvem', () async {
-    when(() => storage.write(key: any(named: 'key'), value: any(named: 'value')))
+    when(() =>
+            storage.write(key: any(named: 'key'), value: any(named: 'value')))
         .thenAnswer((_) async {});
     await repositorio.salvar(_sessao());
     final captured = verify(() => storage.write(
-        key: 'sessao_nuvem', value: captureAny(named: 'value'))).captured.single;
+        key: 'sessao_nuvem',
+        value: captureAny(named: 'value'))).captured.single;
     final decodificado = jsonDecode(captured as String) as Map<String, dynamic>;
     expect(decodificado['token'], 'jwt');
   });

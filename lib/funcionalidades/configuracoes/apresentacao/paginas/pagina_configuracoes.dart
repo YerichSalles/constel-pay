@@ -6,7 +6,6 @@ import '../../../../compartilhado/feedback/snackbar_padrao.dart';
 import '../componentes/aba_aparencia.dart';
 import '../componentes/aba_comunicacao.dart';
 import '../componentes/aba_diagnostico.dart';
-import '../componentes/aba_geral.dart';
 import '../componentes/aba_propaganda.dart';
 import '../controladores/controlador_configuracoes.dart';
 
@@ -23,7 +22,7 @@ class PaginaConfiguracoes extends ConsumerWidget {
     });
 
     return DefaultTabController(
-      length: 5,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Configurações'),
@@ -35,7 +34,6 @@ class PaginaConfiguracoes extends ConsumerWidget {
             isScrollable: true,
             tabAlignment: TabAlignment.start,
             tabs: [
-              Tab(text: 'Geral'),
               Tab(text: 'Comunicação'),
               Tab(text: 'Aparência'),
               Tab(text: 'Propaganda'),
@@ -45,9 +43,7 @@ class PaginaConfiguracoes extends ConsumerWidget {
         ),
         body: const TabBarView(
           children: [
-            AbaGeral(),
             AbaComunicacao(),
-            // Substituídas nas Tasks 21-23:
             AbaAparencia(),
             AbaPropaganda(),
             AbaDiagnostico(),

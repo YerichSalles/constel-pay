@@ -18,10 +18,13 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$EstadoConfiguracoes {
   ConfiguracaoTerminal get configuracao => throw _privateConstructorUsedError;
   String get usuario => throw _privateConstructorUsedError;
-  String get senha => throw _privateConstructorUsedError;
+  String get senha =>
+      throw _privateConstructorUsedError; // Nome do estabelecimento da sessão de nuvem ativa; vazio sem login.
+  String get nomeEstabelecimento => throw _privateConstructorUsedError;
   bool get carregando => throw _privateConstructorUsedError;
   bool get salvando => throw _privateConstructorUsedError;
-  bool get testando => throw _privateConstructorUsedError;
+  bool get testandoLocal => throw _privateConstructorUsedError;
+  bool get testandoNuvem => throw _privateConstructorUsedError;
   String? get mensagem => throw _privateConstructorUsedError;
   bool get mensagemErro => throw _privateConstructorUsedError;
 
@@ -42,9 +45,11 @@ abstract class $EstadoConfiguracoesCopyWith<$Res> {
       {ConfiguracaoTerminal configuracao,
       String usuario,
       String senha,
+      String nomeEstabelecimento,
       bool carregando,
       bool salvando,
-      bool testando,
+      bool testandoLocal,
+      bool testandoNuvem,
       String? mensagem,
       bool mensagemErro});
 
@@ -69,9 +74,11 @@ class _$EstadoConfiguracoesCopyWithImpl<$Res, $Val extends EstadoConfiguracoes>
     Object? configuracao = null,
     Object? usuario = null,
     Object? senha = null,
+    Object? nomeEstabelecimento = null,
     Object? carregando = null,
     Object? salvando = null,
-    Object? testando = null,
+    Object? testandoLocal = null,
+    Object? testandoNuvem = null,
     Object? mensagem = freezed,
     Object? mensagemErro = null,
   }) {
@@ -88,6 +95,10 @@ class _$EstadoConfiguracoesCopyWithImpl<$Res, $Val extends EstadoConfiguracoes>
           ? _value.senha
           : senha // ignore: cast_nullable_to_non_nullable
               as String,
+      nomeEstabelecimento: null == nomeEstabelecimento
+          ? _value.nomeEstabelecimento
+          : nomeEstabelecimento // ignore: cast_nullable_to_non_nullable
+              as String,
       carregando: null == carregando
           ? _value.carregando
           : carregando // ignore: cast_nullable_to_non_nullable
@@ -96,9 +107,13 @@ class _$EstadoConfiguracoesCopyWithImpl<$Res, $Val extends EstadoConfiguracoes>
           ? _value.salvando
           : salvando // ignore: cast_nullable_to_non_nullable
               as bool,
-      testando: null == testando
-          ? _value.testando
-          : testando // ignore: cast_nullable_to_non_nullable
+      testandoLocal: null == testandoLocal
+          ? _value.testandoLocal
+          : testandoLocal // ignore: cast_nullable_to_non_nullable
+              as bool,
+      testandoNuvem: null == testandoNuvem
+          ? _value.testandoNuvem
+          : testandoNuvem // ignore: cast_nullable_to_non_nullable
               as bool,
       mensagem: freezed == mensagem
           ? _value.mensagem
@@ -134,9 +149,11 @@ abstract class _$$EstadoConfiguracoesImplCopyWith<$Res>
       {ConfiguracaoTerminal configuracao,
       String usuario,
       String senha,
+      String nomeEstabelecimento,
       bool carregando,
       bool salvando,
-      bool testando,
+      bool testandoLocal,
+      bool testandoNuvem,
       String? mensagem,
       bool mensagemErro});
 
@@ -160,9 +177,11 @@ class __$$EstadoConfiguracoesImplCopyWithImpl<$Res>
     Object? configuracao = null,
     Object? usuario = null,
     Object? senha = null,
+    Object? nomeEstabelecimento = null,
     Object? carregando = null,
     Object? salvando = null,
-    Object? testando = null,
+    Object? testandoLocal = null,
+    Object? testandoNuvem = null,
     Object? mensagem = freezed,
     Object? mensagemErro = null,
   }) {
@@ -179,6 +198,10 @@ class __$$EstadoConfiguracoesImplCopyWithImpl<$Res>
           ? _value.senha
           : senha // ignore: cast_nullable_to_non_nullable
               as String,
+      nomeEstabelecimento: null == nomeEstabelecimento
+          ? _value.nomeEstabelecimento
+          : nomeEstabelecimento // ignore: cast_nullable_to_non_nullable
+              as String,
       carregando: null == carregando
           ? _value.carregando
           : carregando // ignore: cast_nullable_to_non_nullable
@@ -187,9 +210,13 @@ class __$$EstadoConfiguracoesImplCopyWithImpl<$Res>
           ? _value.salvando
           : salvando // ignore: cast_nullable_to_non_nullable
               as bool,
-      testando: null == testando
-          ? _value.testando
-          : testando // ignore: cast_nullable_to_non_nullable
+      testandoLocal: null == testandoLocal
+          ? _value.testandoLocal
+          : testandoLocal // ignore: cast_nullable_to_non_nullable
+              as bool,
+      testandoNuvem: null == testandoNuvem
+          ? _value.testandoNuvem
+          : testandoNuvem // ignore: cast_nullable_to_non_nullable
               as bool,
       mensagem: freezed == mensagem
           ? _value.mensagem
@@ -210,9 +237,11 @@ class _$EstadoConfiguracoesImpl implements _EstadoConfiguracoes {
       {this.configuracao = const ConfiguracaoTerminal(),
       this.usuario = '',
       this.senha = '',
+      this.nomeEstabelecimento = '',
       this.carregando = true,
       this.salvando = false,
-      this.testando = false,
+      this.testandoLocal = false,
+      this.testandoNuvem = false,
       this.mensagem,
       this.mensagemErro = false});
 
@@ -225,6 +254,10 @@ class _$EstadoConfiguracoesImpl implements _EstadoConfiguracoes {
   @override
   @JsonKey()
   final String senha;
+// Nome do estabelecimento da sessão de nuvem ativa; vazio sem login.
+  @override
+  @JsonKey()
+  final String nomeEstabelecimento;
   @override
   @JsonKey()
   final bool carregando;
@@ -233,7 +266,10 @@ class _$EstadoConfiguracoesImpl implements _EstadoConfiguracoes {
   final bool salvando;
   @override
   @JsonKey()
-  final bool testando;
+  final bool testandoLocal;
+  @override
+  @JsonKey()
+  final bool testandoNuvem;
   @override
   final String? mensagem;
   @override
@@ -242,7 +278,7 @@ class _$EstadoConfiguracoesImpl implements _EstadoConfiguracoes {
 
   @override
   String toString() {
-    return 'EstadoConfiguracoes(configuracao: $configuracao, usuario: $usuario, senha: $senha, carregando: $carregando, salvando: $salvando, testando: $testando, mensagem: $mensagem, mensagemErro: $mensagemErro)';
+    return 'EstadoConfiguracoes(configuracao: $configuracao, usuario: $usuario, senha: $senha, nomeEstabelecimento: $nomeEstabelecimento, carregando: $carregando, salvando: $salvando, testandoLocal: $testandoLocal, testandoNuvem: $testandoNuvem, mensagem: $mensagem, mensagemErro: $mensagemErro)';
   }
 
   @override
@@ -254,12 +290,16 @@ class _$EstadoConfiguracoesImpl implements _EstadoConfiguracoes {
                 other.configuracao == configuracao) &&
             (identical(other.usuario, usuario) || other.usuario == usuario) &&
             (identical(other.senha, senha) || other.senha == senha) &&
+            (identical(other.nomeEstabelecimento, nomeEstabelecimento) ||
+                other.nomeEstabelecimento == nomeEstabelecimento) &&
             (identical(other.carregando, carregando) ||
                 other.carregando == carregando) &&
             (identical(other.salvando, salvando) ||
                 other.salvando == salvando) &&
-            (identical(other.testando, testando) ||
-                other.testando == testando) &&
+            (identical(other.testandoLocal, testandoLocal) ||
+                other.testandoLocal == testandoLocal) &&
+            (identical(other.testandoNuvem, testandoNuvem) ||
+                other.testandoNuvem == testandoNuvem) &&
             (identical(other.mensagem, mensagem) ||
                 other.mensagem == mensagem) &&
             (identical(other.mensagemErro, mensagemErro) ||
@@ -267,8 +307,18 @@ class _$EstadoConfiguracoesImpl implements _EstadoConfiguracoes {
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, configuracao, usuario, senha,
-      carregando, salvando, testando, mensagem, mensagemErro);
+  int get hashCode => Object.hash(
+      runtimeType,
+      configuracao,
+      usuario,
+      senha,
+      nomeEstabelecimento,
+      carregando,
+      salvando,
+      testandoLocal,
+      testandoNuvem,
+      mensagem,
+      mensagemErro);
 
   /// Create a copy of EstadoConfiguracoes
   /// with the given fields replaced by the non-null parameter values.
@@ -285,9 +335,11 @@ abstract class _EstadoConfiguracoes implements EstadoConfiguracoes {
       {final ConfiguracaoTerminal configuracao,
       final String usuario,
       final String senha,
+      final String nomeEstabelecimento,
       final bool carregando,
       final bool salvando,
-      final bool testando,
+      final bool testandoLocal,
+      final bool testandoNuvem,
       final String? mensagem,
       final bool mensagemErro}) = _$EstadoConfiguracoesImpl;
 
@@ -296,13 +348,18 @@ abstract class _EstadoConfiguracoes implements EstadoConfiguracoes {
   @override
   String get usuario;
   @override
-  String get senha;
+  String
+      get senha; // Nome do estabelecimento da sessão de nuvem ativa; vazio sem login.
+  @override
+  String get nomeEstabelecimento;
   @override
   bool get carregando;
   @override
   bool get salvando;
   @override
-  bool get testando;
+  bool get testandoLocal;
+  @override
+  bool get testandoNuvem;
   @override
   String? get mensagem;
   @override

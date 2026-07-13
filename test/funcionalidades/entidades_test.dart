@@ -6,14 +6,14 @@ import 'package:constel_pay/nucleo/configuracao/ambiente.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('urlBaseAtiva respeita o ambiente', () {
+  test('urlBaseAtiva respeita o ambiente (com barra final para o Dio)', () {
     const config = ConfiguracaoTerminal(
       urlBaseProducao: 'https://producao',
       urlBaseHomologacao: 'https://homologacao',
     );
-    expect(config.urlBaseAtiva, 'https://homologacao');
+    expect(config.urlBaseAtiva, 'https://homologacao/');
     expect(config.copyWith(ambiente: Ambiente.producao).urlBaseAtiva,
-        'https://producao');
+        'https://producao/');
   });
 
   test('ItemConsumo calcula o total da linha', () {

@@ -18,7 +18,6 @@ import '../componentes/avatar_bot.dart';
 import '../componentes/banner_boas_vindas.dart';
 import '../componentes/bolha_mensagem.dart';
 import '../componentes/card_comanda.dart';
-import '../componentes/card_detalhe_comanda.dart';
 import '../componentes/card_mesa.dart';
 import '../componentes/card_metodos_pagamento.dart';
 import '../componentes/card_pix.dart';
@@ -98,16 +97,11 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
         final id = mensagem.dados?['comandaId'] as String?;
         final cartao = estado.cartoes.where((c) => c.id == id).firstOrNull;
         if (cartao == null) return const SizedBox.shrink();
-        return recuado(
-            CardComanda(cartao: cartao, aoVerItens: controlador.verItens));
-      case TipoMensagem.detalhe:
-        final id = mensagem.dados?['comandaId'] as String?;
-        final cartao = estado.cartoes.where((c) => c.id == id).firstOrNull;
-        if (cartao == null) return const SizedBox.shrink();
-        return recuado(CardDetalheComanda(cartao: cartao));
+        return recuado(CardComanda(cartao: cartao));
       case TipoMensagem.scanner:
         return recuado(CardScanner(
           aoEscanear: controlador.lerCartao,
+          aoDigitarComanda: controlador.lerComandaDigitada,
           habilitado: estado.etapa == EtapaFluxo.lendo && !estado.digitando,
         ));
       case TipoMensagem.metodos:
@@ -223,7 +217,6 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
             estado: estado,
             aoLerOutro: controlador.lerOutroCartao,
             aoIrPagamento: controlador.irParaPagamento,
-            aoDefinirGorjeta: controlador.definirGorjeta,
             aoPagarRestante: controlador.pagarRestante,
             aoEncerrar: controlador.encerrar,
             aoNovaOperacao: () {

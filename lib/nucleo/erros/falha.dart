@@ -5,7 +5,9 @@ sealed class Falha {
 }
 
 final class FalhaRede extends Falha {
-  const FalhaRede([super.mensagem = 'Sem conexão com a internet.']);
+  const FalhaRede(
+      [super.mensagem = 'Falha de comunicação com a API. '
+          'Verifique a URL configurada, a rede e se o serviço está no ar.']);
 }
 
 final class FalhaTimeout extends Falha {
@@ -15,6 +17,11 @@ final class FalhaTimeout extends Falha {
 
 final class FalhaServidor extends Falha {
   const FalhaServidor([super.mensagem = 'Erro ao comunicar com o servidor.']);
+}
+
+final class FalhaNaoAutorizado extends Falha {
+  const FalhaNaoAutorizado(
+      [super.mensagem = 'Acesso não autorizado. Verifique usuário e senha.']);
 }
 
 final class FalhaValidacao extends Falha {

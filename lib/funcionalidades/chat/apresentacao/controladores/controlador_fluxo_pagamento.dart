@@ -5,6 +5,9 @@ import '../../../../aplicativo/injecao.dart';
 import '../../../../nucleo/formatadores/formatador_moeda.dart';
 import '../../../comprovante/dominio/entidades/comprovante.dart';
 import '../../../configuracoes/dominio/repositorios/repositorio_configuracao.dart';
+import '../../../leitura_cartao/dados/adaptadores/adaptador_atendimento.dart';
+import '../../../leitura_cartao/dados/fontes_dados/fonte_consumo_atendimento.dart';
+import '../../../leitura_cartao/dados/fontes_dados/fonte_recurso_item.dart';
 import '../../../leitura_cartao/dominio/casos_uso/caso_uso_ler_cartao.dart';
 import '../../../leitura_cartao/dominio/repositorios/repositorio_leitura.dart';
 import '../../../pagamento/dominio/casos_uso/caso_uso_gerar_pix.dart';
@@ -23,16 +26,22 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     required CasoUsoGerarPix casoUsoGerarPix,
     required CasoUsoProcessarPagamento casoUsoProcessarPagamento,
     required RepositorioConfiguracao repositorioConfiguracao,
+    FonteConsumoAtendimento? fonteConsumoAtendimento,
+    FonteRecursoItem? fonteRecursoItem,
     this.atrasoBot = const Duration(milliseconds: 650),
   })  : _casoUsoLerCartao = casoUsoLerCartao,
         _repositorioLeitura = repositorioLeitura,
         _casoUsoGerarPix = casoUsoGerarPix,
         _casoUsoProcessarPagamento = casoUsoProcessarPagamento,
         _repositorioConfiguracao = repositorioConfiguracao,
+        _fonteConsumoAtendimento = fonteConsumoAtendimento,
+        _fonteRecursoItem = fonteRecursoItem,
         super(const EstadoFluxoPagamento());
 
   final CasoUsoLerCartao _casoUsoLerCartao;
   final RepositorioLeitura _repositorioLeitura;
+  final FonteConsumoAtendimento? _fonteConsumoAtendimento;
+  final FonteRecursoItem? _fonteRecursoItem;
   final CasoUsoGerarPix _casoUsoGerarPix;
   final CasoUsoProcessarPagamento _casoUsoProcessarPagamento;
   final RepositorioConfiguracao _repositorioConfiguracao;
@@ -66,6 +75,41 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
 
   void _adicionar(Mensagem mensagem) =>
       state = state.copyWith(mensagens: [...state.mensagens, mensagem]);
+
+  /// Busca a foto de cada item novo no cadastro da loja e atualiza os cartões.
+  /// Enfeite: roda depois da comanda já estar na tela, em paralelo, e engole
+  /// falhas — item sem foto (ou API fora) simplesmente mantém o emoji.
+  Future<void> _carregarFotosItens() async {
+    final fonte = _fonteRecursoItem;
+    if (fonte == null) return;
+    final pendentes = {
+      for (final cartao in state.cartoes)
+        for (final item in cartao.itens)
+          if (item.itemId.isNotEmpty && item.imagemUrl.isEmpty) item.itemId,
+    };
+    if (pendentes.isEmpty) return;
+
+    final urls = <String, String>{};
+    await Future.wait(pendentes.map((itemId) async {
+      final url = await fonte.obterImagem(itemId);
+      if (url.isNotEmpty) urls[itemId] = url;
+    }));
+    if (!mounted || urls.isEmpty) return;
+
+    state = state.copyWith(
+      cartoes: [
+        for (final cartao in state.cartoes)
+          cartao.copyWith(
+            itens: [
+              for (final item in cartao.itens)
+                urls.containsKey(item.itemId) && item.imagemUrl.isEmpty
+                    ? item.copyWith(imagemUrl: urls[item.itemId]!)
+                    : item,
+            ],
+          ),
+      ],
+    );
+  }
 
   Future<void> _bot(void Function() acao) async {
     state = state.copyWith(digitando: true);
@@ -135,6 +179,48 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     );
   }
 
+  // TEMPORÁRIO (teste da API de consumo): leitura digitando o número da
+  // comanda em vez do código de barras. Remover quando o scanner real
+  // substituir o mock.
+  Future<void> lerComandaDigitada(String referencia) async {
+    final fonte = _fonteConsumoAtendimento;
+    final ref = referencia.trim();
+    if (fonte == null || ref.isEmpty) return;
+    if (state.etapa != EtapaFluxo.lendo || state.digitando) return;
+    _adicionar(_mensagem(TipoMensagem.texto,
+        lado: LadoMensagem.cliente, texto: 'Comanda $ref'));
+    state = state.copyWith(digitando: true);
+    final resultado = await fonte.consultar(referencia: ref);
+    if (!mounted) return;
+    state = state.copyWith(digitando: false);
+    resultado.quando(
+      sucesso: (atendimentos) {
+        if (atendimentos.isEmpty) {
+          _adicionar(_mensagem(TipoMensagem.texto,
+              emoji: '🔎',
+              texto: 'Nenhum consumo em aberto para a comanda $ref.'));
+          return;
+        }
+        for (final atendimento in atendimentos) {
+          if (state.cartoes.any((c) => c.id == atendimento.id)) continue;
+          final cartao = AdaptadorAtendimento.paraCartao(atendimento)
+              .copyWith(selecionado: true);
+          state = state.copyWith(cartoes: [...state.cartoes, cartao]);
+          _adicionar(_mensagem(TipoMensagem.leituraCartao,
+              dados: {'comandaId': cartao.id}));
+        }
+        _adicionar(_mensagem(TipoMensagem.texto,
+            emoji: '✅', texto: 'Deseja adicionar mais cartões da mesa?'));
+        state = state.copyWith(etapa: EtapaFluxo.aguardandoMaisCartoes);
+      },
+      erro: (falha) {
+        _adicionar(
+            _mensagem(TipoMensagem.texto, emoji: '⚠️', texto: falha.mensagem));
+      },
+    );
+    await _carregarFotosItens();
+  }
+
   Future<void> lerOutroCartao() async {
     if (state.etapa != EtapaFluxo.aguardandoMaisCartoes) return;
     _adicionar(_mensagem(TipoMensagem.texto,
@@ -156,23 +242,6 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
         lado: LadoMensagem.cliente,
         texto:
             'Ir para o pagamento · ${FormatadorMoeda.formatar(state.subtotalCentavos)}'));
-    state = state.copyWith(etapa: EtapaFluxo.gorjeta);
-    await _bot(() {
-      _adicionar(_mensagem(TipoMensagem.texto,
-          emoji: '💜',
-          texto: 'Deseja incluir os 10% de serviço (gorjeta)?',
-          subtexto: 'É opcional e vai direto para a equipe que te atendeu.'));
-    });
-  }
-
-  Future<void> definirGorjeta(int percentual) async {
-    if (state.etapa != EtapaFluxo.gorjeta) return;
-    state = state.copyWith(gorjetaPercentual: percentual);
-    _adicionar(_mensagem(TipoMensagem.texto,
-        lado: LadoMensagem.cliente,
-        texto: percentual > 0
-            ? 'Sim, incluir os $percentual%'
-            : 'Sem taxa de serviço'));
     _chaveIdempotencia = _uuid.v4();
     state = state.copyWith(etapa: EtapaFluxo.escolhaMetodo);
     await _bot(() {
@@ -180,9 +249,9 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
           emoji: '💳',
           texto:
               'Como você quer pagar ${FormatadorMoeda.formatar(state.totalCentavos)}?',
-          subtexto: percentual > 0
-              ? 'Inclui ${FormatadorMoeda.formatar(state.gorjetaCentavos)} de serviço.'
-              : 'Sem taxa de serviço.'));
+          subtexto: state.servicoCentavos > 0
+              ? 'Inclui ${FormatadorMoeda.formatar(state.servicoCentavos)} de serviço.'
+              : null));
       _adicionar(_mensagem(TipoMensagem.metodos));
     });
   }
@@ -233,7 +302,8 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     final pagamento = Pagamento(
       id: _chaveIdempotencia!,
       valorCentavos: state.subtotalCentavos,
-      gorjetaCentavos: state.gorjetaCentavos,
+      servicoCentavos: state.servicoCentavos,
+      descontoCentavos: state.descontoCentavos,
       totalCentavos: state.totalCentavos,
       metodo: MetodoPagamento.pix,
       status: StatusPagamento.processando,
@@ -262,8 +332,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
                 ? c.copyWith(pago: true, selecionado: false)
                 : c)
             .toList();
-        state =
-            state.copyWith(cartoes: cartoesAtualizados, gorjetaPercentual: 0);
+        state = state.copyWith(cartoes: cartoesAtualizados);
         _adicionar(_mensagem(TipoMensagem.sucesso, dados: {
           'valorCentavos': aprovado.totalCentavos,
           'comandas': nomes
@@ -299,9 +368,6 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
       },
     );
   }
-
-  void verItens(String comandaId) => _adicionar(
-      _mensagem(TipoMensagem.detalhe, dados: {'comandaId': comandaId}));
 
   Future<void> pagarRestante() async {
     if (state.etapa != EtapaFluxo.sucessoComRestante) return;
@@ -360,6 +426,8 @@ final provedorFluxoPagamento =
     casoUsoGerarPix: ref.watch(provedorCasoUsoGerarPix),
     casoUsoProcessarPagamento: ref.watch(provedorCasoUsoProcessarPagamento),
     repositorioConfiguracao: ref.watch(provedorRepositorioConfiguracao),
+    fonteConsumoAtendimento: ref.watch(provedorFonteConsumoAtendimento),
+    fonteRecursoItem: ref.watch(provedorFonteRecursoItem),
     atrasoBot: ref.watch(provedorAtrasoBot),
   );
 });

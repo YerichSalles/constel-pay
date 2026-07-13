@@ -8,7 +8,8 @@ abstract final class RespostaLoginNuvem {
   static SessaoNuvem paraEntidade(Map<String, dynamic> json) {
     final usuario = (json['usuario'] as Map<String, dynamic>?) ?? const {};
     final empresa = (json['empresa'] as Map<String, dynamic>?) ?? const {};
-    final dispositivo = (json['dispositivo'] as Map<String, dynamic>?) ?? const {};
+    final dispositivo =
+        (json['dispositivo'] as Map<String, dynamic>?) ?? const {};
     final estabelecimento =
         (json['estabelecimento'] as Map<String, dynamic>?) ?? const {};
     final ambientesJson =

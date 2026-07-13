@@ -19,7 +19,7 @@ void main() {
         sucesso: (_) => 'ok',
         erro: (falha) => falha.mensagem,
       );
-      expect(saida, 'Sem conexão com a internet.');
+      expect(saida, contains('comunicação com a API'));
     });
 
     test('falhas possuem mensagens padrão em pt-BR', () {

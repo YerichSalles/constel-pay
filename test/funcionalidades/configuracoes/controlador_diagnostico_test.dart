@@ -23,7 +23,9 @@ void main() {
     final controlador = ControladorDiagnostico(
       repositorioConfiguracao: repositorio,
       casoUsoTestarConexao: CasoUsoTestarConexao(
-        clienteApi:
+        clienteLoja:
+            ClienteApi(repositorioConfiguracao: repositorio, dio: Dio()),
+        clienteNuvem:
             ClienteApi(repositorioConfiguracao: repositorio, dio: Dio()),
         repositorioConfiguracao: repositorio,
         preferencias: preferencias,

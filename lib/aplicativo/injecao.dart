@@ -10,7 +10,9 @@ import '../funcionalidades/autenticacao/dominio/casos_uso/caso_uso_garantir_sess
 import '../funcionalidades/autenticacao/dominio/casos_uso/caso_uso_login_nuvem.dart';
 import '../funcionalidades/autenticacao/dominio/entidades/sessao_nuvem.dart';
 import '../funcionalidades/autenticacao/dominio/repositorios/repositorio_sessao_nuvem.dart';
+import '../funcionalidades/leitura_cartao/dados/fontes_dados/fonte_consumo_atendimento.dart';
 import '../funcionalidades/leitura_cartao/dados/fontes_dados/fonte_leitura_mock.dart';
+import '../funcionalidades/leitura_cartao/dados/fontes_dados/fonte_recurso_item.dart';
 import '../funcionalidades/leitura_cartao/dados/repositorios/repositorio_leitura_impl.dart';
 import '../funcionalidades/leitura_cartao/dominio/casos_uso/caso_uso_ler_cartao.dart';
 import '../funcionalidades/leitura_cartao/dominio/repositorios/repositorio_leitura.dart';
@@ -140,10 +142,79 @@ final provedorInfoAplicativo = Provider<InfoAplicativo>(
 
 final provedorCasoUsoTestarConexao = Provider<CasoUsoTestarConexao>(
   (ref) => CasoUsoTestarConexao(
-    clienteApi: ref.watch(provedorClienteApi),
+    clienteLoja: ref.watch(provedorClienteApi),
+    clienteNuvem: ref.watch(provedorClienteApiNuvemLogin),
     repositorioConfiguracao: ref.watch(provedorRepositorioConfiguracao),
     preferencias: ref.watch(provedorSharedPreferences),
   ),
+);
+
+// ---------------------------------------------------------------------------
+// API da LOJA (APL local, ex.: https://<host>:3001/api/) — consumo do cartão.
+// Servidor distinto da nuvem: exige login próprio e guarda a sessão em chave
+// separada, porque o JWT só vale no servidor que o emitiu.
+// ---------------------------------------------------------------------------
+
+final provedorRepositorioSessaoLoja = Provider<RepositorioSessaoNuvem>(
+  (ref) => RepositorioSessaoNuvemImpl(ref.watch(provedorArmazenamentoSeguro),
+      chave: 'sessao_loja'),
+);
+
+// Cliente da loja para LOGIN — sem interceptor (mesmo motivo do da nuvem).
+final provedorClienteApiLojaLogin = Provider<ClienteApi>(
+  (ref) => ClienteApi(
+    repositorioConfiguracao: ref.watch(provedorRepositorioConfiguracao),
+    seletorBase: (configuracao) => configuracao.urlBaseAtiva,
+  ),
+);
+
+final provedorFonteAutenticacaoLoja = Provider<FonteAutenticacaoNuvem>(
+  (ref) => FonteAutenticacaoNuvem(ref.watch(provedorClienteApiLojaLogin)),
+);
+
+final provedorCasoUsoLoginLoja = Provider<CasoUsoLoginNuvem>(
+  (ref) => CasoUsoLoginNuvem(
+    fonte: ref.watch(provedorFonteAutenticacaoLoja),
+    repositorioConfiguracao: ref.watch(provedorRepositorioConfiguracao),
+    repositorioCredencial: ref.watch(provedorRepositorioCredencial),
+    repositorioSessao: ref.watch(provedorRepositorioSessaoLoja),
+    infoAplicativo: ref.watch(provedorInfoAplicativo),
+    seletorBase: (configuracao) => configuracao.urlBaseAtiva,
+    urlAusenteMensagem: 'Configure a URL da API local nas configurações.',
+  ),
+);
+
+// Cliente da loja para REQUISIÇÕES AUTENTICADAS (consumo): injeta o token da
+// sessão da loja e faz re-login automático no 401.
+final provedorClienteApiLoja = Provider<ClienteApi>((ref) {
+  final dio = Dio();
+  dio.interceptors.add(
+    InterceptadorAutenticacaoNuvem(
+      dio: dio,
+      caminhoLogin: ConstantesApp.caminhoLoginNuvem,
+      tokenAtual: () async =>
+          (await ref.read(provedorRepositorioSessaoLoja).obter())?.token,
+      renovarSessao: () async {
+        final resultado = await ref.read(provedorCasoUsoLoginLoja).executar();
+        return resultado is Sucesso<SessaoNuvem>;
+      },
+    ),
+  );
+  return ClienteApi(
+    repositorioConfiguracao: ref.watch(provedorRepositorioConfiguracao),
+    seletorBase: (configuracao) => configuracao.urlBaseAtiva,
+    dio: dio,
+  );
+});
+
+// Fonte real de consumo: sempre na API da loja (urlBaseAtiva), nunca na nuvem.
+final provedorFonteConsumoAtendimento = Provider<FonteConsumoAtendimento>(
+  (ref) => FonteConsumoAtendimento(ref.watch(provedorClienteApiLoja)),
+);
+
+// Foto do item: mesma API da loja, com cache em memória por item.
+final provedorFonteRecursoItem = Provider<FonteRecursoItem>(
+  (ref) => FonteRecursoItemApi(ref.watch(provedorClienteApiLoja)),
 );
 
 final provedorFonteLeituraMock = Provider<FonteLeituraMock>(

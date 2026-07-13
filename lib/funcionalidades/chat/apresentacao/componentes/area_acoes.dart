@@ -12,7 +12,6 @@ class AreaAcoes extends StatelessWidget {
     required this.estado,
     required this.aoLerOutro,
     required this.aoIrPagamento,
-    required this.aoDefinirGorjeta,
     required this.aoPagarRestante,
     required this.aoEncerrar,
     required this.aoNovaOperacao,
@@ -21,7 +20,6 @@ class AreaAcoes extends StatelessWidget {
   final EstadoFluxoPagamento estado;
   final VoidCallback aoLerOutro;
   final VoidCallback aoIrPagamento;
-  final void Function(int percentual) aoDefinirGorjeta;
   final VoidCallback aoPagarRestante;
   final VoidCallback aoEncerrar;
   final VoidCallback aoNovaOperacao;
@@ -31,20 +29,13 @@ class AreaAcoes extends StatelessWidget {
     switch (estado.etapa) {
       case EtapaFluxo.aguardandoMaisCartoes:
         return [
-          if (estado.cartoesRestantes > 0)
-            ChipAcao(rotulo: 'Ler outro cartão', aoTocar: aoLerOutro),
+          // Sempre disponível: com a API real o app não sabe quantas comandas
+          // ainda estão abertas na mesa (`cartoesRestantes` só existe no mock).
+          ChipAcao(rotulo: 'Ler outro cartão', aoTocar: aoLerOutro),
           ChipAcao(
               rotulo: 'Ir para o pagamento',
               aoTocar: aoIrPagamento,
               primario: true),
-        ];
-      case EtapaFluxo.gorjeta:
-        return [
-          ChipAcao(
-              rotulo: 'Sim, incluir 10%',
-              aoTocar: () => aoDefinirGorjeta(10),
-              primario: true),
-          ChipAcao(rotulo: 'Sem taxa', aoTocar: () => aoDefinirGorjeta(0)),
         ];
       case EtapaFluxo.sucessoComRestante:
         return [
@@ -71,7 +62,6 @@ class AreaAcoes extends StatelessWidget {
   bool get _mostraTotal =>
       const [
         EtapaFluxo.aguardandoMaisCartoes,
-        EtapaFluxo.gorjeta,
         EtapaFluxo.escolhaMetodo,
         EtapaFluxo.pixAguardando,
       ].contains(estado.etapa) &&
@@ -91,7 +81,7 @@ class AreaAcoes extends StatelessWidget {
     final selecionados = estado.selecionados.length;
     final rotuloBarra =
         '$selecionados ${selecionados > 1 ? 'cartões' : 'cartão'}'
-        '${estado.gorjetaPercentual > 0 ? ' · inclui serviço' : ''}';
+        '${estado.servicoCentavos > 0 ? ' · inclui serviço' : ''}';
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,

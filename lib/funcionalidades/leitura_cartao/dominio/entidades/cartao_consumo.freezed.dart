@@ -22,8 +22,17 @@ mixin _$CartaoConsumo {
   String get pessoa => throw _privateConstructorUsedError;
   String get emoji => throw _privateConstructorUsedError;
   String get resumo => throw _privateConstructorUsedError;
-  List<ItemConsumo> get itens => throw _privateConstructorUsedError;
+  List<ItemConsumo> get itens =>
+      throw _privateConstructorUsedError; // Valores vêm prontos da API (venda/atendimento/colecao). Nunca recalcular:
+// a regra de serviço/desconto é do retaguarda. `saldoCentavos` é o devido.
   int get subtotalCentavos => throw _privateConstructorUsedError;
+  int get servicoCentavos => throw _privateConstructorUsedError;
+
+  /// Percentual da taxa de serviço definido pelo retaguarda (pode não ser 10).
+  num get servicoPercentual => throw _privateConstructorUsedError;
+  int get descontoCentavos => throw _privateConstructorUsedError;
+  int get totalCentavos => throw _privateConstructorUsedError;
+  int get saldoCentavos => throw _privateConstructorUsedError;
   bool get selecionado => throw _privateConstructorUsedError;
   bool get pago => throw _privateConstructorUsedError;
 
@@ -49,6 +58,11 @@ abstract class $CartaoConsumoCopyWith<$Res> {
       String resumo,
       List<ItemConsumo> itens,
       int subtotalCentavos,
+      int servicoCentavos,
+      num servicoPercentual,
+      int descontoCentavos,
+      int totalCentavos,
+      int saldoCentavos,
       bool selecionado,
       bool pago});
 }
@@ -76,6 +90,11 @@ class _$CartaoConsumoCopyWithImpl<$Res, $Val extends CartaoConsumo>
     Object? resumo = null,
     Object? itens = null,
     Object? subtotalCentavos = null,
+    Object? servicoCentavos = null,
+    Object? servicoPercentual = null,
+    Object? descontoCentavos = null,
+    Object? totalCentavos = null,
+    Object? saldoCentavos = null,
     Object? selecionado = null,
     Object? pago = null,
   }) {
@@ -112,6 +131,26 @@ class _$CartaoConsumoCopyWithImpl<$Res, $Val extends CartaoConsumo>
           ? _value.subtotalCentavos
           : subtotalCentavos // ignore: cast_nullable_to_non_nullable
               as int,
+      servicoCentavos: null == servicoCentavos
+          ? _value.servicoCentavos
+          : servicoCentavos // ignore: cast_nullable_to_non_nullable
+              as int,
+      servicoPercentual: null == servicoPercentual
+          ? _value.servicoPercentual
+          : servicoPercentual // ignore: cast_nullable_to_non_nullable
+              as num,
+      descontoCentavos: null == descontoCentavos
+          ? _value.descontoCentavos
+          : descontoCentavos // ignore: cast_nullable_to_non_nullable
+              as int,
+      totalCentavos: null == totalCentavos
+          ? _value.totalCentavos
+          : totalCentavos // ignore: cast_nullable_to_non_nullable
+              as int,
+      saldoCentavos: null == saldoCentavos
+          ? _value.saldoCentavos
+          : saldoCentavos // ignore: cast_nullable_to_non_nullable
+              as int,
       selecionado: null == selecionado
           ? _value.selecionado
           : selecionado // ignore: cast_nullable_to_non_nullable
@@ -141,6 +180,11 @@ abstract class _$$CartaoConsumoImplCopyWith<$Res>
       String resumo,
       List<ItemConsumo> itens,
       int subtotalCentavos,
+      int servicoCentavos,
+      num servicoPercentual,
+      int descontoCentavos,
+      int totalCentavos,
+      int saldoCentavos,
       bool selecionado,
       bool pago});
 }
@@ -166,6 +210,11 @@ class __$$CartaoConsumoImplCopyWithImpl<$Res>
     Object? resumo = null,
     Object? itens = null,
     Object? subtotalCentavos = null,
+    Object? servicoCentavos = null,
+    Object? servicoPercentual = null,
+    Object? descontoCentavos = null,
+    Object? totalCentavos = null,
+    Object? saldoCentavos = null,
     Object? selecionado = null,
     Object? pago = null,
   }) {
@@ -202,6 +251,26 @@ class __$$CartaoConsumoImplCopyWithImpl<$Res>
           ? _value.subtotalCentavos
           : subtotalCentavos // ignore: cast_nullable_to_non_nullable
               as int,
+      servicoCentavos: null == servicoCentavos
+          ? _value.servicoCentavos
+          : servicoCentavos // ignore: cast_nullable_to_non_nullable
+              as int,
+      servicoPercentual: null == servicoPercentual
+          ? _value.servicoPercentual
+          : servicoPercentual // ignore: cast_nullable_to_non_nullable
+              as num,
+      descontoCentavos: null == descontoCentavos
+          ? _value.descontoCentavos
+          : descontoCentavos // ignore: cast_nullable_to_non_nullable
+              as int,
+      totalCentavos: null == totalCentavos
+          ? _value.totalCentavos
+          : totalCentavos // ignore: cast_nullable_to_non_nullable
+              as int,
+      saldoCentavos: null == saldoCentavos
+          ? _value.saldoCentavos
+          : saldoCentavos // ignore: cast_nullable_to_non_nullable
+              as int,
       selecionado: null == selecionado
           ? _value.selecionado
           : selecionado // ignore: cast_nullable_to_non_nullable
@@ -226,6 +295,11 @@ class _$CartaoConsumoImpl implements _CartaoConsumo {
       required this.resumo,
       required final List<ItemConsumo> itens,
       required this.subtotalCentavos,
+      required this.servicoCentavos,
+      this.servicoPercentual = 0,
+      required this.descontoCentavos,
+      required this.totalCentavos,
+      required this.saldoCentavos,
       this.selecionado = false,
       this.pago = false})
       : _itens = itens;
@@ -250,8 +324,23 @@ class _$CartaoConsumoImpl implements _CartaoConsumo {
     return EqualUnmodifiableListView(_itens);
   }
 
+// Valores vêm prontos da API (venda/atendimento/colecao). Nunca recalcular:
+// a regra de serviço/desconto é do retaguarda. `saldoCentavos` é o devido.
   @override
   final int subtotalCentavos;
+  @override
+  final int servicoCentavos;
+
+  /// Percentual da taxa de serviço definido pelo retaguarda (pode não ser 10).
+  @override
+  @JsonKey()
+  final num servicoPercentual;
+  @override
+  final int descontoCentavos;
+  @override
+  final int totalCentavos;
+  @override
+  final int saldoCentavos;
   @override
   @JsonKey()
   final bool selecionado;
@@ -261,7 +350,7 @@ class _$CartaoConsumoImpl implements _CartaoConsumo {
 
   @override
   String toString() {
-    return 'CartaoConsumo(id: $id, codigo: $codigo, nome: $nome, pessoa: $pessoa, emoji: $emoji, resumo: $resumo, itens: $itens, subtotalCentavos: $subtotalCentavos, selecionado: $selecionado, pago: $pago)';
+    return 'CartaoConsumo(id: $id, codigo: $codigo, nome: $nome, pessoa: $pessoa, emoji: $emoji, resumo: $resumo, itens: $itens, subtotalCentavos: $subtotalCentavos, servicoCentavos: $servicoCentavos, servicoPercentual: $servicoPercentual, descontoCentavos: $descontoCentavos, totalCentavos: $totalCentavos, saldoCentavos: $saldoCentavos, selecionado: $selecionado, pago: $pago)';
   }
 
   @override
@@ -278,6 +367,16 @@ class _$CartaoConsumoImpl implements _CartaoConsumo {
             const DeepCollectionEquality().equals(other._itens, _itens) &&
             (identical(other.subtotalCentavos, subtotalCentavos) ||
                 other.subtotalCentavos == subtotalCentavos) &&
+            (identical(other.servicoCentavos, servicoCentavos) ||
+                other.servicoCentavos == servicoCentavos) &&
+            (identical(other.servicoPercentual, servicoPercentual) ||
+                other.servicoPercentual == servicoPercentual) &&
+            (identical(other.descontoCentavos, descontoCentavos) ||
+                other.descontoCentavos == descontoCentavos) &&
+            (identical(other.totalCentavos, totalCentavos) ||
+                other.totalCentavos == totalCentavos) &&
+            (identical(other.saldoCentavos, saldoCentavos) ||
+                other.saldoCentavos == saldoCentavos) &&
             (identical(other.selecionado, selecionado) ||
                 other.selecionado == selecionado) &&
             (identical(other.pago, pago) || other.pago == pago));
@@ -294,6 +393,11 @@ class _$CartaoConsumoImpl implements _CartaoConsumo {
       resumo,
       const DeepCollectionEquality().hash(_itens),
       subtotalCentavos,
+      servicoCentavos,
+      servicoPercentual,
+      descontoCentavos,
+      totalCentavos,
+      saldoCentavos,
       selecionado,
       pago);
 
@@ -316,6 +420,11 @@ abstract class _CartaoConsumo implements CartaoConsumo {
       required final String resumo,
       required final List<ItemConsumo> itens,
       required final int subtotalCentavos,
+      required final int servicoCentavos,
+      final num servicoPercentual,
+      required final int descontoCentavos,
+      required final int totalCentavos,
+      required final int saldoCentavos,
       final bool selecionado,
       final bool pago}) = _$CartaoConsumoImpl;
 
@@ -332,9 +441,23 @@ abstract class _CartaoConsumo implements CartaoConsumo {
   @override
   String get resumo;
   @override
-  List<ItemConsumo> get itens;
+  List<ItemConsumo>
+      get itens; // Valores vêm prontos da API (venda/atendimento/colecao). Nunca recalcular:
+// a regra de serviço/desconto é do retaguarda. `saldoCentavos` é o devido.
   @override
   int get subtotalCentavos;
+  @override
+  int get servicoCentavos;
+
+  /// Percentual da taxa de serviço definido pelo retaguarda (pode não ser 10).
+  @override
+  num get servicoPercentual;
+  @override
+  int get descontoCentavos;
+  @override
+  int get totalCentavos;
+  @override
+  int get saldoCentavos;
   @override
   bool get selecionado;
   @override

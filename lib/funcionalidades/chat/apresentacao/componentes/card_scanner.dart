@@ -4,10 +4,19 @@ import '../../../../compartilhado/widgets/botao_primario.dart';
 import '../../../../compartilhado/widgets/cartao.dart';
 
 class CardScanner extends StatefulWidget {
-  const CardScanner(
-      {super.key, required this.aoEscanear, this.habilitado = true});
+  const CardScanner({
+    super.key,
+    required this.aoEscanear,
+    this.aoDigitarComanda,
+    this.habilitado = true,
+  });
 
   final VoidCallback aoEscanear;
+
+  /// TEMPORÁRIO (teste da API de consumo): permite digitar o número da
+  /// comanda em vez de escanear. Remover junto com o campo quando o scanner
+  /// real entrar.
+  final ValueChanged<String>? aoDigitarComanda;
   final bool habilitado;
 
   @override
@@ -19,11 +28,20 @@ class _CardScannerState extends State<CardScanner>
   late final AnimationController _controlador = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 1800))
     ..repeat(reverse: true);
+  final TextEditingController _comanda = TextEditingController();
 
   @override
   void dispose() {
     _controlador.dispose();
+    _comanda.dispose();
     super.dispose();
+  }
+
+  void _enviarComanda() {
+    final texto = _comanda.text.trim();
+    if (texto.isEmpty) return;
+    widget.aoDigitarComanda?.call(texto);
+    _comanda.clear();
   }
 
   Widget _canto({required Alignment alinhamento, required Color cor}) {
@@ -118,6 +136,33 @@ class _CardScannerState extends State<CardScanner>
             rotulo: '📷 Simular leitura do código',
             aoTocar: widget.habilitado ? widget.aoEscanear : null,
           ),
+          // TEMPORÁRIO (teste da API de consumo): digitação manual da comanda.
+          if (widget.aoDigitarComanda != null) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _comanda,
+                    enabled: widget.habilitado,
+                    keyboardType: TextInputType.number,
+                    onSubmitted:
+                        widget.habilitado ? (_) => _enviarComanda() : null,
+                    decoration: const InputDecoration(
+                      hintText: 'Nº da comanda',
+                      isDense: true,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: widget.habilitado ? _enviarComanda : null,
+                  child: const Text('Buscar'),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );

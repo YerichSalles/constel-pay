@@ -5,6 +5,8 @@ import '../../funcionalidades/configuracoes/dominio/repositorios/repositorio_con
 import '../erros/falha.dart';
 import '../erros/resultado.dart';
 import '../utils/registrador.dart';
+import 'confianca_tls_local_stub.dart'
+    if (dart.library.io) 'confianca_tls_local_io.dart';
 
 /// Seleciona qual base URL usar a partir da configuração do terminal.
 /// Permite reaproveitar o mesmo cliente para a API local e a API na nuvem.
@@ -18,6 +20,7 @@ class ClienteApi {
   })  : _repositorioConfiguracao = repositorioConfiguracao,
         _seletorBase = seletorBase ?? ((c) => c.urlBaseAtiva),
         _dio = dio ?? Dio() {
+    permitirCertificadoLocalAutoAssinado(_dio);
     _dio.options.connectTimeout = const Duration(seconds: 30);
     _dio.options.receiveTimeout = const Duration(seconds: 30);
     _dio.interceptors.add(
@@ -32,13 +35,15 @@ class ClienteApi {
             );
           }
           opcoes.baseUrl = base;
-          // Log seguro: método e caminho apenas — nunca headers nem corpo.
-          registrador.i('HTTP ${opcoes.method} ${opcoes.path}');
+          // Log seguro: método e URL apenas — nunca headers nem corpo.
+          registrador.i('HTTP ${opcoes.method} ${opcoes.uri}');
           manipulador.next(opcoes);
         },
         onError: (erro, manipulador) {
-          registrador
-              .w('HTTP erro ${erro.type.name} em ${erro.requestOptions.path}');
+          final status = erro.response?.statusCode;
+          registrador.w('HTTP erro ${erro.type.name}'
+              '${status != null ? ' ($status)' : ''}'
+              ' em ${erro.requestOptions.uri}');
           manipulador.next(erro);
         },
       ),
@@ -49,9 +54,13 @@ class ClienteApi {
   final RepositorioConfiguracao _repositorioConfiguracao;
   final SeletorBaseUrl _seletorBase;
 
-  Future<Resultado<Response<dynamic>>> get(String caminho) async {
+  Future<Resultado<Response<dynamic>>> get(
+    String caminho, {
+    Map<String, dynamic>? parametros,
+  }) async {
     try {
-      return Sucesso(await _dio.get<dynamic>(caminho));
+      return Sucesso(
+          await _dio.get<dynamic>(caminho, queryParameters: parametros));
     } on DioException catch (excecao) {
       return Erro(mapearFalha(excecao));
     }
@@ -86,9 +95,47 @@ class ClienteApi {
         DioExceptionType.sendTimeout =>
           const FalhaTimeout(),
         DioExceptionType.connectionError => const FalhaRede(),
-        DioExceptionType.badResponse => const FalhaServidor(),
+        DioExceptionType.badResponse
+            when excecao.response?.statusCode == 401 ||
+                excecao.response?.statusCode == 403 =>
+          const FalhaNaoAutorizado(),
+        DioExceptionType.badResponse => switch (_mensagemServidor(excecao)) {
+            final mensagem? => FalhaServidor('Servidor: $mensagem'),
+            null => const FalhaServidor(),
+          },
         DioExceptionType.cancel => const FalhaValidacao(
             'Configure a URL do ambiente nas configurações.'),
+        DioExceptionType.unknown when _falhaDeTls(excecao) => const FalhaRede(
+            'Falha de segurança na conexão. Verifique se a URL usa http:// '
+            'ou https:// conforme o servidor e se o certificado é confiável.'),
+        DioExceptionType.unknown when _falhaDeSocket(excecao) =>
+          const FalhaRede(),
         _ => const FalhaDesconhecida(),
       };
+
+  // O Dio marca falhas de socket/TLS fora da fase de conexão como `unknown`
+  // (ex.: HandshakeException ao usar https contra um servidor http). São
+  // problemas de comunicação com a API, não erros internos do app.
+  // Detecção por nome para não importar dart:io (quebraria o build web).
+  static bool _falhaDeTls(DioException excecao) =>
+      '${excecao.error}'.contains('HandshakeException');
+
+  static bool _falhaDeSocket(DioException excecao) =>
+      '${excecao.error}'.contains('SocketException');
+
+  /// Extrai a mensagem de erro do corpo da resposta (campo `message`),
+  /// quando o servidor devolve JSON. Ajuda o operador a ver o motivo real
+  /// de recusas de validação (ex.: 422) sem expor headers nem payload.
+  static String? _mensagemServidor(DioException excecao) {
+    final dados = excecao.response?.data;
+    if (dados is! Map) return null;
+    final mensagem = dados['message'];
+    final texto = switch (mensagem) {
+      final String valor when valor.isNotEmpty => valor,
+      final List valores when valores.isNotEmpty => valores.join(' · '),
+      _ => null,
+    };
+    if (texto == null) return null;
+    return texto.length > 160 ? '${texto.substring(0, 160)}…' : texto;
+  }
 }

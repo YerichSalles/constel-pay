@@ -17,8 +17,15 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$Pagamento {
   String get id => throw _privateConstructorUsedError;
+
+  /// Subtotal do consumo, sem serviço e sem desconto (vem da API).
   int get valorCentavos => throw _privateConstructorUsedError;
-  int get gorjetaCentavos => throw _privateConstructorUsedError;
+
+  /// Taxa de serviço calculada pela API, não pelo app.
+  int get servicoCentavos => throw _privateConstructorUsedError;
+  int get descontoCentavos => throw _privateConstructorUsedError;
+
+  /// Valor efetivamente cobrado: o saldo devido informado pela API.
   int get totalCentavos => throw _privateConstructorUsedError;
   MetodoPagamento get metodo => throw _privateConstructorUsedError;
   StatusPagamento get status => throw _privateConstructorUsedError;
@@ -41,7 +48,8 @@ abstract class $PagamentoCopyWith<$Res> {
   $Res call(
       {String id,
       int valorCentavos,
-      int gorjetaCentavos,
+      int servicoCentavos,
+      int descontoCentavos,
       int totalCentavos,
       MetodoPagamento metodo,
       StatusPagamento status,
@@ -67,7 +75,8 @@ class _$PagamentoCopyWithImpl<$Res, $Val extends Pagamento>
   $Res call({
     Object? id = null,
     Object? valorCentavos = null,
-    Object? gorjetaCentavos = null,
+    Object? servicoCentavos = null,
+    Object? descontoCentavos = null,
     Object? totalCentavos = null,
     Object? metodo = null,
     Object? status = null,
@@ -84,9 +93,13 @@ class _$PagamentoCopyWithImpl<$Res, $Val extends Pagamento>
           ? _value.valorCentavos
           : valorCentavos // ignore: cast_nullable_to_non_nullable
               as int,
-      gorjetaCentavos: null == gorjetaCentavos
-          ? _value.gorjetaCentavos
-          : gorjetaCentavos // ignore: cast_nullable_to_non_nullable
+      servicoCentavos: null == servicoCentavos
+          ? _value.servicoCentavos
+          : servicoCentavos // ignore: cast_nullable_to_non_nullable
+              as int,
+      descontoCentavos: null == descontoCentavos
+          ? _value.descontoCentavos
+          : descontoCentavos // ignore: cast_nullable_to_non_nullable
               as int,
       totalCentavos: null == totalCentavos
           ? _value.totalCentavos
@@ -127,7 +140,8 @@ abstract class _$$PagamentoImplCopyWith<$Res>
   $Res call(
       {String id,
       int valorCentavos,
-      int gorjetaCentavos,
+      int servicoCentavos,
+      int descontoCentavos,
       int totalCentavos,
       MetodoPagamento metodo,
       StatusPagamento status,
@@ -151,7 +165,8 @@ class __$$PagamentoImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? valorCentavos = null,
-    Object? gorjetaCentavos = null,
+    Object? servicoCentavos = null,
+    Object? descontoCentavos = null,
     Object? totalCentavos = null,
     Object? metodo = null,
     Object? status = null,
@@ -168,9 +183,13 @@ class __$$PagamentoImplCopyWithImpl<$Res>
           ? _value.valorCentavos
           : valorCentavos // ignore: cast_nullable_to_non_nullable
               as int,
-      gorjetaCentavos: null == gorjetaCentavos
-          ? _value.gorjetaCentavos
-          : gorjetaCentavos // ignore: cast_nullable_to_non_nullable
+      servicoCentavos: null == servicoCentavos
+          ? _value.servicoCentavos
+          : servicoCentavos // ignore: cast_nullable_to_non_nullable
+              as int,
+      descontoCentavos: null == descontoCentavos
+          ? _value.descontoCentavos
+          : descontoCentavos // ignore: cast_nullable_to_non_nullable
               as int,
       totalCentavos: null == totalCentavos
           ? _value.totalCentavos
@@ -206,7 +225,8 @@ class _$PagamentoImpl implements _Pagamento {
   const _$PagamentoImpl(
       {required this.id,
       required this.valorCentavos,
-      required this.gorjetaCentavos,
+      required this.servicoCentavos,
+      this.descontoCentavos = 0,
       required this.totalCentavos,
       required this.metodo,
       required this.status,
@@ -217,10 +237,19 @@ class _$PagamentoImpl implements _Pagamento {
 
   @override
   final String id;
+
+  /// Subtotal do consumo, sem serviço e sem desconto (vem da API).
   @override
   final int valorCentavos;
+
+  /// Taxa de serviço calculada pela API, não pelo app.
   @override
-  final int gorjetaCentavos;
+  final int servicoCentavos;
+  @override
+  @JsonKey()
+  final int descontoCentavos;
+
+  /// Valor efetivamente cobrado: o saldo devido informado pela API.
   @override
   final int totalCentavos;
   @override
@@ -241,7 +270,7 @@ class _$PagamentoImpl implements _Pagamento {
 
   @override
   String toString() {
-    return 'Pagamento(id: $id, valorCentavos: $valorCentavos, gorjetaCentavos: $gorjetaCentavos, totalCentavos: $totalCentavos, metodo: $metodo, status: $status, criadoEm: $criadoEm, atualizadoEm: $atualizadoEm, comandaIds: $comandaIds)';
+    return 'Pagamento(id: $id, valorCentavos: $valorCentavos, servicoCentavos: $servicoCentavos, descontoCentavos: $descontoCentavos, totalCentavos: $totalCentavos, metodo: $metodo, status: $status, criadoEm: $criadoEm, atualizadoEm: $atualizadoEm, comandaIds: $comandaIds)';
   }
 
   @override
@@ -252,8 +281,10 @@ class _$PagamentoImpl implements _Pagamento {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.valorCentavos, valorCentavos) ||
                 other.valorCentavos == valorCentavos) &&
-            (identical(other.gorjetaCentavos, gorjetaCentavos) ||
-                other.gorjetaCentavos == gorjetaCentavos) &&
+            (identical(other.servicoCentavos, servicoCentavos) ||
+                other.servicoCentavos == servicoCentavos) &&
+            (identical(other.descontoCentavos, descontoCentavos) ||
+                other.descontoCentavos == descontoCentavos) &&
             (identical(other.totalCentavos, totalCentavos) ||
                 other.totalCentavos == totalCentavos) &&
             (identical(other.metodo, metodo) || other.metodo == metodo) &&
@@ -271,7 +302,8 @@ class _$PagamentoImpl implements _Pagamento {
       runtimeType,
       id,
       valorCentavos,
-      gorjetaCentavos,
+      servicoCentavos,
+      descontoCentavos,
       totalCentavos,
       metodo,
       status,
@@ -292,7 +324,8 @@ abstract class _Pagamento implements Pagamento {
   const factory _Pagamento(
       {required final String id,
       required final int valorCentavos,
-      required final int gorjetaCentavos,
+      required final int servicoCentavos,
+      final int descontoCentavos,
       required final int totalCentavos,
       required final MetodoPagamento metodo,
       required final StatusPagamento status,
@@ -302,10 +335,18 @@ abstract class _Pagamento implements Pagamento {
 
   @override
   String get id;
+
+  /// Subtotal do consumo, sem serviço e sem desconto (vem da API).
   @override
   int get valorCentavos;
+
+  /// Taxa de serviço calculada pela API, não pelo app.
   @override
-  int get gorjetaCentavos;
+  int get servicoCentavos;
+  @override
+  int get descontoCentavos;
+
+  /// Valor efetivamente cobrado: o saldo devido informado pela API.
   @override
   int get totalCentavos;
   @override
