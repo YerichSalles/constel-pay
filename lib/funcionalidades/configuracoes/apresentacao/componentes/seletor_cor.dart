@@ -35,6 +35,17 @@ class _SeletorCorState extends State<SeletorCor> {
       TextEditingController(text: widget.valorHex);
 
   @override
+  void didUpdateWidget(covariant SeletorCor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // So ressincroniza quando o valor mudou de fora (ex.: a faixa herdando a
+    // cor principal). Se o texto ja bate, nao mexe: sobrescrever aqui no meio
+    // da digitacao do proprio usuario neste campo atropelaria o cursor.
+    if (widget.valorHex != _campo.text) {
+      _campo.text = widget.valorHex;
+    }
+  }
+
+  @override
   void dispose() {
     _campo.dispose();
     super.dispose();

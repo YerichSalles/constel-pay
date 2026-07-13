@@ -1,4 +1,5 @@
 import 'package:constel_pay/aplicativo/injecao.dart';
+import 'package:constel_pay/aplicativo/tema/tema_constel.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/aba_aparencia.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/seletor_cor.dart';
 import 'package:flutter/material.dart';
@@ -82,5 +83,83 @@ void main() {
 
     // Faixa branca com texto branco: ilegivel no totem.
     expect(find.byKey(const Key('aviso_contraste_faixa')), findsOneWidget);
+  });
+
+  testWidgets('SeletorCor acompanha o valorHex quando ele muda de fora',
+      (tester) async {
+    // Identifica a amostra de cor (o circulo) pela borda de largura 2, que so
+    // ela usa; as amostras clicaveis usam a borda padrao (largura 1).
+    Color? corDaAmostra() {
+      final container = tester.widget<Container>(find.byWidgetPredicate(
+        (widget) =>
+            widget is Container &&
+            widget.decoration is BoxDecoration &&
+            (widget.decoration as BoxDecoration).border is Border &&
+            ((widget.decoration as BoxDecoration).border as Border).top.width ==
+                2,
+      ));
+      return (container.decoration as BoxDecoration).color;
+    }
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: SeletorCor(
+          rotulo: 'Cor da faixa de pagamento',
+          valorHex: '#5E52D6',
+          aoMudar: (_) {},
+        ),
+      ),
+    ));
+
+    expect(find.text('#5E52D6'), findsOneWidget);
+    expect(corDaAmostra(), TemaConstel.corDeHex('#5E52D6', Colors.black));
+
+    // Simula o irmao "Cor principal" mudando: o pai remonta o SeletorCor com
+    // um valorHex novo, sem o usuario ter digitado nada neste campo.
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: SeletorCor(
+          rotulo: 'Cor da faixa de pagamento',
+          valorHex: '#112233',
+          aoMudar: (_) {},
+        ),
+      ),
+    ));
+    await tester.pump();
+
+    expect(find.text('#112233'), findsOneWidget);
+    expect(corDaAmostra(), TemaConstel.corDeHex('#112233', Colors.black));
+  });
+
+  testWidgets(
+      'na aba, a cor da faixa acompanha a cor principal quando ela e a '
+      'cor herdada', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: const MaterialApp(home: Scaffold(body: AbaAparencia())),
+      ),
+    );
+    await tester.pump();
+
+    // "Cor principal" e o primeiro campo da lista; a faixa ainda nao tem cor
+    // propria, entao corFaixaEfetiva == corPrimaria.
+    await tester.enterText(find.byType(TextFormField).first, '#112233');
+    await tester.pumpAndSettle();
+
+    await tester.dragUntilVisible(
+      find.byKey(const Key('cor_faixa')),
+      find.byType(ListView),
+      const Offset(0, -300),
+    );
+    await tester.pumpAndSettle();
+
+    final campoFaixa = tester.widget<TextFormField>(find.descendant(
+      of: find.byKey(const Key('cor_faixa')),
+      matching: find.byType(TextFormField),
+    ));
+    expect(campoFaixa.controller!.text, '#112233');
   });
 }
