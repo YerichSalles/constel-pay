@@ -75,6 +75,9 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
+    expect(find.byType(SeletorAjusteMidia), findsOneWidget,
+        reason: 'o card precisa renderizar de fato para o teste provar algo '
+            'sobre overflow');
     expect(tester.takeException(), isNull,
         reason: 'o card de midia estourou (RenderFlex overflowed) em '
             'janela estreita: o Row de Duracao/Ajuste dentro do Wrap '
