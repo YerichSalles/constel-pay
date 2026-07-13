@@ -4,6 +4,8 @@ import '../../dominio/entidades/mesa.dart';
 
 /// Fonte MOCK de leitura de cartões. Simula a mesa 12 com 3 comandas.
 /// Será substituída pela integração real (scanner/API) trocando o provider.
+/// Os valores imitam o que a API da loja devolve pronto (serviço de 10% aqui é
+/// só do mock; na API real o percentual vem no campo `servicoPercentual`).
 class FonteLeituraMock {
   FonteLeituraMock({this.atraso = const Duration(milliseconds: 900)});
 
@@ -18,6 +20,11 @@ class FonteLeituraMock {
       emoji: '🍲',
       resumo: '2 pratos · 3 bebidas',
       subtotalCentavos: 13600,
+      servicoCentavos: 1360,
+      servicoPercentual: 10,
+      descontoCentavos: 0,
+      totalCentavos: 14960,
+      saldoCentavos: 14960,
       itens: [
         ItemConsumo(
             emoji: '🍲',
@@ -49,6 +56,11 @@ class FonteLeituraMock {
       emoji: '🦐',
       resumo: '1 prato · 3 bebidas',
       subtotalCentavos: 10200,
+      servicoCentavos: 1020,
+      servicoPercentual: 10,
+      descontoCentavos: 0,
+      totalCentavos: 11220,
+      saldoCentavos: 11220,
       itens: [
         ItemConsumo(
             emoji: '🦐',
@@ -75,6 +87,11 @@ class FonteLeituraMock {
       emoji: '🍚',
       resumo: '1 prato · 1 sobremesa · 1 bebida',
       subtotalCentavos: 8000,
+      servicoCentavos: 800,
+      servicoPercentual: 10,
+      descontoCentavos: 0,
+      totalCentavos: 8800,
+      saldoCentavos: 8800,
       itens: [
         ItemConsumo(
             emoji: '🍚',

@@ -38,11 +38,18 @@ class _PaginaSplashState extends ConsumerState<PaginaSplash> {
 
   /// Login automático na nuvem sem bloquear a navegação. Falhas apenas
   /// registram no log; a URL/credencial inválida não dispara chamada de rede.
+  /// No sucesso, o nome do estabelecimento retornado pelo login é refletido
+  /// imediatamente na tela.
   void _autenticarEmSegundoPlano() {
     unawaited(
       ref.read(provedorCasoUsoGarantirSessao).executar().then(
             (resultado) => resultado.quando(
-              sucesso: (_) {},
+              sucesso: (sessao) {
+                if (mounted && sessao.estabelecimento.nome.isNotEmpty) {
+                  setState(
+                      () => _nomeRestaurante = sessao.estabelecimento.nome);
+                }
+              },
               erro: (falha) =>
                   registrador.w('Login automático: ${falha.mensagem}'),
             ),

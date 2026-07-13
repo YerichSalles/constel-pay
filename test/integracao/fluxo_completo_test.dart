@@ -57,9 +57,6 @@ void main() {
     await tester.tap(find.textContaining('Ir para o pagamento'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.text('Sem taxa'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
     await tester.pump();
     await tester.tap(find.text('Pix'));
     await tester.pump();

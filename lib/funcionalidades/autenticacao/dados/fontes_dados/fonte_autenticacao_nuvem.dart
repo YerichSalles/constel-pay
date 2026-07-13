@@ -18,8 +18,8 @@ class FonteAutenticacaoNuvem {
     );
     try {
       return switch (resposta) {
-        Sucesso(:final valor) => Sucesso(
-            RespostaLoginNuvem.paraEntidade(valor.data as Map<String, dynamic>)),
+        Sucesso(:final valor) => Sucesso(RespostaLoginNuvem.paraEntidade(
+            valor.data as Map<String, dynamic>)),
         Erro(:final falha) => Erro(falha),
       };
     } catch (_) {

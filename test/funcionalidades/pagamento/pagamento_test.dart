@@ -10,11 +10,19 @@ import 'package:constel_pay/nucleo/erros/falha.dart';
 import 'package:constel_pay/nucleo/erros/resultado.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Pagamento _pagamento(String id) => Pagamento(
+Pagamento _pagamento(
+  String id, {
+  int valorCentavos = 13600,
+  int servicoCentavos = 1360,
+  int descontoCentavos = 0,
+  int totalCentavos = 14960,
+}) =>
+    Pagamento(
       id: id,
-      valorCentavos: 13600,
-      gorjetaCentavos: 1360,
-      totalCentavos: 14960,
+      valorCentavos: valorCentavos,
+      servicoCentavos: servicoCentavos,
+      descontoCentavos: descontoCentavos,
+      totalCentavos: totalCentavos,
       metodo: MetodoPagamento.pix,
       status: StatusPagamento.processando,
       criadoEm: DateTime(2026, 7, 6),
@@ -56,6 +64,25 @@ void main() {
     final aprovado = (resultado as Sucesso<Pagamento>).valor;
     expect(aprovado.status, StatusPagamento.aprovado);
     expect(aprovado.totalCentavos, 14960);
+  });
+
+  test('processar recusa total acima de subtotal + servico - desconto',
+      () async {
+    final casoUso = CasoUsoProcessarPagamento(repositorio);
+    final resultado = await casoUso.executar(
+        _pagamento('pag-inflado', descontoCentavos: 500, totalCentavos: 14960));
+    expect((resultado as Erro<Pagamento>).falha, isA<FalhaValidacao>());
+    expect(fonte.execucoesProcessar, 0);
+  });
+
+  test(
+      'processar aceita total menor que o teto (desconto ou pagamento parcial)',
+      () async {
+    final casoUso = CasoUsoProcessarPagamento(repositorio);
+    final resultado = await casoUso.executar(_pagamento('pag-desconto',
+        descontoCentavos: 500, totalCentavos: 14460));
+    expect((resultado as Sucesso<Pagamento>).valor.status,
+        StatusPagamento.aprovado);
   });
 
   test('processar e idempotente: mesmo id nao reprocessa', () async {

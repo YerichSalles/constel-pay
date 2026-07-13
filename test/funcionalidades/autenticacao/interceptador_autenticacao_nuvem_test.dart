@@ -80,8 +80,7 @@ void main() {
     expect(adaptador.autorizacoes.first, isNull);
   });
 
-  test(
-      'não trava quando renovarSessao lança: propaga o 401 original',
+  test('não trava quando renovarSessao lança: propaga o 401 original',
       () async {
     final dio = Dio(BaseOptions(baseUrl: 'http://x/api/'));
     final adaptador = _AdaptadorSequencia();

@@ -6,11 +6,15 @@ import '../../dominio/entidades/sessao_nuvem.dart';
 import '../../dominio/repositorios/repositorio_sessao_nuvem.dart';
 
 class RepositorioSessaoNuvemImpl implements RepositorioSessaoNuvem {
-  RepositorioSessaoNuvemImpl(this._armazenamento);
+  /// [chave] separa as sessões por servidor: o JWT é assinado por quem o
+  /// emitiu, então o token da nuvem não vale na API da loja e vice-versa.
+  RepositorioSessaoNuvemImpl(this._armazenamento,
+      {String chave = 'sessao_nuvem'})
+      : _chave = chave;
 
   final FlutterSecureStorage _armazenamento;
 
-  static const String _chave = 'sessao_nuvem';
+  final String _chave;
 
   @override
   Future<SessaoNuvem?> obter() async {

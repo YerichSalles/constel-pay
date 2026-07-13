@@ -69,9 +69,15 @@ const _configValida = ConfiguracaoTerminal(
 void main() {
   setUpAll(() {
     registerFallbackValue(const RequisicaoLoginNuvem(
-      username: '', password: '', timezone: '', nomeAplicativo: '',
-      versaoAplicativo: '', dataAplicativo: '', caminhoApi: '',
-      idDispositivo: '', nomeDispositivo: '',
+      username: '',
+      password: '',
+      timezone: '',
+      nomeAplicativo: '',
+      versaoAplicativo: '',
+      dataAplicativo: '',
+      caminhoApi: '',
+      idDispositivo: '',
+      nomeDispositivo: '',
     ));
   });
 
@@ -92,7 +98,8 @@ void main() {
 
   test('sem credencial devolve FalhaValidacao sem chamar a fonte', () async {
     final fonte = _FonteMock();
-    final caso = construir(fonte: fonte, credencial: null, sessao: _SessaoFake());
+    final caso =
+        construir(fonte: fonte, credencial: null, sessao: _SessaoFake());
     final resultado = await caso.executar();
     expect(resultado, isA<Erro<SessaoNuvem>>());
     expect((resultado as Erro<SessaoNuvem>).falha, isA<FalhaValidacao>());
@@ -110,7 +117,22 @@ void main() {
     verifyNever(() => fonte.login(any()));
   });
 
-  test('login com sucesso persiste a sessão e monta o payload correto', () async {
+  test('sem ID do dispositivo devolve FalhaValidacao sem chamar a fonte',
+      () async {
+    final fonte = _FonteMock();
+    final caso = construir(
+        fonte: fonte,
+        configuracao: _configValida.copyWith(idDispositivo: ''),
+        sessao: _SessaoFake());
+    final resultado = await caso.executar();
+    expect(resultado, isA<Erro<SessaoNuvem>>());
+    expect((resultado as Erro<SessaoNuvem>).falha, isA<FalhaValidacao>());
+    expect(resultado.falha.mensagem, contains('ID do dispositivo'));
+    verifyNever(() => fonte.login(any()));
+  });
+
+  test('login com sucesso persiste a sessão e monta o payload correto',
+      () async {
     final fonte = _FonteMock();
     final sessao = _SessaoFake();
     when(() => fonte.login(any())).thenAnswer((_) async => Sucesso(_sessao()));
@@ -120,14 +142,33 @@ void main() {
 
     expect(resultado, isA<Sucesso<SessaoNuvem>>());
     expect(sessao.salva?.token, 'jwt');
-    final capturada =
-        verify(() => fonte.login(captureAny())).captured.single as RequisicaoLoginNuvem;
+    final capturada = verify(() => fonte.login(captureAny())).captured.single
+        as RequisicaoLoginNuvem;
     expect(capturada.username, 'admin@audax.com');
     expect(capturada.nomeAplicativo, 'Constel Pay');
     expect(capturada.versaoAplicativo, '1.0.0');
     expect(capturada.caminhoApi, 'http://localhost:3000/api/');
     expect(capturada.idDispositivo, 'dev-uuid');
     expect(capturada.nomeDispositivo, 'TERMINAL-01');
+  });
+
+  test('login com sucesso grava o nome do estabelecimento na configuração',
+      () async {
+    final fonte = _FonteMock();
+    final configuracao = _ConfiguracaoFake(_configValida);
+    when(() => fonte.login(any())).thenAnswer((_) async => Sucesso(_sessao()));
+    final caso = CasoUsoLoginNuvem(
+      fonte: fonte,
+      repositorioConfiguracao: configuracao,
+      repositorioCredencial: _CredencialFake(
+          const Credencial(usuario: 'admin@audax.com', senha: 'segredo')),
+      repositorioSessao: _SessaoFake(),
+      infoAplicativo: _InfoFake(),
+    );
+
+    await caso.executar();
+
+    expect(configuracao.configuracao.nomeRestaurante, 'Loja');
   });
 
   test('falha da fonte não persiste sessão', () async {

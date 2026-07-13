@@ -21,6 +21,13 @@ mixin _$ItemConsumo {
   int get quantidade => throw _privateConstructorUsedError;
   int get valorCentavos => throw _privateConstructorUsedError;
 
+  /// Id do cadastro do item; vazio no mock. Usado para buscar a foto.
+  String get itemId => throw _privateConstructorUsedError;
+
+  /// URL pública da foto (campo `imagem` de `recurso/item/{itemId}`).
+  /// Vazia quando o item não tem foto — a UI cai no emoji.
+  String get imagemUrl => throw _privateConstructorUsedError;
+
   /// Create a copy of ItemConsumo
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -34,7 +41,13 @@ abstract class $ItemConsumoCopyWith<$Res> {
           ItemConsumo value, $Res Function(ItemConsumo) then) =
       _$ItemConsumoCopyWithImpl<$Res, ItemConsumo>;
   @useResult
-  $Res call({String emoji, String nome, int quantidade, int valorCentavos});
+  $Res call(
+      {String emoji,
+      String nome,
+      int quantidade,
+      int valorCentavos,
+      String itemId,
+      String imagemUrl});
 }
 
 /// @nodoc
@@ -56,6 +69,8 @@ class _$ItemConsumoCopyWithImpl<$Res, $Val extends ItemConsumo>
     Object? nome = null,
     Object? quantidade = null,
     Object? valorCentavos = null,
+    Object? itemId = null,
+    Object? imagemUrl = null,
   }) {
     return _then(_value.copyWith(
       emoji: null == emoji
@@ -74,6 +89,14 @@ class _$ItemConsumoCopyWithImpl<$Res, $Val extends ItemConsumo>
           ? _value.valorCentavos
           : valorCentavos // ignore: cast_nullable_to_non_nullable
               as int,
+      itemId: null == itemId
+          ? _value.itemId
+          : itemId // ignore: cast_nullable_to_non_nullable
+              as String,
+      imagemUrl: null == imagemUrl
+          ? _value.imagemUrl
+          : imagemUrl // ignore: cast_nullable_to_non_nullable
+              as String,
     ) as $Val);
   }
 }
@@ -86,7 +109,13 @@ abstract class _$$ItemConsumoImplCopyWith<$Res>
       __$$ItemConsumoImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String emoji, String nome, int quantidade, int valorCentavos});
+  $Res call(
+      {String emoji,
+      String nome,
+      int quantidade,
+      int valorCentavos,
+      String itemId,
+      String imagemUrl});
 }
 
 /// @nodoc
@@ -106,6 +135,8 @@ class __$$ItemConsumoImplCopyWithImpl<$Res>
     Object? nome = null,
     Object? quantidade = null,
     Object? valorCentavos = null,
+    Object? itemId = null,
+    Object? imagemUrl = null,
   }) {
     return _then(_$ItemConsumoImpl(
       emoji: null == emoji
@@ -124,6 +155,14 @@ class __$$ItemConsumoImplCopyWithImpl<$Res>
           ? _value.valorCentavos
           : valorCentavos // ignore: cast_nullable_to_non_nullable
               as int,
+      itemId: null == itemId
+          ? _value.itemId
+          : itemId // ignore: cast_nullable_to_non_nullable
+              as String,
+      imagemUrl: null == imagemUrl
+          ? _value.imagemUrl
+          : imagemUrl // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -135,7 +174,9 @@ class _$ItemConsumoImpl extends _ItemConsumo {
       {required this.emoji,
       required this.nome,
       required this.quantidade,
-      required this.valorCentavos})
+      required this.valorCentavos,
+      this.itemId = '',
+      this.imagemUrl = ''})
       : super._();
 
   @override
@@ -147,9 +188,20 @@ class _$ItemConsumoImpl extends _ItemConsumo {
   @override
   final int valorCentavos;
 
+  /// Id do cadastro do item; vazio no mock. Usado para buscar a foto.
+  @override
+  @JsonKey()
+  final String itemId;
+
+  /// URL pública da foto (campo `imagem` de `recurso/item/{itemId}`).
+  /// Vazia quando o item não tem foto — a UI cai no emoji.
+  @override
+  @JsonKey()
+  final String imagemUrl;
+
   @override
   String toString() {
-    return 'ItemConsumo(emoji: $emoji, nome: $nome, quantidade: $quantidade, valorCentavos: $valorCentavos)';
+    return 'ItemConsumo(emoji: $emoji, nome: $nome, quantidade: $quantidade, valorCentavos: $valorCentavos, itemId: $itemId, imagemUrl: $imagemUrl)';
   }
 
   @override
@@ -162,12 +214,15 @@ class _$ItemConsumoImpl extends _ItemConsumo {
             (identical(other.quantidade, quantidade) ||
                 other.quantidade == quantidade) &&
             (identical(other.valorCentavos, valorCentavos) ||
-                other.valorCentavos == valorCentavos));
+                other.valorCentavos == valorCentavos) &&
+            (identical(other.itemId, itemId) || other.itemId == itemId) &&
+            (identical(other.imagemUrl, imagemUrl) ||
+                other.imagemUrl == imagemUrl));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, emoji, nome, quantidade, valorCentavos);
+  int get hashCode => Object.hash(
+      runtimeType, emoji, nome, quantidade, valorCentavos, itemId, imagemUrl);
 
   /// Create a copy of ItemConsumo
   /// with the given fields replaced by the non-null parameter values.
@@ -183,7 +238,9 @@ abstract class _ItemConsumo extends ItemConsumo {
       {required final String emoji,
       required final String nome,
       required final int quantidade,
-      required final int valorCentavos}) = _$ItemConsumoImpl;
+      required final int valorCentavos,
+      final String itemId,
+      final String imagemUrl}) = _$ItemConsumoImpl;
   const _ItemConsumo._() : super._();
 
   @override
@@ -194,6 +251,15 @@ abstract class _ItemConsumo extends ItemConsumo {
   int get quantidade;
   @override
   int get valorCentavos;
+
+  /// Id do cadastro do item; vazio no mock. Usado para buscar a foto.
+  @override
+  String get itemId;
+
+  /// URL pública da foto (campo `imagem` de `recurso/item/{itemId}`).
+  /// Vazia quando o item não tem foto — a UI cai no emoji.
+  @override
+  String get imagemUrl;
 
   /// Create a copy of ItemConsumo
   /// with the given fields replaced by the non-null parameter values.

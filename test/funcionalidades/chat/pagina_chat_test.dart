@@ -52,17 +52,13 @@ void main() {
     expect(find.text('Mesa 12'), findsOneWidget);
     expect(find.textContaining('Comanda 01'), findsWidgets);
 
-    // ir para pagamento
+    // ir para pagamento: a taxa de serviço da API já vem embutida, sem escolha
     await tester.tap(find.textContaining('Ir para o pagamento'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
-    expect(find.textContaining('10% de serviço'), findsWidgets);
-
-    // sem taxa
-    await tester.tap(find.text('Sem taxa'));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 50));
-    await tester.pump();
+    expect(find.textContaining('de serviço'), findsWidgets);
+    expect(find.text('Sem taxa'), findsNothing);
     expect(find.text('Pix'), findsOneWidget);
 
     // escolher pix

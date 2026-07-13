@@ -31,6 +31,7 @@ class _AdaptadorResposta implements HttpClientAdapter {
       'content-type': ['application/json']
     });
   }
+
   @override
   void close({bool force = false}) {}
 }
@@ -80,8 +81,8 @@ void main() {
   });
 
   test('login com erro HTTP devolve Erro', () async {
-    final fonte = FonteAutenticacaoNuvem(
-        _cliente(_AdaptadorResposta(const {'mensagem': 'nao autorizado'}, 401)));
+    final fonte = FonteAutenticacaoNuvem(_cliente(
+        _AdaptadorResposta(const {'mensagem': 'nao autorizado'}, 401)));
     final resultado = await fonte.login(_requisicao);
     expect(resultado, isA<Erro<SessaoNuvem>>());
     expect((resultado as Erro<SessaoNuvem>).falha, isA<Falha>());

@@ -21,7 +21,6 @@ mixin _$EstadoFluxoPagamento {
   Mesa? get mesa => throw _privateConstructorUsedError;
   List<CartaoConsumo> get cartoes => throw _privateConstructorUsedError;
   int get cartoesRestantes => throw _privateConstructorUsedError;
-  int get gorjetaPercentual => throw _privateConstructorUsedError;
   DadosPix? get dadosPix => throw _privateConstructorUsedError;
   bool get digitando => throw _privateConstructorUsedError;
   bool get copiado => throw _privateConstructorUsedError;
@@ -45,7 +44,6 @@ abstract class $EstadoFluxoPagamentoCopyWith<$Res> {
       Mesa? mesa,
       List<CartaoConsumo> cartoes,
       int cartoesRestantes,
-      int gorjetaPercentual,
       DadosPix? dadosPix,
       bool digitando,
       bool copiado});
@@ -75,7 +73,6 @@ class _$EstadoFluxoPagamentoCopyWithImpl<$Res,
     Object? mesa = freezed,
     Object? cartoes = null,
     Object? cartoesRestantes = null,
-    Object? gorjetaPercentual = null,
     Object? dadosPix = freezed,
     Object? digitando = null,
     Object? copiado = null,
@@ -100,10 +97,6 @@ class _$EstadoFluxoPagamentoCopyWithImpl<$Res,
       cartoesRestantes: null == cartoesRestantes
           ? _value.cartoesRestantes
           : cartoesRestantes // ignore: cast_nullable_to_non_nullable
-              as int,
-      gorjetaPercentual: null == gorjetaPercentual
-          ? _value.gorjetaPercentual
-          : gorjetaPercentual // ignore: cast_nullable_to_non_nullable
               as int,
       dadosPix: freezed == dadosPix
           ? _value.dadosPix
@@ -163,7 +156,6 @@ abstract class _$$EstadoFluxoPagamentoImplCopyWith<$Res>
       Mesa? mesa,
       List<CartaoConsumo> cartoes,
       int cartoesRestantes,
-      int gorjetaPercentual,
       DadosPix? dadosPix,
       bool digitando,
       bool copiado});
@@ -192,7 +184,6 @@ class __$$EstadoFluxoPagamentoImplCopyWithImpl<$Res>
     Object? mesa = freezed,
     Object? cartoes = null,
     Object? cartoesRestantes = null,
-    Object? gorjetaPercentual = null,
     Object? dadosPix = freezed,
     Object? digitando = null,
     Object? copiado = null,
@@ -217,10 +208,6 @@ class __$$EstadoFluxoPagamentoImplCopyWithImpl<$Res>
       cartoesRestantes: null == cartoesRestantes
           ? _value.cartoesRestantes
           : cartoesRestantes // ignore: cast_nullable_to_non_nullable
-              as int,
-      gorjetaPercentual: null == gorjetaPercentual
-          ? _value.gorjetaPercentual
-          : gorjetaPercentual // ignore: cast_nullable_to_non_nullable
               as int,
       dadosPix: freezed == dadosPix
           ? _value.dadosPix
@@ -247,7 +234,6 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
       this.mesa,
       final List<CartaoConsumo> cartoes = const [],
       this.cartoesRestantes = 0,
-      this.gorjetaPercentual = 0,
       this.dadosPix,
       this.digitando = false,
       this.copiado = false})
@@ -282,9 +268,6 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
   @JsonKey()
   final int cartoesRestantes;
   @override
-  @JsonKey()
-  final int gorjetaPercentual;
-  @override
   final DadosPix? dadosPix;
   @override
   @JsonKey()
@@ -295,7 +278,7 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
 
   @override
   String toString() {
-    return 'EstadoFluxoPagamento(etapa: $etapa, mensagens: $mensagens, mesa: $mesa, cartoes: $cartoes, cartoesRestantes: $cartoesRestantes, gorjetaPercentual: $gorjetaPercentual, dadosPix: $dadosPix, digitando: $digitando, copiado: $copiado)';
+    return 'EstadoFluxoPagamento(etapa: $etapa, mensagens: $mensagens, mesa: $mesa, cartoes: $cartoes, cartoesRestantes: $cartoesRestantes, dadosPix: $dadosPix, digitando: $digitando, copiado: $copiado)';
   }
 
   @override
@@ -310,8 +293,6 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
             const DeepCollectionEquality().equals(other._cartoes, _cartoes) &&
             (identical(other.cartoesRestantes, cartoesRestantes) ||
                 other.cartoesRestantes == cartoesRestantes) &&
-            (identical(other.gorjetaPercentual, gorjetaPercentual) ||
-                other.gorjetaPercentual == gorjetaPercentual) &&
             (identical(other.dadosPix, dadosPix) ||
                 other.dadosPix == dadosPix) &&
             (identical(other.digitando, digitando) ||
@@ -327,7 +308,6 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
       mesa,
       const DeepCollectionEquality().hash(_cartoes),
       cartoesRestantes,
-      gorjetaPercentual,
       dadosPix,
       digitando,
       copiado);
@@ -350,7 +330,6 @@ abstract class _EstadoFluxoPagamento extends EstadoFluxoPagamento {
       final Mesa? mesa,
       final List<CartaoConsumo> cartoes,
       final int cartoesRestantes,
-      final int gorjetaPercentual,
       final DadosPix? dadosPix,
       final bool digitando,
       final bool copiado}) = _$EstadoFluxoPagamentoImpl;
@@ -366,8 +345,6 @@ abstract class _EstadoFluxoPagamento extends EstadoFluxoPagamento {
   List<CartaoConsumo> get cartoes;
   @override
   int get cartoesRestantes;
-  @override
-  int get gorjetaPercentual;
   @override
   DadosPix? get dadosPix;
   @override

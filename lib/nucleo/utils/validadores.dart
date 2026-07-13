@@ -7,4 +7,9 @@ abstract final class Validadores {
   }
 
   static bool pinValido(String valor) => RegExp(r'^\d{4,6}$').hasMatch(valor);
+
+  static bool uuidValido(String valor) => RegExp(
+        r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}'
+        r'-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+      ).hasMatch(valor.trim());
 }

@@ -11,7 +11,6 @@ enum EtapaFluxo {
   inicial,
   lendo,
   aguardandoMaisCartoes,
-  gorjeta,
   escolhaMetodo,
   pixAguardando,
   processando,
@@ -30,7 +29,6 @@ class EstadoFluxoPagamento with _$EstadoFluxoPagamento {
     Mesa? mesa,
     @Default([]) List<CartaoConsumo> cartoes,
     @Default(0) int cartoesRestantes,
-    @Default(0) int gorjetaPercentual,
     DadosPix? dadosPix,
     @Default(false) bool digitando,
     @Default(false) bool copiado,
@@ -39,11 +37,18 @@ class EstadoFluxoPagamento with _$EstadoFluxoPagamento {
   List<CartaoConsumo> get selecionados =>
       cartoes.where((c) => c.selecionado && !c.pago).toList();
 
+  // Todos os valores são somas dos campos já calculados pela API. A taxa de
+  // serviço e o desconto são regra do retaguarda — o app nunca os recalcula.
   int get subtotalCentavos =>
       selecionados.fold(0, (acumulado, c) => acumulado + c.subtotalCentavos);
 
-  int get gorjetaCentavos =>
-      ((subtotalCentavos * gorjetaPercentual) / 100).round();
+  int get servicoCentavos =>
+      selecionados.fold(0, (acumulado, c) => acumulado + c.servicoCentavos);
 
-  int get totalCentavos => subtotalCentavos + gorjetaCentavos;
+  int get descontoCentavos =>
+      selecionados.fold(0, (acumulado, c) => acumulado + c.descontoCentavos);
+
+  /// Valor devido: soma do `saldo` de cada comanda (total menos o já pago).
+  int get totalCentavos =>
+      selecionados.fold(0, (acumulado, c) => acumulado + c.saldoCentavos);
 }

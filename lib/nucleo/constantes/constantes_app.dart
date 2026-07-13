@@ -14,4 +14,15 @@ abstract final class ConstantesApp {
   // Caminho do login na API de nuvem (relativo à urlNuvemAtiva, que deve
   // terminar com '/'). Ex.: base 'http://host/api/' + 'auth/login'.
   static const String caminhoLoginNuvem = 'auth/login';
+
+  // Consumo do cartão/mesa na API da loja (relativo à base, que deve
+  // terminar com '/'). classe e situacao são fixos do atendimento de
+  // consumo em aberto; a referência (mesa/cartão) é dinâmica.
+  static const String caminhoColecaoAtendimento = 'venda/atendimento/colecao';
+
+  // Cadastro do item na API da loja (relativo à base). Devolve o item completo,
+  // de onde o app usa apenas o campo `imagem` (URL pública da foto).
+  static const String caminhoRecursoItem = 'recurso/item/';
+  static const int classeAtendimentoConsumo = 1600;
+  static const int situacaoAtendimentoAberto = 20;
 }

@@ -14,7 +14,16 @@ class CartaoConsumo with _$CartaoConsumo {
     required String emoji,
     required String resumo,
     required List<ItemConsumo> itens,
+    // Valores vêm prontos da API (venda/atendimento/colecao). Nunca recalcular:
+    // a regra de serviço/desconto é do retaguarda. `saldoCentavos` é o devido.
     required int subtotalCentavos,
+    required int servicoCentavos,
+
+    /// Percentual da taxa de serviço definido pelo retaguarda (pode não ser 10).
+    @Default(0) num servicoPercentual,
+    required int descontoCentavos,
+    required int totalCentavos,
+    required int saldoCentavos,
     @Default(false) bool selecionado,
     @Default(false) bool pago,
   }) = _CartaoConsumo;

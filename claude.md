@@ -64,43 +64,16 @@ Fazer:
 
 Use uma estrutura simples, previsivel e facil de manter.
 
-Estrutura sugerida:
+As pastas de `lib/` usam nomes em pt-BR. Nao criar pastas em ingles (`core`, `features`, `shared`) — usar as existentes:
 
-```text
-lib/
-  main.dart
-  app/
-    constel_pay_app.dart
-    routes.dart
-    theme/
-      app_theme.dart
-      app_colors.dart
-      app_text_styles.dart
-  core/
-    config/
-      app_config.dart
-      environment.dart
-    constants/
-    errors/
-    formatters/
-    utils/
-  features/
-    home/
-    payment/
-    confirmation/
-    settings/
-  shared/
-    widgets/
-    layout/
-    buttons/
-    cards/
-    inputs/
-    feedback/
-```
+- `lib/aplicativo/` — app, rotas e `tema/`.
+- `lib/nucleo/` — `configuracao/`, `constantes/`, `dispositivo/`, `erros/`, `formatadores/`, `utils/`.
+- `lib/funcionalidades/` — uma pasta por tela/fluxo.
+- `lib/compartilhado/` — `widgets/`, `layout/`, `feedback/`.
 
 Regras:
 
-- Separar `core`, `features` e `shared`.
+- Separar `nucleo`, `funcionalidades` e `compartilhado`.
 - Evitar arquivos gigantes. Preferir arquivos com menos de 600 linhas.
 - Nao usar BLoC por padrao, a menos que o projeto ja tenha adotado.
 - Para estado simples, preferir `ValueNotifier`, `ChangeNotifier` ou padrao ja existente.
@@ -217,7 +190,7 @@ Obrigatorio:
 - Sem TODO generico deixado para tras.
 - Sem hardcode desnecessario.
 - Sem duplicacao visual grande.
-- Jamais ultrapasse mais de 700 linhas nos arquivos de código.
+- Jamais ultrapasse 600 linhas nos arquivos de codigo.
 
 Antes de finalizar uma tarefa:
 
@@ -230,7 +203,7 @@ Antes de finalizar uma tarefa:
 Comandos esperados:
 
 ```bash
-flutter format .
+dart format .
 flutter analyze
 flutter test
 ```
