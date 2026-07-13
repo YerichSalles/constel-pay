@@ -38,9 +38,15 @@ void main() {
     await tester.enterText(find.byType(TextFormField).first, '#112233');
     await tester.pumpAndSettle();
 
-    // Scroll to ensure button is visible
-    final listView = find.byType(ListView);
-    await tester.drag(listView, const Offset(0, -1000));
+    // ensureVisible exige que o elemento ja exista na arvore, mas a lista e
+    // lazy (SliverList): o botao pode estar fora da viewport + cache extent
+    // padrao. dragUntilVisible rola ate ele aparecer, sem depender do
+    // comprimento exato da lista.
+    await tester.dragUntilVisible(
+      find.text('Aplicar tema'),
+      find.byType(ListView),
+      const Offset(0, -300),
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Aplicar tema'));
@@ -48,5 +54,33 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(container.read(provedorTema).corPrimaria, '#112233');
+  });
+
+  testWidgets('a aba avisa quando a faixa fica sem contraste', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: const MaterialApp(home: Scaffold(body: AbaAparencia())),
+      ),
+    );
+    await tester.pump();
+
+    // Padrao: texto branco sobre a cor primaria. Contraste suficiente.
+    expect(find.byKey(const Key('aviso_contraste_faixa')), findsNothing);
+
+    // O seletor da faixa fica fora da viewport + cache extent padrao da
+    // lista lazy; precisa rolar antes de conseguir digitar nele.
+    await tester.dragUntilVisible(
+      find.byKey(const Key('cor_faixa')),
+      find.byType(ListView),
+      const Offset(0, -300),
+    );
+    await tester.enterText(find.byKey(const Key('cor_faixa')), '#FFFFFF');
+    await tester.pumpAndSettle();
+
+    // Faixa branca com texto branco: ilegivel no totem.
+    expect(find.byKey(const Key('aviso_contraste_faixa')), findsOneWidget);
   });
 }
