@@ -81,6 +81,31 @@ void main() {
           'Pague aqui');
     });
 
+    test('texto com espacos nas pontas chega aparado na faixa', () {
+      expect(
+          const TemaPersonalizado(textoFaixa: '  Pague aqui  ')
+              .textoFaixaEfetivo,
+          'Pague aqui');
+    });
+
+    test(
+        'corFaixa em branco (string vazia ou so espacos) tambem herda a '
+        'primaria, igual ao null', () {
+      const vazia = TemaPersonalizado(corPrimaria: '#FFD166', corFaixa: '');
+      expect(vazia.corFaixaEfetiva, '#FFD166');
+
+      const espacos =
+          TemaPersonalizado(corPrimaria: '#FFD166', corFaixa: '   ');
+      expect(espacos.corFaixaEfetiva, '#FFD166');
+
+      const nula = TemaPersonalizado(corPrimaria: '#FFD166');
+      expect(nula.corFaixaEfetiva, '#FFD166');
+
+      const propria =
+          TemaPersonalizado(corPrimaria: '#FFD166', corFaixa: '#1B7F3B');
+      expect(propria.corFaixaEfetiva, '#1B7F3B');
+    });
+
     test('os campos da faixa sobrevivem ao round-trip', () async {
       SharedPreferences.setMockInitialValues({});
       final repositorio =

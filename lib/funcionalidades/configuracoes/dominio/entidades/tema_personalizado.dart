@@ -23,11 +23,15 @@ class TemaPersonalizado with _$TemaPersonalizado {
 
   /// A faixa acompanha a cor principal ate o operador escolher uma cor propria
   /// para ela. Nulo aqui e o que da a heranca, sem precisar de uma flag
-  /// "herdar sim/nao" separada para manter em sincronia.
-  String get corFaixaEfetiva => corFaixa ?? corPrimaria;
+  /// "herdar sim/nao" separada para manter em sincronia. Uma string vazia ou
+  /// so com espacos (campo limpo pelo operador no editor de texto) conta como
+  /// a mesma coisa que null: senao a heranca morre em silencio.
+  String get corFaixaEfetiva =>
+      (corFaixa?.trim().isEmpty ?? true) ? corPrimaria : corFaixa!.trim();
 
   /// Um totem sem chamada para pagar e um defeito, nao uma preferencia: campo
-  /// vazio cai no padrao.
+  /// vazio cai no padrao. O texto tambem chega aparado, para nao levar os
+  /// espacos que o operador deixou nas pontas para a faixa.
   String get textoFaixaEfetivo =>
-      textoFaixa.trim().isEmpty ? textoFaixaPadrao : textoFaixa;
+      textoFaixa.trim().isEmpty ? textoFaixaPadrao : textoFaixa.trim();
 }

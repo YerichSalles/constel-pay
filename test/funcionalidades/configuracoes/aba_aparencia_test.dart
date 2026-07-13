@@ -2,6 +2,8 @@ import 'package:constel_pay/aplicativo/injecao.dart';
 import 'package:constel_pay/aplicativo/tema/tema_constel.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/aba_aparencia.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/seletor_cor.dart';
+import 'package:constel_pay/funcionalidades/configuracoes/dados/repositorios/repositorio_tema_impl.dart';
+import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/tema_personalizado.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -83,6 +85,46 @@ void main() {
 
     // Faixa branca com texto branco: ilegivel no totem.
     expect(find.byKey(const Key('aviso_contraste_faixa')), findsOneWidget);
+  });
+
+  testWidgets(
+      'a aba avisa mesmo quando a faixa herdada veio de um corFaixa em '
+      'branco (string vazia, nao null)', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    // Loja com primaria amarela e um operador que ja limpou o campo da cor da
+    // faixa uma vez: o repositorio grava corFaixa como string vazia, nao
+    // como null. Com o texto padrao (branco), a faixa resultante no totem
+    // fica quase ilegivel (~1,7:1 de contraste).
+    await RepositorioTemaImpl(preferencias)
+        .salvar(const TemaPersonalizado(corPrimaria: '#FFD166', corFaixa: ''));
+
+    final container = ProviderContainer(
+      overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+    );
+    addTearDown(container.dispose);
+    await container.read(provedorTema.notifier).carregar();
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: AbaAparencia())),
+      ),
+    );
+    await tester.pump();
+
+    // O aviso fica logo abaixo do seletor da faixa, fora da viewport inicial
+    // da lista lazy.
+    await tester.dragUntilVisible(
+      find.byKey(const Key('cor_faixa')),
+      find.byType(ListView),
+      const Offset(0, -300),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('aviso_contraste_faixa')), findsOneWidget,
+        reason: 'faixa amarela com texto branco e ilegivel e devia disparar '
+            'o aviso de contraste, mesmo com corFaixa em string vazia');
   });
 
   testWidgets('SeletorCor acompanha o valorHex quando ele muda de fora',

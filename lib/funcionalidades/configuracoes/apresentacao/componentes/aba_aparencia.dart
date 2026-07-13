@@ -71,8 +71,9 @@ class _AbaAparenciaState extends ConsumerState<AbaAparencia> {
     final fundo = TemaConstel.corDeHex(tema.corFundo, CoresApp.fundoPadrao);
     final corTexto =
         TemaConstel.corDeHex(tema.corTexto, CoresApp.textoPrincipal);
-    final faixaFundo =
-        TemaConstel.corDeHex(tema.corFaixaEfetiva, CoresApp.primariaPadrao);
+    // Reserva a primaria da propria loja, e nao a padrao hardcoded: assim o
+    // preview nunca resolve uma cor que o totem nao pintaria.
+    final faixaFundo = TemaConstel.corDeHex(tema.corFaixaEfetiva, primaria);
     final faixaTexto = TemaConstel.corDeHex(tema.corTextoFaixa, Colors.white);
     final semContraste =
         razaoDeContraste(faixaFundo, faixaTexto) < contrasteMinimoTexto;
