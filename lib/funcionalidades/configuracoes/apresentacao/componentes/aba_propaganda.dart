@@ -44,6 +44,7 @@ class AbaPropaganda extends ConsumerWidget {
         'jpeg',
         'png',
         'webp',
+        'gif',
         'mp4',
         'mov',
         'webm',

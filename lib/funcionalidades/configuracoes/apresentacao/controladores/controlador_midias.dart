@@ -94,6 +94,13 @@ class ControladorMidias extends StateNotifier<EstadoMidias> {
         midia.id == id ? midia.copyWith(duracaoSegundos: segundos) : midia,
     ]);
   }
+
+  Future<void> definirAjuste(String id, AjusteMidia ajuste) async {
+    await _persistir([
+      for (final midia in state.midias)
+        midia.id == id ? midia.copyWith(ajuste: ajuste) : midia,
+    ]);
+  }
 }
 
 final provedorMidias =

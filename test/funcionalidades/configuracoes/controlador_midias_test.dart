@@ -57,4 +57,19 @@ void main() {
     await controlador.definirDuracao(idB, 15);
     expect(controlador.state.midias.single.duracaoSegundos, 15);
   });
+
+  test('gif entra como imagem animada, com ajuste automatico', () async {
+    await controlador.adicionarArquivos(['/m/oferta.gif']);
+    final midia = controlador.state.midias.single;
+    expect(midia.tipo, TipoMidia.imagem);
+    expect(midia.ajuste, AjusteMidia.automatico);
+  });
+
+  test('definirAjuste atualiza o estado e persiste', () async {
+    await controlador.adicionarArquivos(['/m/a.png']);
+    final id = controlador.state.midias.single.id;
+    await controlador.definirAjuste(id, AjusteMidia.esticar);
+    expect(controlador.state.midias.single.ajuste, AjusteMidia.esticar);
+    expect((await repositorio.obterTodas()).single.ajuste, AjusteMidia.esticar);
+  });
 }
