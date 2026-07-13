@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/painting.dart';
 
 import '../dominio/entidades/midia_propaganda.dart';
@@ -31,8 +33,8 @@ BoxFit resolverBoxFit({
           razaoTela <= 0) {
         return BoxFit.contain;
       }
-      final maior = razaoMidia > razaoTela ? razaoMidia : razaoTela;
-      final menor = razaoMidia > razaoTela ? razaoTela : razaoMidia;
+      final maior = math.max(razaoMidia, razaoTela);
+      final menor = math.min(razaoMidia, razaoTela);
       return menor / maior >= aproveitamentoMinimoParaPreencher
           ? BoxFit.cover
           : BoxFit.contain;
