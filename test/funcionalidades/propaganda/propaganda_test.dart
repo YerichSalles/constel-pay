@@ -1,5 +1,7 @@
 import 'package:constel_pay/aplicativo/injecao.dart';
+import 'package:constel_pay/aplicativo/tema/tema_constel.dart';
 import 'package:constel_pay/compartilhado/widgets/faixa_pagamento.dart';
+import 'package:constel_pay/funcionalidades/propaganda/apresentacao/componentes/player_propaganda.dart';
 import 'package:constel_pay/funcionalidades/propaganda/apresentacao/controladores/controlador_propaganda.dart';
 import 'package:constel_pay/funcionalidades/propaganda/apresentacao/paginas/pagina_propaganda.dart';
 import 'package:constel_pay/funcionalidades/propaganda/dados/repositorios/repositorio_propaganda_impl.dart';
@@ -63,5 +65,81 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(find.text('CHAT'), findsOneWidget);
+  });
+
+  GoRouter roteadorPropagandaEChat() => GoRouter(
+        initialLocation: '/propaganda',
+        routes: [
+          GoRoute(
+              path: '/propaganda',
+              builder: (_, __) => const PaginaPropaganda()),
+          GoRoute(
+              path: '/chat',
+              builder: (_, __) => const Scaffold(body: Text('CHAT'))),
+        ],
+      );
+
+  testWidgets(
+      'com midia, o player e a faixa coexistem, o player recebe a cor '
+      'primaria do tema e o toque ainda navega para o chat', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    final repositorio = RepositorioPropagandaImpl(preferencias);
+    // Imagem apontando para um arquivo inexistente: o player pinta so a cor
+    // de fundo e agenda o temporizador de 1s da midia sem arquivo, sem
+    // depender do video_player.
+    await repositorio.salvarTodas(const [
+      MidiaPropaganda(
+          id: 'a',
+          tipo: TipoMidia.imagem,
+          caminho: '/midias/inexistente.png',
+          ordem: 1),
+    ]);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: MaterialApp.router(routerConfig: roteadorPropagandaEChat()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.byType(PlayerPropaganda), findsOneWidget);
+    expect(find.byType(FaixaPagamento), findsOneWidget);
+
+    final player =
+        tester.widget<PlayerPropaganda>(find.byType(PlayerPropaganda));
+    expect(player.corFundo, TemaConstel.corDeHex('#5E52D6', Colors.black),
+        reason: 'o player precisa herdar a cor primaria do tema da loja');
+
+    // Drena o temporizador de 1s da midia sem arquivo antes de seguir, para
+    // nao deixar timer pendente no fim do teste.
+    await tester.pump(const Duration(seconds: 1));
+
+    await tester.tap(find.byType(FaixaPagamento));
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('CHAT'), findsOneWidget);
+  });
+
+  testWidgets(
+      'enquanto carrega, a faixa nao aparece (evita piscar a chamada antes '
+      'da tela existir)', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: MaterialApp.router(routerConfig: roteadorPropagandaEChat()),
+      ),
+    );
+
+    // Logo apos o primeiro frame, antes do postFrameCallback terminar de
+    // carregar as midias: estado.carregando ainda e true.
+    expect(find.byType(FaixaPagamento), findsNothing);
+
+    // Deixa o carregamento terminar para nao vazar estado pendente no teste.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
   });
 }
