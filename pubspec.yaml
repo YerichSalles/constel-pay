@@ -23,14 +23,15 @@ dependencies:
   intl: any
   uuid: ^4.5.1
   connectivity_plus: ^6.1.1
-  google_fonts: ^6.2.1
   crypto: ^3.0.6
   collection: ^1.19.0
   qr_flutter: ^4.1.0
   video_player: ^2.9.2
   file_picker: ^8.1.6
+  flutter_svg: ^2.0.17
   package_info_plus: ^8.1.2
   path_provider: ^2.1.5
+  video_player_win: ^3.2.2
 
 dev_dependencies:
   flutter_test:
@@ -40,6 +41,78 @@ dev_dependencies:
   json_serializable: ^6.9.0
   flutter_lints: ^5.0.0
   mocktail: ^1.0.4
+  flutter_launcher_icons: ^0.14.3
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/marca/
+  # Fontes empacotadas: o terminal funciona sem internet.
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fontes/Inter-400.ttf
+        - asset: assets/fontes/Inter-600.ttf
+          weight: 600
+        - asset: assets/fontes/Inter-700.ttf
+          weight: 700
+    - family: Roboto
+      fonts:
+        - asset: assets/fontes/Roboto-400.ttf
+        - asset: assets/fontes/Roboto-600.ttf
+          weight: 600
+        - asset: assets/fontes/Roboto-700.ttf
+          weight: 700
+    - family: Open Sans
+      fonts:
+        - asset: assets/fontes/OpenSans-400.ttf
+        - asset: assets/fontes/OpenSans-600.ttf
+          weight: 600
+        - asset: assets/fontes/OpenSans-700.ttf
+          weight: 700
+    - family: Lato
+      fonts:
+        - asset: assets/fontes/Lato-400.ttf
+        - asset: assets/fontes/Lato-700.ttf
+          weight: 700
+    - family: Montserrat
+      fonts:
+        - asset: assets/fontes/Montserrat-400.ttf
+        - asset: assets/fontes/Montserrat-600.ttf
+          weight: 600
+        - asset: assets/fontes/Montserrat-700.ttf
+          weight: 700
+    - family: Poppins
+      fonts:
+        - asset: assets/fontes/Poppins-400.ttf
+        - asset: assets/fontes/Poppins-600.ttf
+          weight: 600
+        - asset: assets/fontes/Poppins-700.ttf
+          weight: 700
+    - family: Nunito
+      fonts:
+        - asset: assets/fontes/Nunito-400.ttf
+        - asset: assets/fontes/Nunito-600.ttf
+          weight: 600
+        - asset: assets/fontes/Nunito-700.ttf
+          weight: 700
+    - family: Rubik
+      fonts:
+        - asset: assets/fontes/Rubik-400.ttf
+        - asset: assets/fontes/Rubik-600.ttf
+          weight: 600
+        - asset: assets/fontes/Rubik-700.ttf
+          weight: 700
+
+# Icone do app (Android e Windows). Para regerar:
+#   flutter test tool/gerar_icone_app.dart   -> rasteriza o SVG em PNG
+#   dart run flutter_launcher_icons          -> gera os icones das plataformas
+flutter_launcher_icons:
+  image_path: assets/marca/icone_app.png
+  android: true
+  min_sdk_android: 21
+  remove_alpha_ios: false
+  windows:
+    generate: true
+    image_path: assets/marca/icone_app.png
+    icon_size: 256

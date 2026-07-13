@@ -8,6 +8,7 @@ import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../aplicativo/tema/tema_constel.dart';
 import '../../../../compartilhado/widgets/botao_primario.dart';
+import '../../../../compartilhado/widgets/imagem_logo.dart';
 import '../componentes/player_propaganda.dart';
 import '../controladores/controlador_propaganda.dart';
 
@@ -118,7 +119,11 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
                     clipBehavior: Clip.antiAlias,
                     alignment: Alignment.center,
                     child: temLogo
-                        ? Image.file(File(logoPath), fit: BoxFit.cover)
+                        ? ImagemLogo(
+                            caminho: logoPath,
+                            reserva: const Text('🍽️',
+                                style: TextStyle(fontSize: 60)),
+                          )
                         : const Text('🍽️', style: TextStyle(fontSize: 60)),
                   ),
                   const SizedBox(height: 20),
@@ -203,6 +208,9 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
         fit: StackFit.expand,
         children: [
           PlayerPropaganda(
+            // A chave inclui o indice: repetir a mesma midia recria o player e
+            // reinicia a reproducao do zero.
+            key: ValueKey('${estado.indice}_${estado.midiaAtual!.id}'),
             midia: estado.midiaAtual!,
             aoTerminar: () => ref.read(provedorPropaganda.notifier).avancar(),
           ),

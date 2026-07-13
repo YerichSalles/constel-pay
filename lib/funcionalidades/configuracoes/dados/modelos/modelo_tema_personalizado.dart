@@ -14,6 +14,9 @@ class ModeloTemaPersonalizado with _$ModeloTemaPersonalizado {
     required String corSecundaria,
     required String corFundo,
     required String corBotoes,
+    // Campos novos: temas ja salvos nao os possuem, por isso tem padrao.
+    @Default('#2F2B3D') String corTexto,
+    @Default('Inter') String fonte,
     String? logoPath,
   }) = _ModeloTemaPersonalizado;
 
@@ -26,6 +29,8 @@ class ModeloTemaPersonalizado with _$ModeloTemaPersonalizado {
         corSecundaria: entidade.corSecundaria,
         corFundo: entidade.corFundo,
         corBotoes: entidade.corBotoes,
+        corTexto: entidade.corTexto,
+        fonte: entidade.fonte,
         logoPath: entidade.logoPath,
       );
 
@@ -34,6 +39,8 @@ class ModeloTemaPersonalizado with _$ModeloTemaPersonalizado {
         corSecundaria: corSecundaria,
         corFundo: corFundo,
         corBotoes: corBotoes,
+        corTexto: corTexto,
+        fonte: fonte,
         logoPath: logoPath,
       );
 }

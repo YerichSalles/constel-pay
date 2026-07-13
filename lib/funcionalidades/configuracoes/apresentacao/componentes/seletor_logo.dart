@@ -9,12 +9,16 @@ import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../compartilhado/feedback/snackbar_padrao.dart';
 import '../../../../compartilhado/widgets/botao_secundario.dart';
+import '../../../../compartilhado/widgets/imagem_logo.dart';
 
 class SeletorLogo extends ConsumerWidget {
   const SeletorLogo({super.key});
 
   Future<void> _escolher(BuildContext context, WidgetRef ref) async {
-    final resultado = await FilePicker.platform.pickFiles(type: FileType.image);
+    final resultado = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: extensoesLogoAceitas,
+    );
     final caminhoOrigem = resultado?.files.single.path;
     if (caminhoOrigem == null) return;
     try {
@@ -55,7 +59,10 @@ class SeletorLogo extends ConsumerWidget {
           clipBehavior: Clip.antiAlias,
           alignment: Alignment.center,
           child: temLogo
-              ? Image.file(File(logoPath), fit: BoxFit.cover)
+              ? ImagemLogo(
+                  caminho: logoPath,
+                  reserva: const Text('🍽️', style: TextStyle(fontSize: 28)),
+                )
               : const Text('🍽️', style: TextStyle(fontSize: 28)),
         ),
         const SizedBox(width: 14),

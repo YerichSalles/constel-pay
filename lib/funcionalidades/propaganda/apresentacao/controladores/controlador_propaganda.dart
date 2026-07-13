@@ -31,9 +31,11 @@ class ControladorPropaganda extends StateNotifier<EstadoPropaganda> {
     state = state.copyWith(midias: midias, indice: 0, carregando: false);
   }
 
+  /// O indice cresce sempre; `midiaAtual` aplica o modulo. Assim, com uma unica
+  /// midia na playlist o estado ainda muda e o player reinicia a reproducao.
   void avancar() {
     if (state.midias.isEmpty) return;
-    state = state.copyWith(indice: (state.indice + 1) % state.midias.length);
+    state = state.copyWith(indice: state.indice + 1);
   }
 }
 

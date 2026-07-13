@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Constel Pay (Windows)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "deviceId": "windows",
+      "flutterMode": "debug"
+    },
+    {
+      "name": "Constel Pay (Android)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "deviceId": "android",
+      "flutterMode": "debug"
+    },
+    {
+      "name": "Constel Pay (Windows, profile)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "deviceId": "windows",
+      "flutterMode": "profile"
+    }
+  ]
+}
