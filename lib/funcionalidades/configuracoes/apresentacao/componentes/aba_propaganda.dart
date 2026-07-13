@@ -15,6 +15,7 @@ import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
 import '../../../propaganda/apresentacao/paginas/pagina_propaganda.dart';
 import '../../../propaganda/dominio/entidades/midia_propaganda.dart';
 import '../controladores/controlador_midias.dart';
+import 'seletor_ajuste_midia.dart';
 
 class AbaPropaganda extends ConsumerWidget {
   const AbaPropaganda({super.key});
@@ -109,32 +110,48 @@ class AbaPropaganda extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w700)),
-                if (midia.tipo == TipoMidia.imagem)
-                  Row(
-                    children: [
-                      const Text('Duração:',
-                          style: TextStyle(
-                              fontSize: 11.5, color: CoresApp.textoSecundario)),
-                      const SizedBox(width: 6),
-                      SizedBox(
-                        width: 44,
-                        child: TextFormField(
-                          initialValue: '${midia.duracaoSegundos}',
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                              isDense: true,
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 6)),
-                          onFieldSubmitted: (valor) =>
-                              controlador.definirDuracao(midia.id,
-                                  int.tryParse(valor) ?? midia.duracaoSegundos),
-                        ),
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 12,
+                  children: [
+                    if (midia.tipo == TipoMidia.imagem)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('Duração:',
+                              style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: CoresApp.textoSecundario)),
+                          const SizedBox(width: 6),
+                          SizedBox(
+                            width: 44,
+                            child: TextFormField(
+                              initialValue: '${midia.duracaoSegundos}',
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 6)),
+                              onFieldSubmitted: (valor) =>
+                                  controlador.definirDuracao(
+                                      midia.id,
+                                      int.tryParse(valor) ??
+                                          midia.duracaoSegundos),
+                            ),
+                          ),
+                          const Text(' s',
+                              style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: CoresApp.textoSecundario)),
+                        ],
                       ),
-                      const Text(' s',
-                          style: TextStyle(
-                              fontSize: 11.5, color: CoresApp.textoSecundario)),
-                    ],
-                  ),
+                    SeletorAjusteMidia(
+                      valor: midia.ajuste,
+                      aoMudar: (ajuste) =>
+                          controlador.definirAjuste(midia.id, ajuste),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -174,8 +191,10 @@ class AbaPropaganda extends ConsumerWidget {
       children: [
         const Text(
           'Ideal: mídia em pé (retrato), 1080 x 1920 px. Vídeos em MP4 com '
-          'codec H.264, 30 fps e no máximo 6 Mbps. A mídia preenche a tela '
-          'inteira, então sobras nas bordas podem ser cortadas.',
+          'codec H.264, 30 fps e no máximo 6 Mbps. GIF é aceito e roda em loop '
+          'até a duração acabar. O Ajuste decide como cada mídia ocupa a tela: '
+          'no Automático, o app preenche quando o formato é parecido com o da '
+          'tela e encaixa (com tarja na cor primária) quando cortaria demais.',
           style: TextStyle(fontSize: 11.5, color: CoresApp.textoSecundario),
         ),
         const SizedBox(height: 14),
