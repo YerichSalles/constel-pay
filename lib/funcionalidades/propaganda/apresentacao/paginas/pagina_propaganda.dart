@@ -152,7 +152,7 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
               child: SafeArea(
                 child: IconButton(
                   onPressed: _abrirConfiguracoes,
-                  tooltip: 'Configuracoes',
+                  tooltip: 'Configurações',
                   icon: const Icon(Icons.settings, color: Colors.white),
                   style: IconButton.styleFrom(
                     backgroundColor: Colors.black.withValues(alpha: .45),
