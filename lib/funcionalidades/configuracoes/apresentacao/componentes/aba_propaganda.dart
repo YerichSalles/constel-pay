@@ -171,6 +171,13 @@ class AbaPropaganda extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
+        const Text(
+          'Ideal: mídia em pé (retrato), 1080 x 1920 px. Vídeos em MP4 com '
+          'codec H.264, 30 fps e no máximo 6 Mbps. A mídia preenche a tela '
+          'inteira, então sobras nas bordas podem ser cortadas.',
+          style: TextStyle(fontSize: 11.5, color: CoresApp.textoSecundario),
+        ),
+        const SizedBox(height: 14),
         if (estado.midias.isEmpty && !estado.carregando)
           const EstadoVazio(
             emoji: '🎬',

@@ -20,6 +20,8 @@ mixin _$TemaPersonalizado {
   String get corSecundaria => throw _privateConstructorUsedError;
   String get corFundo => throw _privateConstructorUsedError;
   String get corBotoes => throw _privateConstructorUsedError;
+  String get corTexto => throw _privateConstructorUsedError;
+  String get fonte => throw _privateConstructorUsedError;
   String? get logoPath => throw _privateConstructorUsedError;
 
   /// Create a copy of TemaPersonalizado
@@ -40,6 +42,8 @@ abstract class $TemaPersonalizadoCopyWith<$Res> {
       String corSecundaria,
       String corFundo,
       String corBotoes,
+      String corTexto,
+      String fonte,
       String? logoPath});
 }
 
@@ -62,6 +66,8 @@ class _$TemaPersonalizadoCopyWithImpl<$Res, $Val extends TemaPersonalizado>
     Object? corSecundaria = null,
     Object? corFundo = null,
     Object? corBotoes = null,
+    Object? corTexto = null,
+    Object? fonte = null,
     Object? logoPath = freezed,
   }) {
     return _then(_value.copyWith(
@@ -80,6 +86,14 @@ class _$TemaPersonalizadoCopyWithImpl<$Res, $Val extends TemaPersonalizado>
       corBotoes: null == corBotoes
           ? _value.corBotoes
           : corBotoes // ignore: cast_nullable_to_non_nullable
+              as String,
+      corTexto: null == corTexto
+          ? _value.corTexto
+          : corTexto // ignore: cast_nullable_to_non_nullable
+              as String,
+      fonte: null == fonte
+          ? _value.fonte
+          : fonte // ignore: cast_nullable_to_non_nullable
               as String,
       logoPath: freezed == logoPath
           ? _value.logoPath
@@ -102,6 +116,8 @@ abstract class _$$TemaPersonalizadoImplCopyWith<$Res>
       String corSecundaria,
       String corFundo,
       String corBotoes,
+      String corTexto,
+      String fonte,
       String? logoPath});
 }
 
@@ -122,6 +138,8 @@ class __$$TemaPersonalizadoImplCopyWithImpl<$Res>
     Object? corSecundaria = null,
     Object? corFundo = null,
     Object? corBotoes = null,
+    Object? corTexto = null,
+    Object? fonte = null,
     Object? logoPath = freezed,
   }) {
     return _then(_$TemaPersonalizadoImpl(
@@ -141,6 +159,14 @@ class __$$TemaPersonalizadoImplCopyWithImpl<$Res>
           ? _value.corBotoes
           : corBotoes // ignore: cast_nullable_to_non_nullable
               as String,
+      corTexto: null == corTexto
+          ? _value.corTexto
+          : corTexto // ignore: cast_nullable_to_non_nullable
+              as String,
+      fonte: null == fonte
+          ? _value.fonte
+          : fonte // ignore: cast_nullable_to_non_nullable
+              as String,
       logoPath: freezed == logoPath
           ? _value.logoPath
           : logoPath // ignore: cast_nullable_to_non_nullable
@@ -157,6 +183,8 @@ class _$TemaPersonalizadoImpl implements _TemaPersonalizado {
       this.corSecundaria = '#FFD166',
       this.corFundo = '#F7F7FB',
       this.corBotoes = '#5E52D6',
+      this.corTexto = '#2F2B3D',
+      this.fonte = 'Inter',
       this.logoPath});
 
   @override
@@ -172,11 +200,17 @@ class _$TemaPersonalizadoImpl implements _TemaPersonalizado {
   @JsonKey()
   final String corBotoes;
   @override
+  @JsonKey()
+  final String corTexto;
+  @override
+  @JsonKey()
+  final String fonte;
+  @override
   final String? logoPath;
 
   @override
   String toString() {
-    return 'TemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, logoPath: $logoPath)';
+    return 'TemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, corTexto: $corTexto, fonte: $fonte, logoPath: $logoPath)';
   }
 
   @override
@@ -192,13 +226,16 @@ class _$TemaPersonalizadoImpl implements _TemaPersonalizado {
                 other.corFundo == corFundo) &&
             (identical(other.corBotoes, corBotoes) ||
                 other.corBotoes == corBotoes) &&
+            (identical(other.corTexto, corTexto) ||
+                other.corTexto == corTexto) &&
+            (identical(other.fonte, fonte) || other.fonte == fonte) &&
             (identical(other.logoPath, logoPath) ||
                 other.logoPath == logoPath));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType, corPrimaria, corSecundaria, corFundo, corBotoes, logoPath);
+  int get hashCode => Object.hash(runtimeType, corPrimaria, corSecundaria,
+      corFundo, corBotoes, corTexto, fonte, logoPath);
 
   /// Create a copy of TemaPersonalizado
   /// with the given fields replaced by the non-null parameter values.
@@ -216,6 +253,8 @@ abstract class _TemaPersonalizado implements TemaPersonalizado {
       final String corSecundaria,
       final String corFundo,
       final String corBotoes,
+      final String corTexto,
+      final String fonte,
       final String? logoPath}) = _$TemaPersonalizadoImpl;
 
   @override
@@ -226,6 +265,10 @@ abstract class _TemaPersonalizado implements TemaPersonalizado {
   String get corFundo;
   @override
   String get corBotoes;
+  @override
+  String get corTexto;
+  @override
+  String get fonte;
   @override
   String? get logoPath;
 

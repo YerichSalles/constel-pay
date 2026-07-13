@@ -9,6 +9,8 @@ class TemaPersonalizado with _$TemaPersonalizado {
     @Default('#FFD166') String corSecundaria,
     @Default('#F7F7FB') String corFundo,
     @Default('#5E52D6') String corBotoes,
+    @Default('#2F2B3D') String corTexto,
+    @Default('Inter') String fonte,
     String? logoPath,
   }) = _TemaPersonalizado;
 }

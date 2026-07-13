@@ -13,6 +13,8 @@ _$ModeloTemaPersonalizadoImpl _$$ModeloTemaPersonalizadoImplFromJson(
       corSecundaria: json['corSecundaria'] as String,
       corFundo: json['corFundo'] as String,
       corBotoes: json['corBotoes'] as String,
+      corTexto: json['corTexto'] as String? ?? '#2F2B3D',
+      fonte: json['fonte'] as String? ?? 'Inter',
       logoPath: json['logoPath'] as String?,
     );
 
@@ -23,5 +25,7 @@ Map<String, dynamic> _$$ModeloTemaPersonalizadoImplToJson(
       'corSecundaria': instance.corSecundaria,
       'corFundo': instance.corFundo,
       'corBotoes': instance.corBotoes,
+      'corTexto': instance.corTexto,
+      'fonte': instance.fonte,
       'logoPath': instance.logoPath,
     };

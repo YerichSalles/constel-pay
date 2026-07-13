@@ -24,7 +24,10 @@ mixin _$ModeloTemaPersonalizado {
   String get corPrimaria => throw _privateConstructorUsedError;
   String get corSecundaria => throw _privateConstructorUsedError;
   String get corFundo => throw _privateConstructorUsedError;
-  String get corBotoes => throw _privateConstructorUsedError;
+  String get corBotoes =>
+      throw _privateConstructorUsedError; // Campos novos: temas ja salvos nao os possuem, por isso tem padrao.
+  String get corTexto => throw _privateConstructorUsedError;
+  String get fonte => throw _privateConstructorUsedError;
   String? get logoPath => throw _privateConstructorUsedError;
 
   /// Serializes this ModeloTemaPersonalizado to a JSON map.
@@ -48,6 +51,8 @@ abstract class $ModeloTemaPersonalizadoCopyWith<$Res> {
       String corSecundaria,
       String corFundo,
       String corBotoes,
+      String corTexto,
+      String fonte,
       String? logoPath});
 }
 
@@ -71,6 +76,8 @@ class _$ModeloTemaPersonalizadoCopyWithImpl<$Res,
     Object? corSecundaria = null,
     Object? corFundo = null,
     Object? corBotoes = null,
+    Object? corTexto = null,
+    Object? fonte = null,
     Object? logoPath = freezed,
   }) {
     return _then(_value.copyWith(
@@ -89,6 +96,14 @@ class _$ModeloTemaPersonalizadoCopyWithImpl<$Res,
       corBotoes: null == corBotoes
           ? _value.corBotoes
           : corBotoes // ignore: cast_nullable_to_non_nullable
+              as String,
+      corTexto: null == corTexto
+          ? _value.corTexto
+          : corTexto // ignore: cast_nullable_to_non_nullable
+              as String,
+      fonte: null == fonte
+          ? _value.fonte
+          : fonte // ignore: cast_nullable_to_non_nullable
               as String,
       logoPath: freezed == logoPath
           ? _value.logoPath
@@ -112,6 +127,8 @@ abstract class _$$ModeloTemaPersonalizadoImplCopyWith<$Res>
       String corSecundaria,
       String corFundo,
       String corBotoes,
+      String corTexto,
+      String fonte,
       String? logoPath});
 }
 
@@ -134,6 +151,8 @@ class __$$ModeloTemaPersonalizadoImplCopyWithImpl<$Res>
     Object? corSecundaria = null,
     Object? corFundo = null,
     Object? corBotoes = null,
+    Object? corTexto = null,
+    Object? fonte = null,
     Object? logoPath = freezed,
   }) {
     return _then(_$ModeloTemaPersonalizadoImpl(
@@ -153,6 +172,14 @@ class __$$ModeloTemaPersonalizadoImplCopyWithImpl<$Res>
           ? _value.corBotoes
           : corBotoes // ignore: cast_nullable_to_non_nullable
               as String,
+      corTexto: null == corTexto
+          ? _value.corTexto
+          : corTexto // ignore: cast_nullable_to_non_nullable
+              as String,
+      fonte: null == fonte
+          ? _value.fonte
+          : fonte // ignore: cast_nullable_to_non_nullable
+              as String,
       logoPath: freezed == logoPath
           ? _value.logoPath
           : logoPath // ignore: cast_nullable_to_non_nullable
@@ -169,6 +196,8 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
       required this.corSecundaria,
       required this.corFundo,
       required this.corBotoes,
+      this.corTexto = '#2F2B3D',
+      this.fonte = 'Inter',
       this.logoPath})
       : super._();
 
@@ -183,12 +212,19 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
   final String corFundo;
   @override
   final String corBotoes;
+// Campos novos: temas ja salvos nao os possuem, por isso tem padrao.
+  @override
+  @JsonKey()
+  final String corTexto;
+  @override
+  @JsonKey()
+  final String fonte;
   @override
   final String? logoPath;
 
   @override
   String toString() {
-    return 'ModeloTemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, logoPath: $logoPath)';
+    return 'ModeloTemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, corTexto: $corTexto, fonte: $fonte, logoPath: $logoPath)';
   }
 
   @override
@@ -204,14 +240,17 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
                 other.corFundo == corFundo) &&
             (identical(other.corBotoes, corBotoes) ||
                 other.corBotoes == corBotoes) &&
+            (identical(other.corTexto, corTexto) ||
+                other.corTexto == corTexto) &&
+            (identical(other.fonte, fonte) || other.fonte == fonte) &&
             (identical(other.logoPath, logoPath) ||
                 other.logoPath == logoPath));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, corPrimaria, corSecundaria, corFundo, corBotoes, logoPath);
+  int get hashCode => Object.hash(runtimeType, corPrimaria, corSecundaria,
+      corFundo, corBotoes, corTexto, fonte, logoPath);
 
   /// Create a copy of ModeloTemaPersonalizado
   /// with the given fields replaced by the non-null parameter values.
@@ -236,6 +275,8 @@ abstract class _ModeloTemaPersonalizado extends ModeloTemaPersonalizado {
       required final String corSecundaria,
       required final String corFundo,
       required final String corBotoes,
+      final String corTexto,
+      final String fonte,
       final String? logoPath}) = _$ModeloTemaPersonalizadoImpl;
   const _ModeloTemaPersonalizado._() : super._();
 
@@ -249,7 +290,12 @@ abstract class _ModeloTemaPersonalizado extends ModeloTemaPersonalizado {
   @override
   String get corFundo;
   @override
-  String get corBotoes;
+  String
+      get corBotoes; // Campos novos: temas ja salvos nao os possuem, por isso tem padrao.
+  @override
+  String get corTexto;
+  @override
+  String get fonte;
   @override
   String? get logoPath;
 

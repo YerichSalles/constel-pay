@@ -21,6 +21,7 @@ abstract final class TemaConstel {
     final secundaria = corDeHex(tema.corSecundaria, CoresApp.secundariaPadrao);
     final fundo = corDeHex(tema.corFundo, CoresApp.fundoPadrao);
     final botoes = corDeHex(tema.corBotoes, CoresApp.botoesPadrao);
+    final texto = corDeHex(tema.corTexto, CoresApp.textoPrincipal);
 
     final esquema = ColorScheme.fromSeed(
       seedColor: primaria,
@@ -33,7 +34,8 @@ abstract final class TemaConstel {
       useMaterial3: true,
       colorScheme: esquema,
       scaffoldBackgroundColor: fundo,
-      textTheme: EstilosTexto.criarTextTheme(CoresApp.textoPrincipal),
+      fontFamily: EstilosTexto.familia(tema.fonte),
+      textTheme: EstilosTexto.criarTextTheme(texto, tema.fonte),
       appBarTheme: AppBarTheme(
         backgroundColor: primaria,
         foregroundColor: Colors.white,
@@ -84,10 +86,16 @@ abstract final class TemaConstel {
         ),
         labelStyle: const TextStyle(color: CoresApp.textoSecundario),
       ),
+      // A TabBar fica dentro da AppBar (fundo na cor primaria), por isso os
+      // rotulos sao claros: a cor primaria sobre ela mesma some.
       tabBarTheme: TabBarThemeData(
-        labelColor: primaria,
-        unselectedLabelColor: CoresApp.textoSecundario,
-        indicatorColor: primaria,
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.white.withValues(alpha: .75),
+        indicatorColor: secundaria,
+        indicatorSize: TabBarIndicatorSize.tab,
+        labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+        unselectedLabelStyle:
+            const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       ),
       snackBarTheme:
           const SnackBarThemeData(behavior: SnackBarBehavior.floating),

@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/tema_constel.dart';
 import '../../../../compartilhado/widgets/detector_toque_longo.dart';
+import '../../../../compartilhado/widgets/imagem_logo.dart';
 import '../../../../nucleo/constantes/constantes_app.dart';
 import '../../../../nucleo/utils/registrador.dart';
 
@@ -114,7 +115,11 @@ class _PaginaSplashState extends ConsumerState<PaginaSplash> {
                   clipBehavior: Clip.antiAlias,
                   alignment: Alignment.center,
                   child: temLogo
-                      ? Image.file(File(logoPath), fit: BoxFit.cover)
+                      ? ImagemLogo(
+                          caminho: logoPath,
+                          reserva:
+                              const Text('🍽️', style: TextStyle(fontSize: 60)),
+                        )
                       : const Text('🍽️', style: TextStyle(fontSize: 60)),
                 ),
               ),

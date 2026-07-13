@@ -20,6 +20,7 @@ class PlayerPropaganda extends StatefulWidget {
 class _PlayerPropagandaState extends State<PlayerPropaganda> {
   Timer? _temporizador;
   VideoPlayerController? _video;
+  bool _terminado = false;
 
   @override
   void initState() {
@@ -36,38 +37,58 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
     }
   }
 
+  /// O listener do video dispara varias vezes no fim da reproducao; sem esta
+  /// guarda a playlist pularia midias.
+  void _terminar() {
+    if (_terminado) return;
+    _terminado = true;
+    widget.aoTerminar();
+  }
+
   void _preparar() {
+    _terminado = false;
     final arquivo = File(widget.midia.caminho);
     if (!arquivo.existsSync()) {
-      _temporizador = Timer(const Duration(seconds: 1), widget.aoTerminar);
+      _temporizador = Timer(const Duration(seconds: 1), _terminar);
       return;
     }
     if (widget.midia.tipo == TipoMidia.imagem) {
-      _temporizador = Timer(
-          Duration(seconds: widget.midia.duracaoSegundos), widget.aoTerminar);
-    } else {
-      final controlador = VideoPlayerController.file(arquivo);
-      _video = controlador;
-      controlador.initialize().then((_) {
-        if (!mounted) return;
-        setState(() {});
-        controlador.play();
-      });
-      controlador.addListener(() {
-        final valor = controlador.value;
-        if (valor.isInitialized &&
-            !valor.isPlaying &&
-            valor.position >= valor.duration &&
-            valor.duration > Duration.zero) {
-          widget.aoTerminar();
-        }
-      });
+      _temporizador =
+          Timer(Duration(seconds: widget.midia.duracaoSegundos), _terminar);
+      return;
+    }
+    final controlador = VideoPlayerController.file(arquivo);
+    _video = controlador;
+    controlador.addListener(_aoAtualizarVideo);
+    controlador.initialize().then((_) {
+      if (!mounted) return;
+      setState(() {});
+      controlador.play();
+    }).catchError((Object _) {
+      // Arquivo corrompido ou codec nao suportado: segue para a proxima midia
+      // em vez de deixar a tela preta.
+      if (mounted) _temporizador = Timer(const Duration(seconds: 1), _terminar);
+    });
+  }
+
+  void _aoAtualizarVideo() {
+    final valor = _video?.value;
+    if (valor == null) return;
+    if (valor.hasError) {
+      _terminar();
+      return;
+    }
+    if (valor.isInitialized &&
+        valor.duration > Duration.zero &&
+        valor.position >= valor.duration) {
+      _terminar();
     }
   }
 
   void _limpar() {
     _temporizador?.cancel();
     _temporizador = null;
+    _video?.removeListener(_aoAtualizarVideo);
     _video?.dispose();
     _video = null;
   }
