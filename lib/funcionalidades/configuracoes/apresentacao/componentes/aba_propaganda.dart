@@ -208,8 +208,8 @@ class AbaPropaganda extends ConsumerWidget {
           const EstadoVazio(
             emoji: '🎬',
             titulo: 'Nenhuma mídia configurada',
-            mensagem:
-                'Sem mídias, a tela de espera mostra a chamada padrão "Toque para pagar".',
+            mensagem: 'Sem mídias, a tela de espera mostra a logo, o nome '
+                'do restaurante e a faixa de pagamento.',
           )
         else
           ...estado.midias.map((midia) => _cardMidia(context, ref, midia)),
