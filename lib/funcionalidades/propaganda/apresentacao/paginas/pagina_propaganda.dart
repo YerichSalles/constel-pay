@@ -212,6 +212,7 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
             // reinicia a reproducao do zero.
             key: ValueKey('${estado.indice}_${estado.midiaAtual!.id}'),
             midia: estado.midiaAtual!,
+            corFundo: primaria,
             aoTerminar: () => ref.read(provedorPropaganda.notifier).avancar(),
           ),
           Positioned(
