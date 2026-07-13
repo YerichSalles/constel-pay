@@ -31,6 +31,9 @@ class MidiaPropaganda with _$MidiaPropaganda {
     required String caminho,
     @Default(8) int duracaoSegundos,
     @Default(AjusteMidia.automatico) AjusteMidia ajuste,
+    @Default(FundoMidia.borrado) FundoMidia fundo,
+    @Default(AncoraMidia.centro) AncoraMidia ancora,
+    @Default(100) int zoomPercentual,
     required int ordem,
     @Default(true) bool ativo,
   }) = _MidiaPropaganda;

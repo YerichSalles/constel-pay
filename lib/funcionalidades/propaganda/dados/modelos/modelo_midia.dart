@@ -20,6 +20,13 @@ class ModeloMidia with _$ModeloMidia {
     @Default(AjusteMidia.automatico)
     @JsonKey(unknownEnumValue: AjusteMidia.automatico)
     AjusteMidia ajuste,
+    @Default(FundoMidia.borrado)
+    @JsonKey(unknownEnumValue: FundoMidia.borrado)
+    FundoMidia fundo,
+    @Default(AncoraMidia.centro)
+    @JsonKey(unknownEnumValue: AncoraMidia.centro)
+    AncoraMidia ancora,
+    @Default(100) int zoomPercentual,
     required int ordem,
     required bool ativo,
   }) = _ModeloMidia;
@@ -33,6 +40,9 @@ class ModeloMidia with _$ModeloMidia {
         caminho: entidade.caminho,
         duracaoSegundos: entidade.duracaoSegundos,
         ajuste: entidade.ajuste,
+        fundo: entidade.fundo,
+        ancora: entidade.ancora,
+        zoomPercentual: entidade.zoomPercentual,
         ordem: entidade.ordem,
         ativo: entidade.ativo,
       );
@@ -43,6 +53,9 @@ class ModeloMidia with _$ModeloMidia {
         caminho: caminho,
         duracaoSegundos: duracaoSegundos,
         ajuste: ajuste,
+        fundo: fundo,
+        ancora: ancora,
+        zoomPercentual: zoomPercentual,
         ordem: ordem,
         ativo: ativo,
       );

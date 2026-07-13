@@ -79,5 +79,36 @@ void main() {
     expect(midias, hasLength(1),
         reason: 'a playlist antiga nao pode ser perdida');
     expect(midias.single.ajuste, AjusteMidia.automatico);
+    expect(midias.single.fundo, FundoMidia.borrado);
+    expect(midias.single.ancora, AncoraMidia.centro);
+    expect(midias.single.zoomPercentual, 100);
+  });
+
+  test('o enquadramento escolhido sobrevive ao round-trip', () async {
+    SharedPreferences.setMockInitialValues({});
+    final repositorio =
+        RepositorioPropagandaImpl(await SharedPreferences.getInstance());
+    await repositorio.salvarTodas(const [
+      MidiaPropaganda(
+          id: 'a',
+          tipo: TipoMidia.imagem,
+          caminho: '/m/a.png',
+          ordem: 1,
+          fundo: FundoMidia.cor,
+          ancora: AncoraMidia.topo,
+          zoomPercentual: 140),
+    ]);
+    final midia = (await repositorio.obterTodas()).single;
+    expect(midia.fundo, FundoMidia.cor);
+    expect(midia.ancora, AncoraMidia.topo);
+    expect(midia.zoomPercentual, 140);
+  });
+
+  test('midia nova nasce com fundo borrado, ancora central e zoom 100', () {
+    const midia = MidiaPropaganda(
+        id: 'a', tipo: TipoMidia.imagem, caminho: '/m/a.png', ordem: 1);
+    expect(midia.fundo, FundoMidia.borrado);
+    expect(midia.ancora, AncoraMidia.centro);
+    expect(midia.zoomPercentual, 100);
   });
 }
