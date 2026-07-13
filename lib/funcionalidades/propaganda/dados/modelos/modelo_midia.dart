@@ -1,3 +1,6 @@
+// O JsonKey abaixo anota um parametro de construtor (padrao freezed), o que o
+// analyzer confunde com alvo invalido mesmo sendo o uso correto e documentado.
+// ignore_for_file: invalid_annotation_target
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../dominio/entidades/midia_propaganda.dart';
@@ -14,6 +17,9 @@ class ModeloMidia with _$ModeloMidia {
     required TipoMidia tipo,
     required String caminho,
     required int duracaoSegundos,
+    @Default(AjusteMidia.automatico)
+    @JsonKey(unknownEnumValue: AjusteMidia.automatico)
+    AjusteMidia ajuste,
     required int ordem,
     required bool ativo,
   }) = _ModeloMidia;
@@ -26,6 +32,7 @@ class ModeloMidia with _$ModeloMidia {
         tipo: entidade.tipo,
         caminho: entidade.caminho,
         duracaoSegundos: entidade.duracaoSegundos,
+        ajuste: entidade.ajuste,
         ordem: entidade.ordem,
         ativo: entidade.ativo,
       );
@@ -35,6 +42,7 @@ class ModeloMidia with _$ModeloMidia {
         tipo: tipo,
         caminho: caminho,
         duracaoSegundos: duracaoSegundos,
+        ajuste: ajuste,
         ordem: ordem,
         ativo: ativo,
       );

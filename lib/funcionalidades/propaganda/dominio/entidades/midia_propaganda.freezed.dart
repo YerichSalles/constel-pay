@@ -20,6 +20,7 @@ mixin _$MidiaPropaganda {
   TipoMidia get tipo => throw _privateConstructorUsedError;
   String get caminho => throw _privateConstructorUsedError;
   int get duracaoSegundos => throw _privateConstructorUsedError;
+  AjusteMidia get ajuste => throw _privateConstructorUsedError;
   int get ordem => throw _privateConstructorUsedError;
   bool get ativo => throw _privateConstructorUsedError;
 
@@ -41,6 +42,7 @@ abstract class $MidiaPropagandaCopyWith<$Res> {
       TipoMidia tipo,
       String caminho,
       int duracaoSegundos,
+      AjusteMidia ajuste,
       int ordem,
       bool ativo});
 }
@@ -64,6 +66,7 @@ class _$MidiaPropagandaCopyWithImpl<$Res, $Val extends MidiaPropaganda>
     Object? tipo = null,
     Object? caminho = null,
     Object? duracaoSegundos = null,
+    Object? ajuste = null,
     Object? ordem = null,
     Object? ativo = null,
   }) {
@@ -84,6 +87,10 @@ class _$MidiaPropagandaCopyWithImpl<$Res, $Val extends MidiaPropaganda>
           ? _value.duracaoSegundos
           : duracaoSegundos // ignore: cast_nullable_to_non_nullable
               as int,
+      ajuste: null == ajuste
+          ? _value.ajuste
+          : ajuste // ignore: cast_nullable_to_non_nullable
+              as AjusteMidia,
       ordem: null == ordem
           ? _value.ordem
           : ordem // ignore: cast_nullable_to_non_nullable
@@ -109,6 +116,7 @@ abstract class _$$MidiaPropagandaImplCopyWith<$Res>
       TipoMidia tipo,
       String caminho,
       int duracaoSegundos,
+      AjusteMidia ajuste,
       int ordem,
       bool ativo});
 }
@@ -130,6 +138,7 @@ class __$$MidiaPropagandaImplCopyWithImpl<$Res>
     Object? tipo = null,
     Object? caminho = null,
     Object? duracaoSegundos = null,
+    Object? ajuste = null,
     Object? ordem = null,
     Object? ativo = null,
   }) {
@@ -150,6 +159,10 @@ class __$$MidiaPropagandaImplCopyWithImpl<$Res>
           ? _value.duracaoSegundos
           : duracaoSegundos // ignore: cast_nullable_to_non_nullable
               as int,
+      ajuste: null == ajuste
+          ? _value.ajuste
+          : ajuste // ignore: cast_nullable_to_non_nullable
+              as AjusteMidia,
       ordem: null == ordem
           ? _value.ordem
           : ordem // ignore: cast_nullable_to_non_nullable
@@ -170,6 +183,7 @@ class _$MidiaPropagandaImpl implements _MidiaPropaganda {
       required this.tipo,
       required this.caminho,
       this.duracaoSegundos = 8,
+      this.ajuste = AjusteMidia.automatico,
       required this.ordem,
       this.ativo = true});
 
@@ -183,6 +197,9 @@ class _$MidiaPropagandaImpl implements _MidiaPropaganda {
   @JsonKey()
   final int duracaoSegundos;
   @override
+  @JsonKey()
+  final AjusteMidia ajuste;
+  @override
   final int ordem;
   @override
   @JsonKey()
@@ -190,7 +207,7 @@ class _$MidiaPropagandaImpl implements _MidiaPropaganda {
 
   @override
   String toString() {
-    return 'MidiaPropaganda(id: $id, tipo: $tipo, caminho: $caminho, duracaoSegundos: $duracaoSegundos, ordem: $ordem, ativo: $ativo)';
+    return 'MidiaPropaganda(id: $id, tipo: $tipo, caminho: $caminho, duracaoSegundos: $duracaoSegundos, ajuste: $ajuste, ordem: $ordem, ativo: $ativo)';
   }
 
   @override
@@ -203,13 +220,14 @@ class _$MidiaPropagandaImpl implements _MidiaPropaganda {
             (identical(other.caminho, caminho) || other.caminho == caminho) &&
             (identical(other.duracaoSegundos, duracaoSegundos) ||
                 other.duracaoSegundos == duracaoSegundos) &&
+            (identical(other.ajuste, ajuste) || other.ajuste == ajuste) &&
             (identical(other.ordem, ordem) || other.ordem == ordem) &&
             (identical(other.ativo, ativo) || other.ativo == ativo));
   }
 
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, tipo, caminho, duracaoSegundos, ordem, ativo);
+      runtimeType, id, tipo, caminho, duracaoSegundos, ajuste, ordem, ativo);
 
   /// Create a copy of MidiaPropaganda
   /// with the given fields replaced by the non-null parameter values.
@@ -227,6 +245,7 @@ abstract class _MidiaPropaganda implements MidiaPropaganda {
       required final TipoMidia tipo,
       required final String caminho,
       final int duracaoSegundos,
+      final AjusteMidia ajuste,
       required final int ordem,
       final bool ativo}) = _$MidiaPropagandaImpl;
 
@@ -238,6 +257,8 @@ abstract class _MidiaPropaganda implements MidiaPropaganda {
   String get caminho;
   @override
   int get duracaoSegundos;
+  @override
+  AjusteMidia get ajuste;
   @override
   int get ordem;
   @override

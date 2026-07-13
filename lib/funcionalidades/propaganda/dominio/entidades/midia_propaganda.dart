@@ -14,6 +14,7 @@ class MidiaPropaganda with _$MidiaPropaganda {
     required TipoMidia tipo,
     required String caminho,
     @Default(8) int duracaoSegundos,
+    @Default(AjusteMidia.automatico) AjusteMidia ajuste,
     required int ordem,
     @Default(true) bool ativo,
   }) = _MidiaPropaganda;
