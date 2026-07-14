@@ -14,8 +14,10 @@ import 'package:constel_pay/funcionalidades/pagamento/dados/repositorios/reposit
 import 'package:constel_pay/funcionalidades/pagamento/dominio/casos_uso/caso_uso_gerar_pix.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/casos_uso/caso_uso_processar_pagamento.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/entidades/metodo_pagamento.dart';
+import 'package:constel_pay/l10n/app_localizations.dart';
 import 'package:constel_pay/nucleo/erros/falha.dart';
 import 'package:constel_pay/nucleo/erros/resultado.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
 
 class _RepositorioConfiguracaoFake implements RepositorioConfiguracao {
@@ -85,6 +87,28 @@ const _atendimento502 = Atendimento(
   ],
 );
 
+/// Monta um controlador novo e isolado (fakes próprios) para o idioma dado.
+/// Usado pelos testes de tradução, que precisam de um idioma diferente do
+/// padrão pt-BR usado no `setUp` principal.
+ControladorFluxoPagamento _criarControlador(Locale locale) {
+  final fonteLeitura = FonteLeituraMock(atraso: Duration.zero);
+  final fontePagamento = FontePagamentoMock(atraso: Duration.zero);
+  final repositorioLeitura = RepositorioLeituraImpl(fonteLeitura);
+  final repositorioPagamento = RepositorioPagamentoImpl(fontePagamento);
+  return ControladorFluxoPagamento(
+    casoUsoLerCartao: CasoUsoLerCartao(repositorioLeitura),
+    repositorioLeitura: repositorioLeitura,
+    casoUsoGerarPix: CasoUsoGerarPix(repositorioPagamento),
+    casoUsoProcessarPagamento: CasoUsoProcessarPagamento(repositorioPagamento),
+    repositorioConfiguracao: _RepositorioConfiguracaoFake(),
+    obterTraducoes: () => lookupAppLocalizations(locale),
+    fonteConsumoAtendimento:
+        _FonteConsumoFake(const Sucesso([_atendimento502])),
+    fonteRecursoItem: _FonteRecursoFake(const {}),
+    atrasoBot: Duration.zero,
+  );
+}
+
 void main() {
   late FontePagamentoMock fontePagamento;
   late RepositorioLeituraImpl repositorioLeitura;
@@ -107,6 +131,7 @@ void main() {
       casoUsoProcessarPagamento:
           CasoUsoProcessarPagamento(repositorioPagamento),
       repositorioConfiguracao: _RepositorioConfiguracaoFake(),
+      obterTraducoes: () => lookupAppLocalizations(const Locale('pt', 'BR')),
       fonteConsumoAtendimento: fonteConsumo,
       fonteRecursoItem: fonteRecurso,
       atrasoBot: Duration.zero,
@@ -443,5 +468,30 @@ void main() {
     expect(controlador.state.selecionados, hasLength(3));
     await controlador.continuarComCartoes();
     expect(controlador.state.etapa, EtapaFluxo.escolhaMetodo);
+  });
+
+  test('idioma en traduz a mensagem de boas-vindas e a pergunta de cartao',
+      () async {
+    final controladorEn = _criarControlador(const Locale('en'));
+    await controladorEn.iniciar();
+    expect(controladorEn.state.mensagens.first.texto, contains('Welcome'));
+    await controladorEn.lerCartao();
+    expect(controladorEn.state.mensagens.last.texto, contains('another card'));
+  });
+
+  test('idioma es traduz a mensagem de boas-vindas', () async {
+    final controladorEs = _criarControlador(const Locale('es'));
+    await controladorEs.iniciar();
+    expect(controladorEs.state.mensagens.first.texto, contains('bienvenida'));
+  });
+
+  test('eco do cliente ao adicionar outro cartao e traduzido em en', () async {
+    final controladorEn = _criarControlador(const Locale('en'));
+    await controladorEn.iniciar();
+    await controladorEn.lerCartao();
+    await controladorEn.lerOutroCartao();
+    final eco = controladorEn.state.mensagens
+        .firstWhere((m) => m.lado == LadoMensagem.cliente);
+    expect(eco.texto, 'Add another card');
   });
 }
