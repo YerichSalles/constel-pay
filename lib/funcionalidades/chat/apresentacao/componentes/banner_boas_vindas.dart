@@ -1,14 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/cores_app.dart';
+import '../../../../compartilhado/widgets/imagem_logo.dart';
 
-class BannerBoasVindas extends StatelessWidget {
+class BannerBoasVindas extends ConsumerWidget {
   const BannerBoasVindas({super.key, required this.nomeRestaurante});
 
   final String nomeRestaurante;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final logoPath = ref.watch(provedorTema).logoPath;
+    final temLogo = logoPath != null && File(logoPath).existsSync();
     return Padding(
       padding: const EdgeInsets.only(top: 6, bottom: 18),
       child: Column(
@@ -18,11 +25,14 @@ class BannerBoasVindas extends StatelessWidget {
             height: 82,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                colors: [CoresApp.lilasBolha, CoresApp.lilasClaro],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: Colors.white,
+              gradient: temLogo
+                  ? null
+                  : const LinearGradient(
+                      colors: [CoresApp.lilasBolha, CoresApp.lilasClaro],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
               boxShadow: [
                 BoxShadow(
                   color: Theme.of(context)
@@ -34,8 +44,14 @@ class BannerBoasVindas extends StatelessWidget {
                 ),
               ],
             ),
+            clipBehavior: Clip.antiAlias,
             alignment: Alignment.center,
-            child: const Text('🍽️', style: TextStyle(fontSize: 40)),
+            child: temLogo
+                ? ImagemLogo(
+                    caminho: logoPath,
+                    reserva: const Text('🍽️', style: TextStyle(fontSize: 40)),
+                  )
+                : const Text('🍽️', style: TextStyle(fontSize: 40)),
           ),
           const SizedBox(height: 10),
           Text(nomeRestaurante,
@@ -43,7 +59,7 @@ class BannerBoasVindas extends StatelessWidget {
                   const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
           const SizedBox(height: 2),
           const Text(
-            'Autoatendimento · Pagamento na mesa',
+            'AutoPagamento · Cartões de consumo',
             style: TextStyle(fontSize: 12.5, color: CoresApp.textoSecundario),
           ),
         ],

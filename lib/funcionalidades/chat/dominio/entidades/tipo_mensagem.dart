@@ -1,6 +1,5 @@
 enum TipoMensagem {
   texto,
-  mesa,
   comanda,
   scanner,
   metodos,

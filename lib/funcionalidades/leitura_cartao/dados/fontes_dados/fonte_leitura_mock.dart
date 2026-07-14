@@ -1,8 +1,7 @@
 import '../../dominio/entidades/cartao_consumo.dart';
 import '../../dominio/entidades/item_consumo.dart';
-import '../../dominio/entidades/mesa.dart';
 
-/// Fonte MOCK de leitura de cartões. Simula a mesa 12 com 3 comandas.
+/// Fonte MOCK de leitura de cartões. Simula 3 cartões de consumo em aberto.
 /// Será substituída pela integração real (scanner/API) trocando o provider.
 /// Os valores imitam o que a API da loja devolve pronto (serviço de 10% aqui é
 /// só do mock; na API real o percentual vem no campo `servicoPercentual`).
@@ -113,14 +112,6 @@ class FonteLeituraMock {
   ];
 
   final Set<String> _lidos = {};
-
-  Mesa obterMesa() => Mesa(
-        numero: 12,
-        abertoEm: DateTime.now().subtract(const Duration(minutes: 24)),
-        totalComandas: _cartoes.length,
-        totalCentavos:
-            _cartoes.fold(0, (acumulado, c) => acumulado + c.subtotalCentavos),
-      );
 
   Future<CartaoConsumo?> lerProximo() async {
     await Future<void>.delayed(atraso);

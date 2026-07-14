@@ -49,7 +49,6 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pump();
-    expect(find.text('Mesa 12'), findsOneWidget);
     expect(find.textContaining('Comanda 01'), findsWidgets);
 
     // ir para pagamento: a taxa de serviço da API já vem embutida, sem escolha

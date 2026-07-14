@@ -26,7 +26,8 @@ class AvatarBot extends StatelessWidget {
         ],
       ),
       alignment: Alignment.center,
-      child: Text('🧑‍🍳', style: TextStyle(fontSize: tamanho / 2)),
+      child: Icon(Icons.payments_rounded,
+          color: Colors.white, size: tamanho * .58),
     );
   }
 }

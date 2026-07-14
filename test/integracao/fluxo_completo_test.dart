@@ -36,7 +36,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     // Splash -> Propaganda (timer de 4s)
-    expect(find.text('Terminal de autoatendimento'), findsOneWidget);
+    expect(find.text('Terminal de AutoPagamento'), findsOneWidget);
     await tester.pump(const Duration(seconds: 5));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
@@ -78,7 +78,7 @@ void main() {
     await tester.tap(find.text('Novo pagamento'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('Terminal de autoatendimento'), findsOneWidget);
+    expect(find.text('Terminal de AutoPagamento'), findsOneWidget);
 
     // Descarrega o timer do splash para o teste encerrar sem timers pendentes.
     await tester.pump(const Duration(seconds: 5));

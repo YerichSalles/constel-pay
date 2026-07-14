@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "br.com.constel" "\0"
-            VALUE "FileDescription", "constel_pay" "\0"
+            VALUE "FileDescription", "Constel Pay" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "constel_pay" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 br.com.constel. All rights reserved." "\0"
             VALUE "OriginalFilename", "constel_pay.exe" "\0"
-            VALUE "ProductName", "constel_pay" "\0"
+            VALUE "ProductName", "Constel Pay" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

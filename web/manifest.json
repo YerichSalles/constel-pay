@@ -1,6 +1,6 @@
 {
-    "name": "constel_pay",
-    "short_name": "constel_pay",
+    "name": "Constel Pay",
+    "short_name": "Constel Pay",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
