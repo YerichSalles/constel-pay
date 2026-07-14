@@ -155,8 +155,9 @@ void main() {
     final transformes = tester.widgetList<Transform>(find.descendant(
         of: find.byType(PlayerPropaganda), matching: find.byType(Transform)));
     expect(transformes, hasLength(1));
-    expect(
-        transformes.single.transform.getMaxScaleOnAxis(), closeTo(0.8, 0.001));
+    expect(transformes.single.transform.storage[0], closeTo(0.8, 0.001),
+        reason: 'storage[0] e a escala X; getMaxScaleOnAxis devolveria o '
+            'eixo Z (1.0) e mascararia zoom < 100%');
   });
 
   testWidgets('preencher aplica ancora e zoom; demais modos nao escalam',
@@ -174,8 +175,7 @@ void main() {
     final transformes = tester.widgetList<Transform>(find.descendant(
         of: find.byType(PlayerPropaganda), matching: find.byType(Transform)));
     expect(transformes, hasLength(1));
-    expect(
-        transformes.single.transform.getMaxScaleOnAxis(), closeTo(1.4, 0.001));
+    expect(transformes.single.transform.storage[0], closeTo(1.4, 0.001));
     expect(transformes.single.alignment, Alignment.topCenter,
         reason: 'o zoom amplia a partir da ancora, nao do centro');
 
