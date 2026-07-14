@@ -14,6 +14,8 @@ void main() {
   late Directory temporaria;
   late String caminhoA;
   late String caminhoB;
+  late String ausenteA;
+  late String ausenteB;
 
   setUp(() async {
     temporaria = await Directory.systemTemp.createTemp('trocador');
@@ -21,6 +23,8 @@ void main() {
     caminhoB = '${temporaria.path}${Platform.pathSeparator}b.png';
     await File(caminhoA).writeAsBytes(base64Decode(_png1x1));
     await File(caminhoB).writeAsBytes(base64Decode(_png1x1));
+    ausenteA = '${temporaria.path}${Platform.pathSeparator}sumiu-a.png';
+    ausenteB = '${temporaria.path}${Platform.pathSeparator}sumiu-b.png';
   });
 
   tearDown(() async {
@@ -83,42 +87,31 @@ void main() {
   testWidgets('fim do atual com seguinte pronto avanca uma vez',
       (tester) async {
     var avancos = 0;
-    final a = imagem('a', caminhoA);
-    final b = imagem('b', caminhoB);
-    await tester.runAsync(() async {
-      await montar(tester,
-          indice: 0, atual: a, seguinte: b, aoAvancar: () => avancos++);
-      await tester.pump();
-      // Decode assincrono do seguinte termina (aoPreparado dispara).
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-      await tester.pump();
-    });
-    await tester.pump(const Duration(seconds: 1)); // duracao do atual
+    final a = imagem('a', ausenteA);
+    final b = imagem('b', ausenteB);
+    await montar(tester,
+        indice: 0, atual: a, seguinte: b, aoAvancar: () => avancos++);
+    await tester.pump();
+    // Arquivo ausente: o seguinte sinaliza pronto ja na montagem e o atual
+    // agenda o avanco de erro de 1s — tudo no relogio do teste.
+    await tester.pump(const Duration(seconds: 1));
     expect(avancos, 1);
     await tester.pumpWidget(const SizedBox());
   });
 
   testWidgets('no swap, o player que era seguinte sobrevive (mesmo State)',
       (tester) async {
-    final a = imagem('a', caminhoA);
-    final b = imagem('b', caminhoB);
-    await tester.runAsync(() async {
-      await montar(tester, indice: 0, atual: a, seguinte: b, aoAvancar: () {});
-      await tester.pump();
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-      await tester.pump();
-    });
+    final a = imagem('a', ausenteA);
+    final b = imagem('b', ausenteB);
+    await montar(tester, indice: 0, atual: a, seguinte: b, aoAvancar: () {});
+    await tester.pump();
     final estadoSeguinteAntes = tester.state(find.byWidgetPredicate(
         (w) => w is PlayerPropaganda && !w.ativo && w.midia.id == 'b',
         skipOffstage: false));
 
     // Simula o controlador avancando: mesmo trocador, indice novo.
-    await tester.runAsync(() async {
-      await montar(tester, indice: 1, atual: b, seguinte: a, aoAvancar: () {});
-      await tester.pump();
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-      await tester.pump();
-    });
+    await montar(tester, indice: 1, atual: b, seguinte: a, aoAvancar: () {});
+    await tester.pump();
     final estadoAtivoDepois = tester.state(find.byWidgetPredicate(
         (w) => w is PlayerPropaganda && w.ativo && w.midia.id == 'b',
         skipOffstage: false));
@@ -132,14 +125,10 @@ void main() {
   testWidgets('midia unica: atual e seguinte sao exibicoes distintas dela',
       (tester) async {
     var avancos = 0;
-    final a = imagem('a', caminhoA);
-    await tester.runAsync(() async {
-      await montar(tester,
-          indice: 0, atual: a, seguinte: a, aoAvancar: () => avancos++);
-      await tester.pump();
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-      await tester.pump();
-    });
+    final a = imagem('a', ausenteA);
+    await montar(tester,
+        indice: 0, atual: a, seguinte: a, aoAvancar: () => avancos++);
+    await tester.pump();
     final players = tester.widgetList<PlayerPropaganda>(
         find.byType(PlayerPropaganda, skipOffstage: false));
     expect(players, hasLength(2),
