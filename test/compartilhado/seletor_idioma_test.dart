@@ -47,8 +47,8 @@ void main() {
     final bandeira = tester.widget<SvgPicture>(find.byType(SvgPicture));
     final bytesLoader = bandeira.bytesLoader;
     expect(bytesLoader, isA<SvgAssetLoader>());
-    expect((bytesLoader as SvgAssetLoader).assetName,
-        'assets/bandeiras/br.svg');
+    expect(
+        (bytesLoader as SvgAssetLoader).assetName, 'assets/bandeiras/br.svg');
     expect(find.text('🌐'), findsNothing);
     expect(find.text('PT'), findsOneWidget);
   });

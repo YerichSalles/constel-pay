@@ -35,6 +35,12 @@ mixin _$Atendimento {
   List<ComandaAtendimento> get comandas => throw _privateConstructorUsedError;
   List<ItemAtendimento> get itens => throw _privateConstructorUsedError;
 
+  /// JSON original do atendimento como veio da API. O encerramento ecoa o
+  /// atendimento INTEIRO de volta (ações 10 e 30) e a fatura reaproveita
+  /// sub-objetos (parceiro, preço, modalidade, resumos) — guardar o bruto
+  /// evita modelar dezenas de campos que o app não usa.
+  Map<String, dynamic> get bruto => throw _privateConstructorUsedError;
+
   /// Create a copy of Atendimento
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -66,7 +72,8 @@ abstract class $AtendimentoCopyWith<$Res> {
       String sessaoId,
       String sessaoCodigo,
       List<ComandaAtendimento> comandas,
-      List<ItemAtendimento> itens});
+      List<ItemAtendimento> itens,
+      Map<String, dynamic> bruto});
 }
 
 /// @nodoc
@@ -102,6 +109,7 @@ class _$AtendimentoCopyWithImpl<$Res, $Val extends Atendimento>
     Object? sessaoCodigo = null,
     Object? comandas = null,
     Object? itens = null,
+    Object? bruto = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -176,6 +184,10 @@ class _$AtendimentoCopyWithImpl<$Res, $Val extends Atendimento>
           ? _value.itens
           : itens // ignore: cast_nullable_to_non_nullable
               as List<ItemAtendimento>,
+      bruto: null == bruto
+          ? _value.bruto
+          : bruto // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
     ) as $Val);
   }
 }
@@ -206,7 +218,8 @@ abstract class _$$AtendimentoImplCopyWith<$Res>
       String sessaoId,
       String sessaoCodigo,
       List<ComandaAtendimento> comandas,
-      List<ItemAtendimento> itens});
+      List<ItemAtendimento> itens,
+      Map<String, dynamic> bruto});
 }
 
 /// @nodoc
@@ -240,6 +253,7 @@ class __$$AtendimentoImplCopyWithImpl<$Res>
     Object? sessaoCodigo = null,
     Object? comandas = null,
     Object? itens = null,
+    Object? bruto = null,
   }) {
     return _then(_$AtendimentoImpl(
       id: null == id
@@ -314,6 +328,10 @@ class __$$AtendimentoImplCopyWithImpl<$Res>
           ? _value._itens
           : itens // ignore: cast_nullable_to_non_nullable
               as List<ItemAtendimento>,
+      bruto: null == bruto
+          ? _value._bruto
+          : bruto // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
     ));
   }
 }
@@ -339,9 +357,11 @@ class _$AtendimentoImpl implements _Atendimento {
       required this.sessaoId,
       required this.sessaoCodigo,
       final List<ComandaAtendimento> comandas = const <ComandaAtendimento>[],
-      final List<ItemAtendimento> itens = const <ItemAtendimento>[]})
+      final List<ItemAtendimento> itens = const <ItemAtendimento>[],
+      final Map<String, dynamic> bruto = const <String, dynamic>{}})
       : _comandas = comandas,
-        _itens = itens;
+        _itens = itens,
+        _bruto = bruto;
 
   @override
   final String id;
@@ -393,9 +413,27 @@ class _$AtendimentoImpl implements _Atendimento {
     return EqualUnmodifiableListView(_itens);
   }
 
+  /// JSON original do atendimento como veio da API. O encerramento ecoa o
+  /// atendimento INTEIRO de volta (ações 10 e 30) e a fatura reaproveita
+  /// sub-objetos (parceiro, preço, modalidade, resumos) — guardar o bruto
+  /// evita modelar dezenas de campos que o app não usa.
+  final Map<String, dynamic> _bruto;
+
+  /// JSON original do atendimento como veio da API. O encerramento ecoa o
+  /// atendimento INTEIRO de volta (ações 10 e 30) e a fatura reaproveita
+  /// sub-objetos (parceiro, preço, modalidade, resumos) — guardar o bruto
+  /// evita modelar dezenas de campos que o app não usa.
+  @override
+  @JsonKey()
+  Map<String, dynamic> get bruto {
+    if (_bruto is EqualUnmodifiableMapView) return _bruto;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_bruto);
+  }
+
   @override
   String toString() {
-    return 'Atendimento(id: $id, codigo: $codigo, nome: $nome, referencia: $referencia, situacao: $situacao, inicio: $inicio, conclusao: $conclusao, subtotalCentavos: $subtotalCentavos, servicoCentavos: $servicoCentavos, servicoPercentual: $servicoPercentual, descontoCentavos: $descontoCentavos, totalCentavos: $totalCentavos, pagoCentavos: $pagoCentavos, saldoCentavos: $saldoCentavos, sessaoId: $sessaoId, sessaoCodigo: $sessaoCodigo, comandas: $comandas, itens: $itens)';
+    return 'Atendimento(id: $id, codigo: $codigo, nome: $nome, referencia: $referencia, situacao: $situacao, inicio: $inicio, conclusao: $conclusao, subtotalCentavos: $subtotalCentavos, servicoCentavos: $servicoCentavos, servicoPercentual: $servicoPercentual, descontoCentavos: $descontoCentavos, totalCentavos: $totalCentavos, pagoCentavos: $pagoCentavos, saldoCentavos: $saldoCentavos, sessaoId: $sessaoId, sessaoCodigo: $sessaoCodigo, comandas: $comandas, itens: $itens, bruto: $bruto)';
   }
 
   @override
@@ -432,30 +470,33 @@ class _$AtendimentoImpl implements _Atendimento {
             (identical(other.sessaoCodigo, sessaoCodigo) ||
                 other.sessaoCodigo == sessaoCodigo) &&
             const DeepCollectionEquality().equals(other._comandas, _comandas) &&
-            const DeepCollectionEquality().equals(other._itens, _itens));
+            const DeepCollectionEquality().equals(other._itens, _itens) &&
+            const DeepCollectionEquality().equals(other._bruto, _bruto));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      codigo,
-      nome,
-      referencia,
-      situacao,
-      inicio,
-      conclusao,
-      subtotalCentavos,
-      servicoCentavos,
-      servicoPercentual,
-      descontoCentavos,
-      totalCentavos,
-      pagoCentavos,
-      saldoCentavos,
-      sessaoId,
-      sessaoCodigo,
-      const DeepCollectionEquality().hash(_comandas),
-      const DeepCollectionEquality().hash(_itens));
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        codigo,
+        nome,
+        referencia,
+        situacao,
+        inicio,
+        conclusao,
+        subtotalCentavos,
+        servicoCentavos,
+        servicoPercentual,
+        descontoCentavos,
+        totalCentavos,
+        pagoCentavos,
+        saldoCentavos,
+        sessaoId,
+        sessaoCodigo,
+        const DeepCollectionEquality().hash(_comandas),
+        const DeepCollectionEquality().hash(_itens),
+        const DeepCollectionEquality().hash(_bruto)
+      ]);
 
   /// Create a copy of Atendimento
   /// with the given fields replaced by the non-null parameter values.
@@ -485,7 +526,8 @@ abstract class _Atendimento implements Atendimento {
       required final String sessaoId,
       required final String sessaoCodigo,
       final List<ComandaAtendimento> comandas,
-      final List<ItemAtendimento> itens}) = _$AtendimentoImpl;
+      final List<ItemAtendimento> itens,
+      final Map<String, dynamic> bruto}) = _$AtendimentoImpl;
 
   @override
   String get id;
@@ -523,6 +565,13 @@ abstract class _Atendimento implements Atendimento {
   List<ComandaAtendimento> get comandas;
   @override
   List<ItemAtendimento> get itens;
+
+  /// JSON original do atendimento como veio da API. O encerramento ecoa o
+  /// atendimento INTEIRO de volta (ações 10 e 30) e a fatura reaproveita
+  /// sub-objetos (parceiro, preço, modalidade, resumos) — guardar o bruto
+  /// evita modelar dezenas de campos que o app não usa.
+  @override
+  Map<String, dynamic> get bruto;
 
   /// Create a copy of Atendimento
   /// with the given fields replaced by the non-null parameter values.

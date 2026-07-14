@@ -26,6 +26,12 @@ class Atendimento with _$Atendimento {
     required String sessaoCodigo,
     @Default(<ComandaAtendimento>[]) List<ComandaAtendimento> comandas,
     @Default(<ItemAtendimento>[]) List<ItemAtendimento> itens,
+
+    /// JSON original do atendimento como veio da API. O encerramento ecoa o
+    /// atendimento INTEIRO de volta (ações 10 e 30) e a fatura reaproveita
+    /// sub-objetos (parceiro, preço, modalidade, resumos) — guardar o bruto
+    /// evita modelar dezenas de campos que o app não usa.
+    @Default(<String, dynamic>{}) Map<String, dynamic> bruto,
   }) = _Atendimento;
 }
 

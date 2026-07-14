@@ -399,5 +399,22 @@
     "placeholders": {
       "languageName": {"type": "String"}
     }
+  },
+
+  "closingPreparing": "Preparando encerramento…",
+  "@closingPreparing": {
+    "description": "Progresso do encerramento: ação 10 em andamento."
+  },
+  "closingGeneratingInvoice": "Gerando fatura…",
+  "@closingGeneratingInvoice": {
+    "description": "Progresso do encerramento: fatura sendo criada."
+  },
+  "closingConfirming": "Confirmando encerramento…",
+  "@closingConfirming": {
+    "description": "Progresso do encerramento: ação 30 em andamento."
+  },
+  "closingErrorTitle": "Não foi possível encerrar a conta",
+  "@closingErrorTitle": {
+    "description": "Título da mensagem quando o encerramento financeiro falha; o detalhe vem da falha."
   }
 }
