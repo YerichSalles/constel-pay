@@ -94,6 +94,28 @@ class ControladorMidias extends StateNotifier<EstadoMidias> {
         midia.id == id ? midia.copyWith(duracaoSegundos: segundos) : midia,
     ]);
   }
+
+  /// Persiste o enquadramento completo escolhido no dialogo Ajustar.
+  Future<void> definirEnquadramento(
+    String id, {
+    required AjusteMidia ajuste,
+    required FundoMidia fundo,
+    required AncoraMidia ancora,
+    required int zoomPercentual,
+    required int rotacaoGraus,
+  }) async {
+    await _persistir([
+      for (final midia in state.midias)
+        midia.id == id
+            ? midia.copyWith(
+                ajuste: ajuste,
+                fundo: fundo,
+                ancora: ancora,
+                zoomPercentual: zoomPercentual,
+                rotacaoGraus: rotacaoGraus)
+            : midia,
+    ]);
+  }
 }
 
 final provedorMidias =

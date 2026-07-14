@@ -8,6 +8,8 @@ import '../../../../aplicativo/tema/tema_constel.dart';
 import '../../../../compartilhado/feedback/snackbar_padrao.dart';
 import '../../../../compartilhado/widgets/botao_primario.dart';
 import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
+import '../../../../compartilhado/widgets/faixa_pagamento.dart';
+import '../../../../nucleo/utils/contraste.dart';
 import '../../dominio/entidades/tema_personalizado.dart';
 import 'seletor_cor.dart';
 import 'seletor_fonte.dart';
@@ -22,6 +24,14 @@ class AbaAparencia extends ConsumerStatefulWidget {
 
 class _AbaAparenciaState extends ConsumerState<AbaAparencia> {
   TemaPersonalizado? _rascunho;
+  late final TextEditingController _controladorTextoFaixa =
+      TextEditingController(text: ref.read(provedorTema).textoFaixa);
+
+  @override
+  void dispose() {
+    _controladorTextoFaixa.dispose();
+    super.dispose();
+  }
 
   TemaPersonalizado get _tema => _rascunho ?? ref.read(provedorTema);
 
@@ -44,6 +54,7 @@ class _AbaAparenciaState extends ConsumerState<AbaAparencia> {
     );
     if (!confirmado) return;
     setState(() => _rascunho = null);
+    _controladorTextoFaixa.text = textoFaixaPadrao;
     await ref.read(provedorTema.notifier).atualizar(const TemaPersonalizado());
     if (mounted) {
       mostrarSnackbarPadrao(
@@ -60,6 +71,12 @@ class _AbaAparenciaState extends ConsumerState<AbaAparencia> {
     final fundo = TemaConstel.corDeHex(tema.corFundo, CoresApp.fundoPadrao);
     final corTexto =
         TemaConstel.corDeHex(tema.corTexto, CoresApp.textoPrincipal);
+    // Reserva a primaria da propria loja, e nao a padrao hardcoded: assim o
+    // preview nunca resolve uma cor que o totem nao pintaria.
+    final faixaFundo = TemaConstel.corDeHex(tema.corFaixaEfetiva, primaria);
+    final faixaTexto = TemaConstel.corDeHex(tema.corTextoFaixa, Colors.white);
+    final semContraste =
+        razaoDeContraste(faixaFundo, faixaTexto) < contrasteMinimoTexto;
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
@@ -97,6 +114,52 @@ class _AbaAparenciaState extends ConsumerState<AbaAparencia> {
           aoMudar: (hex) =>
               setState(() => _rascunho = tema.copyWith(corTexto: hex)),
         ),
+        const SizedBox(height: 18),
+        SeletorCor(
+          key: const Key('cor_faixa'),
+          rotulo: 'Cor da faixa de pagamento',
+          valorHex: tema.corFaixaEfetiva,
+          aoMudar: (hex) =>
+              setState(() => _rascunho = tema.copyWith(corFaixa: hex)),
+        ),
+        const SizedBox(height: 18),
+        SeletorCor(
+          rotulo: 'Cor do texto da faixa',
+          valorHex: tema.corTextoFaixa,
+          aoMudar: (hex) =>
+              setState(() => _rascunho = tema.copyWith(corTextoFaixa: hex)),
+        ),
+        const SizedBox(height: 18),
+        const Text('Texto da faixa',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _controladorTextoFaixa,
+          decoration: const InputDecoration(
+            isDense: true,
+            hintText: textoFaixaPadrao,
+            contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          ),
+          onChanged: (valor) =>
+              setState(() => _rascunho = tema.copyWith(textoFaixa: valor)),
+        ),
+        if (semContraste) ...[
+          const SizedBox(height: 10),
+          Container(
+            key: const Key('aviso_contraste_faixa'),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: CoresApp.erro.withValues(alpha: .08),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: CoresApp.erro.withValues(alpha: .3)),
+            ),
+            child: const Text(
+              'O texto da faixa está com pouco contraste sobre o fundo '
+              'escolhido e pode ficar ilegível no totem.',
+              style: TextStyle(fontSize: 11.5, color: CoresApp.erro),
+            ),
+          ),
+        ],
         const SizedBox(height: 18),
         SeletorFonte(
           valor: tema.fonte,
@@ -171,6 +234,16 @@ class _AbaAparenciaState extends ConsumerState<AbaAparencia> {
                           tema.fonte, const TextStyle(color: Colors.white)),
                     ),
                   ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: FaixaPagamento(
+                  texto: tema.textoFaixaEfetivo,
+                  corFundo: faixaFundo,
+                  corTexto: faixaTexto,
+                  fonte: tema.fonte,
                 ),
               ),
             ],

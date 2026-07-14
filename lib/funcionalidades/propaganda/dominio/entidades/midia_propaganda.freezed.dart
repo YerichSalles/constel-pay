@@ -20,6 +20,11 @@ mixin _$MidiaPropaganda {
   TipoMidia get tipo => throw _privateConstructorUsedError;
   String get caminho => throw _privateConstructorUsedError;
   int get duracaoSegundos => throw _privateConstructorUsedError;
+  AjusteMidia get ajuste => throw _privateConstructorUsedError;
+  FundoMidia get fundo => throw _privateConstructorUsedError;
+  AncoraMidia get ancora => throw _privateConstructorUsedError;
+  int get zoomPercentual => throw _privateConstructorUsedError;
+  int get rotacaoGraus => throw _privateConstructorUsedError;
   int get ordem => throw _privateConstructorUsedError;
   bool get ativo => throw _privateConstructorUsedError;
 
@@ -41,6 +46,11 @@ abstract class $MidiaPropagandaCopyWith<$Res> {
       TipoMidia tipo,
       String caminho,
       int duracaoSegundos,
+      AjusteMidia ajuste,
+      FundoMidia fundo,
+      AncoraMidia ancora,
+      int zoomPercentual,
+      int rotacaoGraus,
       int ordem,
       bool ativo});
 }
@@ -64,6 +74,11 @@ class _$MidiaPropagandaCopyWithImpl<$Res, $Val extends MidiaPropaganda>
     Object? tipo = null,
     Object? caminho = null,
     Object? duracaoSegundos = null,
+    Object? ajuste = null,
+    Object? fundo = null,
+    Object? ancora = null,
+    Object? zoomPercentual = null,
+    Object? rotacaoGraus = null,
     Object? ordem = null,
     Object? ativo = null,
   }) {
@@ -83,6 +98,26 @@ class _$MidiaPropagandaCopyWithImpl<$Res, $Val extends MidiaPropaganda>
       duracaoSegundos: null == duracaoSegundos
           ? _value.duracaoSegundos
           : duracaoSegundos // ignore: cast_nullable_to_non_nullable
+              as int,
+      ajuste: null == ajuste
+          ? _value.ajuste
+          : ajuste // ignore: cast_nullable_to_non_nullable
+              as AjusteMidia,
+      fundo: null == fundo
+          ? _value.fundo
+          : fundo // ignore: cast_nullable_to_non_nullable
+              as FundoMidia,
+      ancora: null == ancora
+          ? _value.ancora
+          : ancora // ignore: cast_nullable_to_non_nullable
+              as AncoraMidia,
+      zoomPercentual: null == zoomPercentual
+          ? _value.zoomPercentual
+          : zoomPercentual // ignore: cast_nullable_to_non_nullable
+              as int,
+      rotacaoGraus: null == rotacaoGraus
+          ? _value.rotacaoGraus
+          : rotacaoGraus // ignore: cast_nullable_to_non_nullable
               as int,
       ordem: null == ordem
           ? _value.ordem
@@ -109,6 +144,11 @@ abstract class _$$MidiaPropagandaImplCopyWith<$Res>
       TipoMidia tipo,
       String caminho,
       int duracaoSegundos,
+      AjusteMidia ajuste,
+      FundoMidia fundo,
+      AncoraMidia ancora,
+      int zoomPercentual,
+      int rotacaoGraus,
       int ordem,
       bool ativo});
 }
@@ -130,6 +170,11 @@ class __$$MidiaPropagandaImplCopyWithImpl<$Res>
     Object? tipo = null,
     Object? caminho = null,
     Object? duracaoSegundos = null,
+    Object? ajuste = null,
+    Object? fundo = null,
+    Object? ancora = null,
+    Object? zoomPercentual = null,
+    Object? rotacaoGraus = null,
     Object? ordem = null,
     Object? ativo = null,
   }) {
@@ -149,6 +194,26 @@ class __$$MidiaPropagandaImplCopyWithImpl<$Res>
       duracaoSegundos: null == duracaoSegundos
           ? _value.duracaoSegundos
           : duracaoSegundos // ignore: cast_nullable_to_non_nullable
+              as int,
+      ajuste: null == ajuste
+          ? _value.ajuste
+          : ajuste // ignore: cast_nullable_to_non_nullable
+              as AjusteMidia,
+      fundo: null == fundo
+          ? _value.fundo
+          : fundo // ignore: cast_nullable_to_non_nullable
+              as FundoMidia,
+      ancora: null == ancora
+          ? _value.ancora
+          : ancora // ignore: cast_nullable_to_non_nullable
+              as AncoraMidia,
+      zoomPercentual: null == zoomPercentual
+          ? _value.zoomPercentual
+          : zoomPercentual // ignore: cast_nullable_to_non_nullable
+              as int,
+      rotacaoGraus: null == rotacaoGraus
+          ? _value.rotacaoGraus
+          : rotacaoGraus // ignore: cast_nullable_to_non_nullable
               as int,
       ordem: null == ordem
           ? _value.ordem
@@ -170,6 +235,11 @@ class _$MidiaPropagandaImpl implements _MidiaPropaganda {
       required this.tipo,
       required this.caminho,
       this.duracaoSegundos = 8,
+      this.ajuste = AjusteMidia.automatico,
+      this.fundo = FundoMidia.borrado,
+      this.ancora = AncoraMidia.centro,
+      this.zoomPercentual = 100,
+      this.rotacaoGraus = 0,
       required this.ordem,
       this.ativo = true});
 
@@ -183,6 +253,21 @@ class _$MidiaPropagandaImpl implements _MidiaPropaganda {
   @JsonKey()
   final int duracaoSegundos;
   @override
+  @JsonKey()
+  final AjusteMidia ajuste;
+  @override
+  @JsonKey()
+  final FundoMidia fundo;
+  @override
+  @JsonKey()
+  final AncoraMidia ancora;
+  @override
+  @JsonKey()
+  final int zoomPercentual;
+  @override
+  @JsonKey()
+  final int rotacaoGraus;
+  @override
   final int ordem;
   @override
   @JsonKey()
@@ -190,7 +275,7 @@ class _$MidiaPropagandaImpl implements _MidiaPropaganda {
 
   @override
   String toString() {
-    return 'MidiaPropaganda(id: $id, tipo: $tipo, caminho: $caminho, duracaoSegundos: $duracaoSegundos, ordem: $ordem, ativo: $ativo)';
+    return 'MidiaPropaganda(id: $id, tipo: $tipo, caminho: $caminho, duracaoSegundos: $duracaoSegundos, ajuste: $ajuste, fundo: $fundo, ancora: $ancora, zoomPercentual: $zoomPercentual, rotacaoGraus: $rotacaoGraus, ordem: $ordem, ativo: $ativo)';
   }
 
   @override
@@ -203,13 +288,31 @@ class _$MidiaPropagandaImpl implements _MidiaPropaganda {
             (identical(other.caminho, caminho) || other.caminho == caminho) &&
             (identical(other.duracaoSegundos, duracaoSegundos) ||
                 other.duracaoSegundos == duracaoSegundos) &&
+            (identical(other.ajuste, ajuste) || other.ajuste == ajuste) &&
+            (identical(other.fundo, fundo) || other.fundo == fundo) &&
+            (identical(other.ancora, ancora) || other.ancora == ancora) &&
+            (identical(other.zoomPercentual, zoomPercentual) ||
+                other.zoomPercentual == zoomPercentual) &&
+            (identical(other.rotacaoGraus, rotacaoGraus) ||
+                other.rotacaoGraus == rotacaoGraus) &&
             (identical(other.ordem, ordem) || other.ordem == ordem) &&
             (identical(other.ativo, ativo) || other.ativo == ativo));
   }
 
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, tipo, caminho, duracaoSegundos, ordem, ativo);
+      runtimeType,
+      id,
+      tipo,
+      caminho,
+      duracaoSegundos,
+      ajuste,
+      fundo,
+      ancora,
+      zoomPercentual,
+      rotacaoGraus,
+      ordem,
+      ativo);
 
   /// Create a copy of MidiaPropaganda
   /// with the given fields replaced by the non-null parameter values.
@@ -227,6 +330,11 @@ abstract class _MidiaPropaganda implements MidiaPropaganda {
       required final TipoMidia tipo,
       required final String caminho,
       final int duracaoSegundos,
+      final AjusteMidia ajuste,
+      final FundoMidia fundo,
+      final AncoraMidia ancora,
+      final int zoomPercentual,
+      final int rotacaoGraus,
       required final int ordem,
       final bool ativo}) = _$MidiaPropagandaImpl;
 
@@ -238,6 +346,16 @@ abstract class _MidiaPropaganda implements MidiaPropaganda {
   String get caminho;
   @override
   int get duracaoSegundos;
+  @override
+  AjusteMidia get ajuste;
+  @override
+  FundoMidia get fundo;
+  @override
+  AncoraMidia get ancora;
+  @override
+  int get zoomPercentual;
+  @override
+  int get rotacaoGraus;
   @override
   int get ordem;
   @override

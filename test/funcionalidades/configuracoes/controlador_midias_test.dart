@@ -57,4 +57,34 @@ void main() {
     await controlador.definirDuracao(idB, 15);
     expect(controlador.state.midias.single.duracaoSegundos, 15);
   });
+
+  test('gif entra como imagem animada, com ajuste automatico', () async {
+    await controlador.adicionarArquivos(['/m/oferta.gif']);
+    final midia = controlador.state.midias.single;
+    expect(midia.tipo, TipoMidia.imagem);
+    expect(midia.ajuste, AjusteMidia.automatico);
+  });
+
+  test('definirEnquadramento persiste modo, fundo, ancora e zoom', () async {
+    await controlador.adicionarArquivos(['/m/a.png']);
+    final id = controlador.state.midias.single.id;
+    await controlador.definirEnquadramento(id,
+        ajuste: AjusteMidia.preencher,
+        fundo: FundoMidia.cor,
+        ancora: AncoraMidia.baseDireita,
+        zoomPercentual: 180,
+        rotacaoGraus: 90);
+    final midia = controlador.state.midias.single;
+    expect(midia.ajuste, AjusteMidia.preencher);
+    expect(midia.fundo, FundoMidia.cor);
+    expect(midia.ancora, AncoraMidia.baseDireita);
+    expect(midia.zoomPercentual, 180);
+    expect(midia.rotacaoGraus, 90);
+    final salva = (await repositorio.obterTodas()).single;
+    expect(salva.ajuste, AjusteMidia.preencher);
+    expect(salva.fundo, FundoMidia.cor);
+    expect(salva.ancora, AncoraMidia.baseDireita);
+    expect(salva.zoomPercentual, 180);
+    expect(salva.rotacaoGraus, 90);
+  });
 }

@@ -24,6 +24,14 @@ mixin _$ModeloMidia {
   TipoMidia get tipo => throw _privateConstructorUsedError;
   String get caminho => throw _privateConstructorUsedError;
   int get duracaoSegundos => throw _privateConstructorUsedError;
+  @JsonKey(unknownEnumValue: AjusteMidia.automatico)
+  AjusteMidia get ajuste => throw _privateConstructorUsedError;
+  @JsonKey(unknownEnumValue: FundoMidia.borrado)
+  FundoMidia get fundo => throw _privateConstructorUsedError;
+  @JsonKey(unknownEnumValue: AncoraMidia.centro)
+  AncoraMidia get ancora => throw _privateConstructorUsedError;
+  int get zoomPercentual => throw _privateConstructorUsedError;
+  int get rotacaoGraus => throw _privateConstructorUsedError;
   int get ordem => throw _privateConstructorUsedError;
   bool get ativo => throw _privateConstructorUsedError;
 
@@ -48,6 +56,11 @@ abstract class $ModeloMidiaCopyWith<$Res> {
       TipoMidia tipo,
       String caminho,
       int duracaoSegundos,
+      @JsonKey(unknownEnumValue: AjusteMidia.automatico) AjusteMidia ajuste,
+      @JsonKey(unknownEnumValue: FundoMidia.borrado) FundoMidia fundo,
+      @JsonKey(unknownEnumValue: AncoraMidia.centro) AncoraMidia ancora,
+      int zoomPercentual,
+      int rotacaoGraus,
       int ordem,
       bool ativo});
 }
@@ -71,6 +84,11 @@ class _$ModeloMidiaCopyWithImpl<$Res, $Val extends ModeloMidia>
     Object? tipo = null,
     Object? caminho = null,
     Object? duracaoSegundos = null,
+    Object? ajuste = null,
+    Object? fundo = null,
+    Object? ancora = null,
+    Object? zoomPercentual = null,
+    Object? rotacaoGraus = null,
     Object? ordem = null,
     Object? ativo = null,
   }) {
@@ -90,6 +108,26 @@ class _$ModeloMidiaCopyWithImpl<$Res, $Val extends ModeloMidia>
       duracaoSegundos: null == duracaoSegundos
           ? _value.duracaoSegundos
           : duracaoSegundos // ignore: cast_nullable_to_non_nullable
+              as int,
+      ajuste: null == ajuste
+          ? _value.ajuste
+          : ajuste // ignore: cast_nullable_to_non_nullable
+              as AjusteMidia,
+      fundo: null == fundo
+          ? _value.fundo
+          : fundo // ignore: cast_nullable_to_non_nullable
+              as FundoMidia,
+      ancora: null == ancora
+          ? _value.ancora
+          : ancora // ignore: cast_nullable_to_non_nullable
+              as AncoraMidia,
+      zoomPercentual: null == zoomPercentual
+          ? _value.zoomPercentual
+          : zoomPercentual // ignore: cast_nullable_to_non_nullable
+              as int,
+      rotacaoGraus: null == rotacaoGraus
+          ? _value.rotacaoGraus
+          : rotacaoGraus // ignore: cast_nullable_to_non_nullable
               as int,
       ordem: null == ordem
           ? _value.ordem
@@ -116,6 +154,11 @@ abstract class _$$ModeloMidiaImplCopyWith<$Res>
       TipoMidia tipo,
       String caminho,
       int duracaoSegundos,
+      @JsonKey(unknownEnumValue: AjusteMidia.automatico) AjusteMidia ajuste,
+      @JsonKey(unknownEnumValue: FundoMidia.borrado) FundoMidia fundo,
+      @JsonKey(unknownEnumValue: AncoraMidia.centro) AncoraMidia ancora,
+      int zoomPercentual,
+      int rotacaoGraus,
       int ordem,
       bool ativo});
 }
@@ -137,6 +180,11 @@ class __$$ModeloMidiaImplCopyWithImpl<$Res>
     Object? tipo = null,
     Object? caminho = null,
     Object? duracaoSegundos = null,
+    Object? ajuste = null,
+    Object? fundo = null,
+    Object? ancora = null,
+    Object? zoomPercentual = null,
+    Object? rotacaoGraus = null,
     Object? ordem = null,
     Object? ativo = null,
   }) {
@@ -156,6 +204,26 @@ class __$$ModeloMidiaImplCopyWithImpl<$Res>
       duracaoSegundos: null == duracaoSegundos
           ? _value.duracaoSegundos
           : duracaoSegundos // ignore: cast_nullable_to_non_nullable
+              as int,
+      ajuste: null == ajuste
+          ? _value.ajuste
+          : ajuste // ignore: cast_nullable_to_non_nullable
+              as AjusteMidia,
+      fundo: null == fundo
+          ? _value.fundo
+          : fundo // ignore: cast_nullable_to_non_nullable
+              as FundoMidia,
+      ancora: null == ancora
+          ? _value.ancora
+          : ancora // ignore: cast_nullable_to_non_nullable
+              as AncoraMidia,
+      zoomPercentual: null == zoomPercentual
+          ? _value.zoomPercentual
+          : zoomPercentual // ignore: cast_nullable_to_non_nullable
+              as int,
+      rotacaoGraus: null == rotacaoGraus
+          ? _value.rotacaoGraus
+          : rotacaoGraus // ignore: cast_nullable_to_non_nullable
               as int,
       ordem: null == ordem
           ? _value.ordem
@@ -177,6 +245,14 @@ class _$ModeloMidiaImpl extends _ModeloMidia {
       required this.tipo,
       required this.caminho,
       required this.duracaoSegundos,
+      @JsonKey(unknownEnumValue: AjusteMidia.automatico)
+      this.ajuste = AjusteMidia.automatico,
+      @JsonKey(unknownEnumValue: FundoMidia.borrado)
+      this.fundo = FundoMidia.borrado,
+      @JsonKey(unknownEnumValue: AncoraMidia.centro)
+      this.ancora = AncoraMidia.centro,
+      this.zoomPercentual = 100,
+      this.rotacaoGraus = 0,
       required this.ordem,
       required this.ativo})
       : super._();
@@ -193,13 +269,28 @@ class _$ModeloMidiaImpl extends _ModeloMidia {
   @override
   final int duracaoSegundos;
   @override
+  @JsonKey(unknownEnumValue: AjusteMidia.automatico)
+  final AjusteMidia ajuste;
+  @override
+  @JsonKey(unknownEnumValue: FundoMidia.borrado)
+  final FundoMidia fundo;
+  @override
+  @JsonKey(unknownEnumValue: AncoraMidia.centro)
+  final AncoraMidia ancora;
+  @override
+  @JsonKey()
+  final int zoomPercentual;
+  @override
+  @JsonKey()
+  final int rotacaoGraus;
+  @override
   final int ordem;
   @override
   final bool ativo;
 
   @override
   String toString() {
-    return 'ModeloMidia(id: $id, tipo: $tipo, caminho: $caminho, duracaoSegundos: $duracaoSegundos, ordem: $ordem, ativo: $ativo)';
+    return 'ModeloMidia(id: $id, tipo: $tipo, caminho: $caminho, duracaoSegundos: $duracaoSegundos, ajuste: $ajuste, fundo: $fundo, ancora: $ancora, zoomPercentual: $zoomPercentual, rotacaoGraus: $rotacaoGraus, ordem: $ordem, ativo: $ativo)';
   }
 
   @override
@@ -212,6 +303,13 @@ class _$ModeloMidiaImpl extends _ModeloMidia {
             (identical(other.caminho, caminho) || other.caminho == caminho) &&
             (identical(other.duracaoSegundos, duracaoSegundos) ||
                 other.duracaoSegundos == duracaoSegundos) &&
+            (identical(other.ajuste, ajuste) || other.ajuste == ajuste) &&
+            (identical(other.fundo, fundo) || other.fundo == fundo) &&
+            (identical(other.ancora, ancora) || other.ancora == ancora) &&
+            (identical(other.zoomPercentual, zoomPercentual) ||
+                other.zoomPercentual == zoomPercentual) &&
+            (identical(other.rotacaoGraus, rotacaoGraus) ||
+                other.rotacaoGraus == rotacaoGraus) &&
             (identical(other.ordem, ordem) || other.ordem == ordem) &&
             (identical(other.ativo, ativo) || other.ativo == ativo));
   }
@@ -219,7 +317,18 @@ class _$ModeloMidiaImpl extends _ModeloMidia {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, tipo, caminho, duracaoSegundos, ordem, ativo);
+      runtimeType,
+      id,
+      tipo,
+      caminho,
+      duracaoSegundos,
+      ajuste,
+      fundo,
+      ancora,
+      zoomPercentual,
+      rotacaoGraus,
+      ordem,
+      ativo);
 
   /// Create a copy of ModeloMidia
   /// with the given fields replaced by the non-null parameter values.
@@ -243,6 +352,12 @@ abstract class _ModeloMidia extends ModeloMidia {
       required final TipoMidia tipo,
       required final String caminho,
       required final int duracaoSegundos,
+      @JsonKey(unknownEnumValue: AjusteMidia.automatico)
+      final AjusteMidia ajuste,
+      @JsonKey(unknownEnumValue: FundoMidia.borrado) final FundoMidia fundo,
+      @JsonKey(unknownEnumValue: AncoraMidia.centro) final AncoraMidia ancora,
+      final int zoomPercentual,
+      final int rotacaoGraus,
       required final int ordem,
       required final bool ativo}) = _$ModeloMidiaImpl;
   const _ModeloMidia._() : super._();
@@ -258,6 +373,19 @@ abstract class _ModeloMidia extends ModeloMidia {
   String get caminho;
   @override
   int get duracaoSegundos;
+  @override
+  @JsonKey(unknownEnumValue: AjusteMidia.automatico)
+  AjusteMidia get ajuste;
+  @override
+  @JsonKey(unknownEnumValue: FundoMidia.borrado)
+  FundoMidia get fundo;
+  @override
+  @JsonKey(unknownEnumValue: AncoraMidia.centro)
+  AncoraMidia get ancora;
+  @override
+  int get zoomPercentual;
+  @override
+  int get rotacaoGraus;
   @override
   int get ordem;
   @override

@@ -21,8 +21,12 @@ mixin _$TemaPersonalizado {
   String get corFundo => throw _privateConstructorUsedError;
   String get corBotoes => throw _privateConstructorUsedError;
   String get corTexto => throw _privateConstructorUsedError;
+  String? get corFaixa => throw _privateConstructorUsedError;
+  String get corTextoFaixa => throw _privateConstructorUsedError;
+  String get textoFaixa => throw _privateConstructorUsedError;
   String get fonte => throw _privateConstructorUsedError;
   String? get logoPath => throw _privateConstructorUsedError;
+  OrientacaoTela get orientacaoTela => throw _privateConstructorUsedError;
 
   /// Create a copy of TemaPersonalizado
   /// with the given fields replaced by the non-null parameter values.
@@ -43,8 +47,12 @@ abstract class $TemaPersonalizadoCopyWith<$Res> {
       String corFundo,
       String corBotoes,
       String corTexto,
+      String? corFaixa,
+      String corTextoFaixa,
+      String textoFaixa,
       String fonte,
-      String? logoPath});
+      String? logoPath,
+      OrientacaoTela orientacaoTela});
 }
 
 /// @nodoc
@@ -67,8 +75,12 @@ class _$TemaPersonalizadoCopyWithImpl<$Res, $Val extends TemaPersonalizado>
     Object? corFundo = null,
     Object? corBotoes = null,
     Object? corTexto = null,
+    Object? corFaixa = freezed,
+    Object? corTextoFaixa = null,
+    Object? textoFaixa = null,
     Object? fonte = null,
     Object? logoPath = freezed,
+    Object? orientacaoTela = null,
   }) {
     return _then(_value.copyWith(
       corPrimaria: null == corPrimaria
@@ -91,6 +103,18 @@ class _$TemaPersonalizadoCopyWithImpl<$Res, $Val extends TemaPersonalizado>
           ? _value.corTexto
           : corTexto // ignore: cast_nullable_to_non_nullable
               as String,
+      corFaixa: freezed == corFaixa
+          ? _value.corFaixa
+          : corFaixa // ignore: cast_nullable_to_non_nullable
+              as String?,
+      corTextoFaixa: null == corTextoFaixa
+          ? _value.corTextoFaixa
+          : corTextoFaixa // ignore: cast_nullable_to_non_nullable
+              as String,
+      textoFaixa: null == textoFaixa
+          ? _value.textoFaixa
+          : textoFaixa // ignore: cast_nullable_to_non_nullable
+              as String,
       fonte: null == fonte
           ? _value.fonte
           : fonte // ignore: cast_nullable_to_non_nullable
@@ -99,6 +123,10 @@ class _$TemaPersonalizadoCopyWithImpl<$Res, $Val extends TemaPersonalizado>
           ? _value.logoPath
           : logoPath // ignore: cast_nullable_to_non_nullable
               as String?,
+      orientacaoTela: null == orientacaoTela
+          ? _value.orientacaoTela
+          : orientacaoTela // ignore: cast_nullable_to_non_nullable
+              as OrientacaoTela,
     ) as $Val);
   }
 }
@@ -117,8 +145,12 @@ abstract class _$$TemaPersonalizadoImplCopyWith<$Res>
       String corFundo,
       String corBotoes,
       String corTexto,
+      String? corFaixa,
+      String corTextoFaixa,
+      String textoFaixa,
       String fonte,
-      String? logoPath});
+      String? logoPath,
+      OrientacaoTela orientacaoTela});
 }
 
 /// @nodoc
@@ -139,8 +171,12 @@ class __$$TemaPersonalizadoImplCopyWithImpl<$Res>
     Object? corFundo = null,
     Object? corBotoes = null,
     Object? corTexto = null,
+    Object? corFaixa = freezed,
+    Object? corTextoFaixa = null,
+    Object? textoFaixa = null,
     Object? fonte = null,
     Object? logoPath = freezed,
+    Object? orientacaoTela = null,
   }) {
     return _then(_$TemaPersonalizadoImpl(
       corPrimaria: null == corPrimaria
@@ -163,6 +199,18 @@ class __$$TemaPersonalizadoImplCopyWithImpl<$Res>
           ? _value.corTexto
           : corTexto // ignore: cast_nullable_to_non_nullable
               as String,
+      corFaixa: freezed == corFaixa
+          ? _value.corFaixa
+          : corFaixa // ignore: cast_nullable_to_non_nullable
+              as String?,
+      corTextoFaixa: null == corTextoFaixa
+          ? _value.corTextoFaixa
+          : corTextoFaixa // ignore: cast_nullable_to_non_nullable
+              as String,
+      textoFaixa: null == textoFaixa
+          ? _value.textoFaixa
+          : textoFaixa // ignore: cast_nullable_to_non_nullable
+              as String,
       fonte: null == fonte
           ? _value.fonte
           : fonte // ignore: cast_nullable_to_non_nullable
@@ -171,21 +219,30 @@ class __$$TemaPersonalizadoImplCopyWithImpl<$Res>
           ? _value.logoPath
           : logoPath // ignore: cast_nullable_to_non_nullable
               as String?,
+      orientacaoTela: null == orientacaoTela
+          ? _value.orientacaoTela
+          : orientacaoTela // ignore: cast_nullable_to_non_nullable
+              as OrientacaoTela,
     ));
   }
 }
 
 /// @nodoc
 
-class _$TemaPersonalizadoImpl implements _TemaPersonalizado {
+class _$TemaPersonalizadoImpl extends _TemaPersonalizado {
   const _$TemaPersonalizadoImpl(
       {this.corPrimaria = '#5E52D6',
       this.corSecundaria = '#FFD166',
       this.corFundo = '#F7F7FB',
       this.corBotoes = '#5E52D6',
       this.corTexto = '#2F2B3D',
+      this.corFaixa,
+      this.corTextoFaixa = '#FFFFFF',
+      this.textoFaixa = textoFaixaPadrao,
       this.fonte = 'Inter',
-      this.logoPath});
+      this.logoPath,
+      this.orientacaoTela = OrientacaoTela.vertical})
+      : super._();
 
   @override
   @JsonKey()
@@ -203,14 +260,25 @@ class _$TemaPersonalizadoImpl implements _TemaPersonalizado {
   @JsonKey()
   final String corTexto;
   @override
+  final String? corFaixa;
+  @override
+  @JsonKey()
+  final String corTextoFaixa;
+  @override
+  @JsonKey()
+  final String textoFaixa;
+  @override
   @JsonKey()
   final String fonte;
   @override
   final String? logoPath;
+  @override
+  @JsonKey()
+  final OrientacaoTela orientacaoTela;
 
   @override
   String toString() {
-    return 'TemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, corTexto: $corTexto, fonte: $fonte, logoPath: $logoPath)';
+    return 'TemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, corTexto: $corTexto, corFaixa: $corFaixa, corTextoFaixa: $corTextoFaixa, textoFaixa: $textoFaixa, fonte: $fonte, logoPath: $logoPath, orientacaoTela: $orientacaoTela)';
   }
 
   @override
@@ -228,14 +296,33 @@ class _$TemaPersonalizadoImpl implements _TemaPersonalizado {
                 other.corBotoes == corBotoes) &&
             (identical(other.corTexto, corTexto) ||
                 other.corTexto == corTexto) &&
+            (identical(other.corFaixa, corFaixa) ||
+                other.corFaixa == corFaixa) &&
+            (identical(other.corTextoFaixa, corTextoFaixa) ||
+                other.corTextoFaixa == corTextoFaixa) &&
+            (identical(other.textoFaixa, textoFaixa) ||
+                other.textoFaixa == textoFaixa) &&
             (identical(other.fonte, fonte) || other.fonte == fonte) &&
             (identical(other.logoPath, logoPath) ||
-                other.logoPath == logoPath));
+                other.logoPath == logoPath) &&
+            (identical(other.orientacaoTela, orientacaoTela) ||
+                other.orientacaoTela == orientacaoTela));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, corPrimaria, corSecundaria,
-      corFundo, corBotoes, corTexto, fonte, logoPath);
+  int get hashCode => Object.hash(
+      runtimeType,
+      corPrimaria,
+      corSecundaria,
+      corFundo,
+      corBotoes,
+      corTexto,
+      corFaixa,
+      corTextoFaixa,
+      textoFaixa,
+      fonte,
+      logoPath,
+      orientacaoTela);
 
   /// Create a copy of TemaPersonalizado
   /// with the given fields replaced by the non-null parameter values.
@@ -247,15 +334,20 @@ class _$TemaPersonalizadoImpl implements _TemaPersonalizado {
           this, _$identity);
 }
 
-abstract class _TemaPersonalizado implements TemaPersonalizado {
+abstract class _TemaPersonalizado extends TemaPersonalizado {
   const factory _TemaPersonalizado(
       {final String corPrimaria,
       final String corSecundaria,
       final String corFundo,
       final String corBotoes,
       final String corTexto,
+      final String? corFaixa,
+      final String corTextoFaixa,
+      final String textoFaixa,
       final String fonte,
-      final String? logoPath}) = _$TemaPersonalizadoImpl;
+      final String? logoPath,
+      final OrientacaoTela orientacaoTela}) = _$TemaPersonalizadoImpl;
+  const _TemaPersonalizado._() : super._();
 
   @override
   String get corPrimaria;
@@ -268,9 +360,17 @@ abstract class _TemaPersonalizado implements TemaPersonalizado {
   @override
   String get corTexto;
   @override
+  String? get corFaixa;
+  @override
+  String get corTextoFaixa;
+  @override
+  String get textoFaixa;
+  @override
   String get fonte;
   @override
   String? get logoPath;
+  @override
+  OrientacaoTela get orientacaoTela;
 
   /// Create a copy of TemaPersonalizado
   /// with the given fields replaced by the non-null parameter values.

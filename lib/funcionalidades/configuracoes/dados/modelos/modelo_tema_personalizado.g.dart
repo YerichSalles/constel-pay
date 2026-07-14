@@ -14,8 +14,15 @@ _$ModeloTemaPersonalizadoImpl _$$ModeloTemaPersonalizadoImplFromJson(
       corFundo: json['corFundo'] as String,
       corBotoes: json['corBotoes'] as String,
       corTexto: json['corTexto'] as String? ?? '#2F2B3D',
+      corFaixa: json['corFaixa'] as String?,
+      corTextoFaixa: json['corTextoFaixa'] as String? ?? '#FFFFFF',
+      textoFaixa: json['textoFaixa'] as String? ?? textoFaixaPadrao,
       fonte: json['fonte'] as String? ?? 'Inter',
       logoPath: json['logoPath'] as String?,
+      orientacaoTela: $enumDecodeNullable(
+              _$OrientacaoTelaEnumMap, json['orientacaoTela'],
+              unknownValue: OrientacaoTela.vertical) ??
+          OrientacaoTela.vertical,
     );
 
 Map<String, dynamic> _$$ModeloTemaPersonalizadoImplToJson(
@@ -26,6 +33,15 @@ Map<String, dynamic> _$$ModeloTemaPersonalizadoImplToJson(
       'corFundo': instance.corFundo,
       'corBotoes': instance.corBotoes,
       'corTexto': instance.corTexto,
+      'corFaixa': instance.corFaixa,
+      'corTextoFaixa': instance.corTextoFaixa,
+      'textoFaixa': instance.textoFaixa,
       'fonte': instance.fonte,
       'logoPath': instance.logoPath,
+      'orientacaoTela': _$OrientacaoTelaEnumMap[instance.orientacaoTela]!,
     };
+
+const _$OrientacaoTelaEnumMap = {
+  OrientacaoTela.vertical: 'vertical',
+  OrientacaoTela.horizontal: 'horizontal',
+};
