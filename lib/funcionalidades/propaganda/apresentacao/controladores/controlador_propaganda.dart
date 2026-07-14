@@ -19,6 +19,11 @@ class EstadoPropaganda with _$EstadoPropaganda {
 
   MidiaPropaganda? get midiaAtual =>
       midias.isEmpty ? null : midias[indice % midias.length];
+
+  /// Proxima exibicao da fila (circular): e o que o trocador pre-carrega.
+  /// Com midia unica, e a propria midia — outra exibicao, outro player.
+  MidiaPropaganda? get midiaSeguinte =>
+      midias.isEmpty ? null : midias[(indice + 1) % midias.length];
 }
 
 class ControladorPropaganda extends StateNotifier<EstadoPropaganda> {

@@ -15,6 +15,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  test('midiaSeguinte aponta a proxima exibicao, circular', () {
+    const a = MidiaPropaganda(
+        id: 'a', tipo: TipoMidia.imagem, caminho: '/m/a.png', ordem: 1);
+    const b = MidiaPropaganda(
+        id: 'b', tipo: TipoMidia.imagem, caminho: '/m/b.png', ordem: 2);
+    expect(const EstadoPropaganda().midiaSeguinte, isNull);
+    expect(const EstadoPropaganda(midias: [a]).midiaSeguinte, a,
+        reason: 'midia unica: a proxima exibicao e ela mesma');
+    expect(const EstadoPropaganda(midias: [a, b], indice: 0).midiaSeguinte, b);
+    expect(const EstadoPropaganda(midias: [a, b], indice: 1).midiaSeguinte, a);
+  });
+
   test('controlador carrega midias ativas e avanca circularmente', () async {
     SharedPreferences.setMockInitialValues({});
     final preferencias = await SharedPreferences.getInstance();
