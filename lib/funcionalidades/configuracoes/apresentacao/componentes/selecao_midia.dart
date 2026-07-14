@@ -8,7 +8,8 @@ const Uuid _uuid = Uuid();
 
 /// Resultado da seleção: caminhos copiados + indicação de falha parcial.
 class ResultadoSelecaoMidia {
-  const ResultadoSelecaoMidia({required this.copiados, required this.houveFalha});
+  const ResultadoSelecaoMidia(
+      {required this.copiados, required this.houveFalha});
 
   final List<String> copiados;
   final bool houveFalha;

@@ -13,9 +13,8 @@ import 'conteudo_publicidade.dart';
 /// então a barra fica idêntica à de hoje sem caixa vazia nem mudança de
 /// altura.
 /// Config salva da publicidade — lida uma vez por entrada na tela.
-final provedorPublicidadeSalva =
-    FutureProvider.autoDispose<PublicidadeBarra>((ref) async =>
-        ref.watch(provedorRepositorioPublicidade).obter());
+final provedorPublicidadeSalva = FutureProvider.autoDispose<PublicidadeBarra>(
+    (ref) async => ref.watch(provedorRepositorioPublicidade).obter());
 
 class PublicidadeBarraSuperior extends ConsumerStatefulWidget {
   const PublicidadeBarraSuperior({super.key});

@@ -8,8 +8,7 @@ void main() {
   late Directory destinoDir;
 
   setUp(() async {
-    origemDir =
-        await Directory.systemTemp.createTemp('selecao_midia_origem_');
+    origemDir = await Directory.systemTemp.createTemp('selecao_midia_origem_');
     destinoDir =
         await Directory.systemTemp.createTemp('selecao_midia_destino_');
   });
@@ -22,10 +21,8 @@ void main() {
   test(
       'copia arquivos existentes e sinaliza falha parcial quando um caminho '
       'nao existe', () async {
-    final arquivo1 =
-        File('${origemDir.path}${Platform.pathSeparator}a.png');
-    final arquivo2 =
-        File('${origemDir.path}${Platform.pathSeparator}b.jpg');
+    final arquivo1 = File('${origemDir.path}${Platform.pathSeparator}a.png');
+    final arquivo2 = File('${origemDir.path}${Platform.pathSeparator}b.jpg');
     await arquivo1.writeAsBytes([1, 2, 3]);
     await arquivo2.writeAsBytes([4, 5, 6]);
     final caminhoInexistente =
@@ -42,10 +39,8 @@ void main() {
   });
 
   test('copia todos os arquivos validos sem sinalizar falha', () async {
-    final arquivo1 =
-        File('${origemDir.path}${Platform.pathSeparator}a.png');
-    final arquivo2 =
-        File('${origemDir.path}${Platform.pathSeparator}b.jpg');
+    final arquivo1 = File('${origemDir.path}${Platform.pathSeparator}a.png');
+    final arquivo2 = File('${origemDir.path}${Platform.pathSeparator}b.jpg');
     await arquivo1.writeAsBytes([1, 2, 3]);
     await arquivo2.writeAsBytes([4, 5, 6]);
 

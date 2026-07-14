@@ -47,7 +47,9 @@ class SecaoConteudoTela extends ConsumerWidget {
           erro: true);
     }
     if (resultado.copiados.isEmpty) return;
-    await ref.read(provedorMidias.notifier).adicionarArquivos(resultado.copiados);
+    await ref
+        .read(provedorMidias.notifier)
+        .adicionarArquivos(resultado.copiados);
   }
 
   void _abrirAjuste(

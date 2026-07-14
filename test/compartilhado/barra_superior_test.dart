@@ -77,7 +77,8 @@ void main() {
     expect(expandido.flex, 2);
   });
 
-  testWidgets('sem publicidade o titulo usa FlexFit.tight (comportamento atual)',
+  testWidgets(
+      'sem publicidade o titulo usa FlexFit.tight (comportamento atual)',
       (tester) async {
     await tester.pumpWidget(montar());
 
