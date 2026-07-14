@@ -133,4 +133,24 @@ void main() {
     expect(tocado, isTrue);
     expect(find.text(r'R$ 238,00'), findsOneWidget);
   });
+
+  testWidgets('ChipAcao discreto renderiza sem borda e dispara o toque',
+      (tester) async {
+    var tocado = false;
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: ChipAcao(
+          rotulo: 'Continuar com os cartões já adicionados',
+          aoTocar: () => tocado = true,
+          discreto: true,
+        ),
+      ),
+    ));
+    await tester.tap(find.text('Continuar com os cartões já adicionados'));
+    expect(tocado, isTrue);
+    final material = tester.widget<Material>(find
+        .ancestor(of: find.byType(InkWell), matching: find.byType(Material))
+        .first);
+    expect(material.color, Colors.transparent);
+  });
 }
