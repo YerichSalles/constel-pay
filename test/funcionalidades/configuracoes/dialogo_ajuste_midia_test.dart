@@ -92,8 +92,18 @@ void main() {
     await escolherModo(tester, 'Preencher (corta)');
     await tester.tap(find.byKey(const ValueKey('ancora-topo')));
     await tester.pump();
-    // Arrasta o slider ate a ponta direita: zoom maximo, deterministico.
-    await tester.drag(find.byType(Slider), const Offset(400, 0));
+    // O slider fica dentro de um SingleChildScrollView; garante que esta
+    // visivel antes de arrastar, senao o gesto erra o alvo.
+    await tester.ensureVisible(find.byType(Slider));
+    await tester.pumpAndSettle();
+    // Arrasta a partir do polegar (valor minimo -> ponta esquerda da trilha)
+    // ate a ponta direita: zoom maximo, deterministico.
+    final slider = find.byType(Slider);
+    final borda = tester.getTopLeft(slider);
+    final centroY = tester.getCenter(slider).dy;
+    final gesto = await tester.startGesture(Offset(borda.dx + 24, centroY));
+    await gesto.moveBy(const Offset(600, 0));
+    await gesto.up();
     await tester.pump();
     await tester.tap(find.text('Salvar'));
     await tester.pumpAndSettle();
