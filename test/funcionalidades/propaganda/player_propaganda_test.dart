@@ -45,14 +45,25 @@ void main() {
           zoomPercentual: zoomPercentual,
           rotacaoGraus: rotacaoGraus);
 
-  Future<void> montar(WidgetTester tester, MidiaPropaganda midia, Size tela) {
+  Future<void> montar(
+    WidgetTester tester,
+    MidiaPropaganda midia,
+    Size tela, {
+    bool ativo = true,
+    VoidCallback? aoPreparado,
+    VoidCallback? aoTerminar,
+  }) {
     return tester.pumpWidget(MaterialApp(
       home: Center(
         child: SizedBox(
           width: tela.width,
           height: tela.height,
           child: PlayerPropaganda(
-              midia: midia, corFundo: _corFundo, aoTerminar: () {}),
+              midia: midia,
+              corFundo: _corFundo,
+              ativo: ativo,
+              aoPreparado: aoPreparado,
+              aoTerminar: aoTerminar ?? () {}),
         ),
       ),
     ));
@@ -214,5 +225,73 @@ void main() {
     final rotacao = tester.widget<RotatedBox>(find.descendant(
         of: find.byType(PlayerPropaganda), matching: find.byType(RotatedBox)));
     expect(rotacao.quarterTurns, 0);
+  });
+
+  testWidgets('inativo prepara a imagem sem agendar o avanco', (tester) async {
+    var preparou = false;
+    var terminou = false;
+    await tester.runAsync(() async {
+      await montar(
+        tester,
+        midiaCom(AjusteMidia.automatico, caminhoImagem),
+        const Size(90, 160),
+        ativo: false,
+        aoPreparado: () => preparou = true,
+        aoTerminar: () => terminou = true,
+      );
+      await tester.pump();
+      // Da tempo do decode assincrono do FileImage terminar.
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      await tester.pump();
+    });
+    expect(preparou, isTrue,
+        reason: 'imagem decodificada e o sinal de que a troca pode ocorrer');
+    // Bem alem da duracao padrao (8s): inativo nao tem temporizador.
+    await tester.pump(const Duration(seconds: 20));
+    expect(terminou, isFalse, reason: 'player inativo nunca avanca a playlist');
+  });
+
+  testWidgets('arquivo ausente sinaliza preparado mesmo assim', (tester) async {
+    var preparou = false;
+    await montar(
+      tester,
+      midiaCom(AjusteMidia.automatico,
+          '${temporaria.path}${Platform.pathSeparator}sumiu.png'),
+      const Size(90, 160),
+      ativo: false,
+      aoPreparado: () => preparou = true,
+    );
+    await tester.pump();
+    expect(preparou, isTrue,
+        reason: 'falha tambem e "pronto": sem isso a fila travaria');
+    await tester.pump(const Duration(seconds: 2));
+  });
+
+  testWidgets('ativar o player inativo agenda o avanco', (tester) async {
+    var terminou = false;
+    await montar(
+      tester,
+      midiaCom(AjusteMidia.automatico, caminhoImagem)
+          .copyWith(duracaoSegundos: 1),
+      const Size(90, 160),
+      ativo: false,
+      aoTerminar: () => terminou = true,
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 3));
+    expect(terminou, isFalse);
+
+    await montar(
+      tester,
+      midiaCom(AjusteMidia.automatico, caminhoImagem)
+          .copyWith(duracaoSegundos: 1),
+      const Size(90, 160),
+      ativo: true,
+      aoTerminar: () => terminou = true,
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(terminou, isTrue,
+        reason: 'ao virar ativo, o timer de duracao entra em cena');
   });
 }

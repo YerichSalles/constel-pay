@@ -2,6 +2,7 @@ import 'package:constel_pay/aplicativo/injecao.dart';
 import 'package:constel_pay/aplicativo/tema/tema_constel.dart';
 import 'package:constel_pay/compartilhado/widgets/faixa_pagamento.dart';
 import 'package:constel_pay/funcionalidades/propaganda/apresentacao/componentes/player_propaganda.dart';
+import 'package:constel_pay/funcionalidades/propaganda/apresentacao/componentes/trocador_propaganda.dart';
 import 'package:constel_pay/funcionalidades/propaganda/apresentacao/controladores/controlador_propaganda.dart';
 import 'package:constel_pay/funcionalidades/propaganda/apresentacao/paginas/pagina_propaganda.dart';
 import 'package:constel_pay/funcionalidades/propaganda/dados/repositorios/repositorio_propaganda_impl.dart';
@@ -14,6 +15,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  test('midiaSeguinte aponta a proxima exibicao, circular', () {
+    const a = MidiaPropaganda(
+        id: 'a', tipo: TipoMidia.imagem, caminho: '/m/a.png', ordem: 1);
+    const b = MidiaPropaganda(
+        id: 'b', tipo: TipoMidia.imagem, caminho: '/m/b.png', ordem: 2);
+    expect(const EstadoPropaganda().midiaSeguinte, isNull);
+    expect(const EstadoPropaganda(midias: [a]).midiaSeguinte, a,
+        reason: 'midia unica: a proxima exibicao e ela mesma');
+    expect(const EstadoPropaganda(midias: [a, b], indice: 0).midiaSeguinte, b);
+    expect(const EstadoPropaganda(midias: [a, b], indice: 1).midiaSeguinte, a);
+  });
 
   test('controlador carrega midias ativas e avanca circularmente', () async {
     SharedPreferences.setMockInitialValues({});
@@ -104,16 +117,17 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.byType(PlayerPropaganda), findsOneWidget);
+    expect(find.byType(TrocadorPropaganda), findsOneWidget);
+    expect(find.byType(PlayerPropaganda, skipOffstage: false), findsNWidgets(2),
+        reason: 'atual tocando + seguinte preparando');
     expect(find.byType(FaixaPagamento), findsOneWidget);
 
-    final player =
-        tester.widget<PlayerPropaganda>(find.byType(PlayerPropaganda));
+    final player = tester
+        .widgetList<PlayerPropaganda>(
+            find.byType(PlayerPropaganda, skipOffstage: false))
+        .singleWhere((p) => p.ativo);
     expect(player.corFundo, TemaConstel.corDeHex('#5E52D6', Colors.black),
         reason: 'o player precisa herdar a cor primaria do tema da loja');
-    expect(player.emLoop, isTrue,
-        reason: 'midia unica repete no proprio player: recriar a cada volta '
-            'pisca a cor de fundo na transicao');
 
     // Drena o temporizador de 1s da midia sem arquivo antes de seguir, para
     // nao deixar timer pendente no fim do teste.
@@ -122,47 +136,8 @@ void main() {
     await tester.tap(find.byType(FaixaPagamento));
     await tester.pump();
     await tester.pump();
+    // O trocador saiu de cena na navegacao; nada mais pendente.
     expect(find.text('CHAT'), findsOneWidget);
-  });
-
-  testWidgets('com mais de uma midia, o player nao entra em loop',
-      (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    final preferencias = await SharedPreferences.getInstance();
-    final repositorio = RepositorioPropagandaImpl(preferencias);
-    await repositorio.salvarTodas(const [
-      MidiaPropaganda(
-          id: 'a',
-          tipo: TipoMidia.imagem,
-          caminho: '/midias/inexistente-a.png',
-          duracaoSegundos: 1,
-          ordem: 1),
-      MidiaPropaganda(
-          id: 'b',
-          tipo: TipoMidia.imagem,
-          caminho: '/midias/inexistente-b.png',
-          duracaoSegundos: 1,
-          ordem: 2),
-    ]);
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
-        child: MaterialApp.router(routerConfig: roteadorPropagandaEChat()),
-      ),
-    );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-
-    final player =
-        tester.widget<PlayerPropaganda>(find.byType(PlayerPropaganda));
-    expect(player.emLoop, isFalse,
-        reason: 'com playlist de verdade, o fim da midia avanca para a '
-            'proxima em vez de repetir');
-
-    // Drena o temporizador de 1s da midia sem arquivo (e o da seguinte,
-    // agendado quando a primeira termina) antes do fim do teste.
-    await tester.pump(const Duration(seconds: 1));
-    await tester.pump(const Duration(seconds: 1));
   });
 
   testWidgets(

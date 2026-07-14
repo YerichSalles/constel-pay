@@ -8,7 +8,7 @@ import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/tema_constel.dart';
 import '../../../../compartilhado/widgets/faixa_pagamento.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
-import '../componentes/player_propaganda.dart';
+import '../componentes/trocador_propaganda.dart';
 import '../controladores/controlador_propaganda.dart';
 
 class PaginaPropaganda extends ConsumerStatefulWidget {
@@ -113,16 +113,12 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
     } else if (estado.midiaAtual == null) {
       fundo = _telaChamada(primaria, tema.logoPath);
     } else {
-      fundo = PlayerPropaganda(
-        // A chave inclui o indice: repetir a mesma midia recria o player e
-        // reinicia a reproducao do zero.
-        key: ValueKey('${estado.indice}_${estado.midiaAtual!.id}'),
-        midia: estado.midiaAtual!,
+      fundo = TrocadorPropaganda(
+        indice: estado.indice,
+        midiaAtual: estado.midiaAtual!,
+        midiaSeguinte: estado.midiaSeguinte!,
         corFundo: primaria,
-        // Playlist de uma midia so repete no proprio player: avancar (e
-        // recriar) a cada volta pisca a cor de fundo entre as execucoes.
-        emLoop: estado.midias.length == 1,
-        aoTerminar: () => ref.read(provedorPropaganda.notifier).avancar(),
+        aoAvancar: () => ref.read(provedorPropaganda.notifier).avancar(),
       );
     }
 
