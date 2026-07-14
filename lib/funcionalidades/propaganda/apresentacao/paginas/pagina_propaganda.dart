@@ -119,6 +119,9 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
         key: ValueKey('${estado.indice}_${estado.midiaAtual!.id}'),
         midia: estado.midiaAtual!,
         corFundo: primaria,
+        // Playlist de uma midia so repete no proprio player: avancar (e
+        // recriar) a cada volta pisca a cor de fundo entre as execucoes.
+        emLoop: estado.midias.length == 1,
         aoTerminar: () => ref.read(provedorPropaganda.notifier).avancar(),
       );
     }

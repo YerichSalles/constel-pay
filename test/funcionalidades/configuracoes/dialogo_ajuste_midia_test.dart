@@ -78,6 +78,11 @@ void main() {
   testWidgets('preview usa o mesmo player da tela real', (tester) async {
     await abrir(tester, midiaImagem);
     expect(find.byType(PlayerPropaganda), findsOneWidget);
+    final player =
+        tester.widget<PlayerPropaganda>(find.byType(PlayerPropaganda));
+    expect(player.emLoop, isTrue,
+        reason: 'no preview o video repete: parar no fim deixaria a tela '
+            'morta enquanto o operador ajusta');
     await drenar(tester);
   });
 

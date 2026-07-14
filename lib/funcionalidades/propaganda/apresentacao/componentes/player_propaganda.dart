@@ -21,9 +21,15 @@ class PlayerPropaganda extends StatefulWidget {
     required this.midia,
     required this.corFundo,
     required this.aoTerminar,
+    this.emLoop = false,
   });
 
   final MidiaPropaganda midia;
+
+  /// Com midia unica na playlist (e no preview do dialogo), o video repete no
+  /// proprio decoder: recriar o player a cada volta pisca a cor de fundo
+  /// durante o initialize. Em loop, [aoTerminar] nao dispara no fim do video.
+  final bool emLoop;
 
   /// Pinta a sobra dos modos automatico e encaixar (quando o fundo e cor) e o
   /// intervalo em que a midia ainda esta carregando. Vem da cor primaria do
@@ -84,6 +90,7 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
       // O tamanho do video so existe depois do initialize: este rebuild
       // troca o SizedBox vazio pela textura.
       setState(() {});
+      controlador.setLooping(widget.emLoop);
       controlador.play();
     }).catchError((Object _) {
       // Arquivo corrompido ou codec nao suportado: segue para a proxima midia
@@ -99,7 +106,10 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
       _terminar();
       return;
     }
-    if (valor.isInitialized &&
+    // Em loop o decoder reinicia sozinho; disparar o fim aqui recriaria o
+    // player e traria de volta a piscada que o loop existe para evitar.
+    if (!widget.emLoop &&
+        valor.isInitialized &&
         valor.duration > Duration.zero &&
         valor.position >= valor.duration) {
       _terminar();

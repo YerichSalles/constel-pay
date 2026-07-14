@@ -186,6 +186,9 @@ class _DialogoAjusteMidiaState extends State<DialogoAjusteMidia> {
                       child: PlayerPropaganda(
                         midia: _midiaPreview,
                         corFundo: widget.corTema,
+                        // Video em loop: parado no fim, o preview viraria uma
+                        // tela morta enquanto o operador ajusta.
+                        emLoop: true,
                         aoTerminar: () {},
                       ),
                     ),

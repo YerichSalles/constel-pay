@@ -111,6 +111,9 @@ void main() {
         tester.widget<PlayerPropaganda>(find.byType(PlayerPropaganda));
     expect(player.corFundo, TemaConstel.corDeHex('#5E52D6', Colors.black),
         reason: 'o player precisa herdar a cor primaria do tema da loja');
+    expect(player.emLoop, isTrue,
+        reason: 'midia unica repete no proprio player: recriar a cada volta '
+            'pisca a cor de fundo na transicao');
 
     // Drena o temporizador de 1s da midia sem arquivo antes de seguir, para
     // nao deixar timer pendente no fim do teste.
@@ -120,6 +123,46 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(find.text('CHAT'), findsOneWidget);
+  });
+
+  testWidgets('com mais de uma midia, o player nao entra em loop',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    final repositorio = RepositorioPropagandaImpl(preferencias);
+    await repositorio.salvarTodas(const [
+      MidiaPropaganda(
+          id: 'a',
+          tipo: TipoMidia.imagem,
+          caminho: '/midias/inexistente-a.png',
+          duracaoSegundos: 1,
+          ordem: 1),
+      MidiaPropaganda(
+          id: 'b',
+          tipo: TipoMidia.imagem,
+          caminho: '/midias/inexistente-b.png',
+          duracaoSegundos: 1,
+          ordem: 2),
+    ]);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: MaterialApp.router(routerConfig: roteadorPropagandaEChat()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    final player =
+        tester.widget<PlayerPropaganda>(find.byType(PlayerPropaganda));
+    expect(player.emLoop, isFalse,
+        reason: 'com playlist de verdade, o fim da midia avanca para a '
+            'proxima em vez de repetir');
+
+    // Drena o temporizador de 1s da midia sem arquivo (e o da seguinte,
+    // agendado quando a primeira termina) antes do fim do teste.
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
   });
 
   testWidgets(
