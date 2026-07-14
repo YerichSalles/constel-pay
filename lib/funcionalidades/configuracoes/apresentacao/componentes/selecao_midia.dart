@@ -6,28 +6,45 @@ import 'package:uuid/uuid.dart';
 
 const Uuid _uuid = Uuid();
 
-/// Copia o arquivo escolhido para a pasta `propaganda` dos documentos do
-/// app, com um nome novo (uuid) para nunca colidir com outro import.
-Future<String> _copiarParaDiretorioApp(String caminhoOrigem) async {
-  final documentos = await getApplicationDocumentsDirectory();
-  final diretorio =
-      Directory('${documentos.path}${Platform.pathSeparator}propaganda');
-  await diretorio.create(recursive: true);
-  final nomeOriginal = caminhoOrigem.split(RegExp(r'[\\/]')).last;
-  final extensao =
-      nomeOriginal.contains('.') ? '.${nomeOriginal.split('.').last}' : '';
-  final destino =
-      File('${diretorio.path}${Platform.pathSeparator}${_uuid.v4()}$extensao');
-  await File(caminhoOrigem).copy(destino.path);
-  return destino.path;
+/// Resultado da seleção: caminhos copiados + indicação de falha parcial.
+class ResultadoSelecaoMidia {
+  const ResultadoSelecaoMidia({required this.copiados, required this.houveFalha});
+
+  final List<String> copiados;
+  final bool houveFalha;
+}
+
+/// Copia cada arquivo de [origens] para dentro de [destino], com um nome
+/// novo (uuid) para nunca colidir com outro import. Puro (sem FilePicker),
+/// o que permite testar a lógica de cópia/falha parcial isoladamente.
+/// Arquivos ilegíveis ou removidos entre a escolha e a cópia são ignorados
+/// no resultado, mas sinalizados em [ResultadoSelecaoMidia.houveFalha].
+Future<ResultadoSelecaoMidia> copiarArquivos(
+    List<String> origens, Directory destino) async {
+  await destino.create(recursive: true);
+  final copiados = <String>[];
+  var houveFalha = false;
+  for (final origem in origens) {
+    try {
+      final nomeOriginal = origem.split(RegExp(r'[\\/]')).last;
+      final extensao =
+          nomeOriginal.contains('.') ? '.${nomeOriginal.split('.').last}' : '';
+      final caminhoDestino =
+          '${destino.path}${Platform.pathSeparator}${_uuid.v4()}$extensao';
+      await File(origem).copy(caminhoDestino);
+      copiados.add(caminhoDestino);
+    } catch (_) {
+      houveFalha = true;
+    }
+  }
+  return ResultadoSelecaoMidia(copiados: copiados, houveFalha: houveFalha);
 }
 
 /// Abre o seletor de arquivos do sistema restrito a [extensoes] e copia os
-/// arquivos escolhidos para a pasta de mídias do app, devolvendo os novos
-/// caminhos já persistentes (mesma mecânica usada por `SecaoConteudoTela` e
-/// pela seção da barra superior). Arquivos que falharem ao copiar são
-/// simplesmente ignorados no resultado.
-Future<List<String>> escolherECopiarMidias({
+/// arquivos escolhidos para a pasta `propaganda` dos documentos do app,
+/// devolvendo os novos caminhos já persistentes (mesma mecânica usada por
+/// `SecaoConteudoTela` e pela seção da barra superior).
+Future<ResultadoSelecaoMidia> escolherECopiarMidias({
   required List<String> extensoes,
   bool multiplas = true,
 }) async {
@@ -39,14 +56,11 @@ Future<List<String>> escolherECopiarMidias({
   final caminhos =
       resultado?.files.map((f) => f.path).whereType<String>().toList() ??
           const [];
-  final copiados = <String>[];
-  for (final caminho in caminhos) {
-    try {
-      copiados.add(await _copiarParaDiretorioApp(caminho));
-    } catch (_) {
-      // Arquivo ilegível ou removido entre a escolha e a cópia: ignora e
-      // segue com os demais.
-    }
+  if (caminhos.isEmpty) {
+    return const ResultadoSelecaoMidia(copiados: [], houveFalha: false);
   }
-  return copiados;
+  final documentos = await getApplicationDocumentsDirectory();
+  final diretorio =
+      Directory('${documentos.path}${Platform.pathSeparator}propaganda');
+  return copiarArquivos(caminhos, diretorio);
 }

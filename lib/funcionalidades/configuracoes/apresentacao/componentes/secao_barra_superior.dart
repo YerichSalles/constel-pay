@@ -68,15 +68,29 @@ class _SecaoBarraSuperiorState extends ConsumerState<SecaoBarraSuperior> {
   }
 
   Future<void> _adicionarBanners(ControladorPublicidade controlador) async {
-    final copiados =
+    final resultado =
         await escolherECopiarMidias(extensoes: _extensoesBarraSuperior);
-    if (copiados.isNotEmpty) controlador.adicionarBanners(copiados);
+    if (resultado.houveFalha && mounted) {
+      mostrarSnackbarPadrao(
+          context, 'Não foi possível importar um dos arquivos.',
+          erro: true);
+    }
+    if (resultado.copiados.isNotEmpty) {
+      controlador.adicionarBanners(resultado.copiados);
+    }
   }
 
   Future<void> _alterarMidiaParceiro(ControladorPublicidade controlador) async {
-    final copiados = await escolherECopiarMidias(
+    final resultado = await escolherECopiarMidias(
         extensoes: _extensoesBarraSuperior, multiplas: false);
-    if (copiados.isNotEmpty) controlador.definirMidiaParceiro(copiados.first);
+    if (resultado.houveFalha && mounted) {
+      mostrarSnackbarPadrao(
+          context, 'Não foi possível importar um dos arquivos.',
+          erro: true);
+    }
+    if (resultado.copiados.isNotEmpty) {
+      controlador.definirMidiaParceiro(resultado.copiados.first);
+    }
   }
 
   /// Abre o mesmo diálogo de ajuste da mídia usado no Conteúdo da tela, mas

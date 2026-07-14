@@ -5,6 +5,7 @@ import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../aplicativo/tema/tema_constel.dart';
 import '../../../../compartilhado/feedback/estado_vazio.dart';
+import '../../../../compartilhado/feedback/snackbar_padrao.dart';
 import '../../../../compartilhado/widgets/botao_primario.dart';
 import '../../../../compartilhado/widgets/botao_secundario.dart';
 import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
@@ -38,10 +39,15 @@ class SecaoConteudoTela extends ConsumerWidget {
   const SecaoConteudoTela({super.key});
 
   Future<void> _adicionar(BuildContext context, WidgetRef ref) async {
-    final copiados =
+    final resultado =
         await escolherECopiarMidias(extensoes: _extensoesConteudoTela);
-    if (copiados.isEmpty) return;
-    await ref.read(provedorMidias.notifier).adicionarArquivos(copiados);
+    if (resultado.houveFalha && context.mounted) {
+      mostrarSnackbarPadrao(
+          context, 'Não foi possível importar um dos arquivos.',
+          erro: true);
+    }
+    if (resultado.copiados.isEmpty) return;
+    await ref.read(provedorMidias.notifier).adicionarArquivos(resultado.copiados);
   }
 
   void _abrirAjuste(
