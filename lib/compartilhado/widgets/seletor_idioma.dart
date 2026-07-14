@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../aplicativo/injecao.dart';
 import '../../aplicativo/tema/cores_app.dart';
@@ -7,7 +8,9 @@ import '../../l10n/app_localizations.dart';
 
 /// Um idioma suportado pelo seletor: locale usado pelo `provedorIdioma` e
 /// bandeira exibida como apoio visual (o nome do idioma vem sempre traduzido
-/// no próprio idioma, via ARB — nunca hardcoded aqui).
+/// no próprio idioma, via ARB — nunca hardcoded aqui). A bandeira é um SVG
+/// próprio (não emoji): Windows não tem fonte de emoji de bandeira e
+/// renderiza como sigla de duas letras.
 class _Idioma {
   const _Idioma(this.locale, this.bandeira);
 
@@ -16,9 +19,9 @@ class _Idioma {
 }
 
 const List<_Idioma> _idiomasSuportados = [
-  _Idioma(Locale('pt', 'BR'), '🇧🇷'),
-  _Idioma(Locale('en'), '🇺🇸'),
-  _Idioma(Locale('es'), '🇪🇸'),
+  _Idioma(Locale('pt', 'BR'), 'assets/bandeiras/br.svg'),
+  _Idioma(Locale('en'), 'assets/bandeiras/us.svg'),
+  _Idioma(Locale('es'), 'assets/bandeiras/es.svg'),
 ];
 
 /// Pill de troca de idioma do atendimento, exibido ao lado da engrenagem de
@@ -120,7 +123,8 @@ class SeletorIdioma extends ConsumerWidget {
 /// Uma opção de idioma dentro do diálogo do [SeletorIdioma]: bandeira como
 /// apoio visual + nome do idioma no próprio idioma + indicador do idioma
 /// atual (ícone de check, nunca só cor, para não depender de percepção de
-/// cor).
+/// cor). A bandeira é sempre acompanhada do nome — nunca é o único
+/// identificador do idioma.
 class _OpcaoIdioma extends StatelessWidget {
   const _OpcaoIdioma({
     required this.bandeira,
@@ -143,7 +147,20 @@ class _OpcaoIdioma extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Row(
           children: [
-            Text(bandeira, style: const TextStyle(fontSize: 22)),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: const Color(0x22000000)),
+                ),
+                child: SvgPicture.asset(
+                  bandeira,
+                  width: 28,
+                  height: 19,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(

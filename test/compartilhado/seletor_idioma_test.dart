@@ -3,6 +3,7 @@ import 'package:constel_pay/compartilhado/widgets/seletor_idioma.dart';
 import 'package:constel_pay/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -56,6 +57,9 @@ void main() {
     expect(find.text('Português'), findsOneWidget);
     expect(find.text('English'), findsOneWidget);
     expect(find.text('Español'), findsOneWidget);
+    // Bandeira é SVG (assets/bandeiras/*.svg), não emoji: Windows não tem
+    // fonte de emoji de bandeira e renderizava como sigla de duas letras.
+    expect(find.byType(SvgPicture), findsNWidgets(3));
   });
 
   testWidgets(
