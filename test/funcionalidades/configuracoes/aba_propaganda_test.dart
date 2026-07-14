@@ -1,6 +1,7 @@
 import 'package:constel_pay/aplicativo/injecao.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/aba_propaganda.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/dialogo_ajuste_midia.dart';
+import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/secao_barra_superior.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/secao_conteudo_tela.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/seletor_ajuste_midia.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dados/repositorios/repositorio_tema_impl.dart';
@@ -338,8 +339,9 @@ void main() {
 
     await tester.tap(find.text('Barra superior'));
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
     expect(tester.widget<IndexedStack>(find.byType(IndexedStack)).index, 1);
-    expect(find.text('Em construção'), findsOneWidget);
+    expect(find.byType(SecaoBarraSuperior), findsOneWidget);
 
     await tester.tap(find.text('Conteúdo da tela'));
     await tester.pump();

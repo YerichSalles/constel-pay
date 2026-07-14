@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'secao_barra_superior.dart';
 import 'secao_conteudo_tela.dart';
 
 /// Aba "Propaganda" de Configurações: navegação interna entre o conteúdo
@@ -46,11 +47,9 @@ class _AbaPropagandaState extends ConsumerState<AbaPropaganda>
         Expanded(
           child: IndexedStack(
             index: _secaoSelecionada,
-            // Índice 1 é um placeholder temporário: a Task 7 substitui por
-            // SecaoBarraSuperior().
             children: const [
               SecaoConteudoTela(),
-              Center(child: Text('Em construção')),
+              SecaoBarraSuperior(),
             ],
           ),
         ),

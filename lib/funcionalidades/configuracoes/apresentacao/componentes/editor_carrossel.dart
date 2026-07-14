@@ -53,7 +53,19 @@ class EditorCarrossel extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _rotulo(rotulo),
+        // Flexible + ellipsis: em janelas bem estreitas (a seção Barra
+        // superior chega a ~400px de conteúdo aqui), rótulo + dropdown juntos
+        // passam a largura disponível por poucos pixels; o rótulo cede
+        // espaço em vez de estourar o Row.
+        Flexible(
+          child: Text(
+            rotulo,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+                fontSize: 11.5, color: CoresApp.textoSecundario),
+          ),
+        ),
         const SizedBox(width: 8),
         DropdownButtonHideUnderline(
           child: DropdownButton<T>(

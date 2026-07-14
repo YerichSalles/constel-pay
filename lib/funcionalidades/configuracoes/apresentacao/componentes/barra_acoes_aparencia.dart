@@ -6,20 +6,29 @@ import '../../../../compartilhado/widgets/botao_secundario.dart';
 
 const Color _ambarAlteracao = Color(0xFFB26A00);
 
-/// Barra fixa de ações da aba Aparência. Sinaliza alterações não salvas com
-/// ponto + texto (nunca só cor) e desabilita "Aplicar alterações" quando não
-/// há o que aplicar.
+/// Barra fixa de ações de rascunho/aplicar, usada pela aba Aparência e pela
+/// seção Barra superior (Propaganda). Sinaliza alterações não salvas com
+/// ponto + texto (nunca só cor) e desabilita o botão primário quando não há
+/// o que aplicar. Os rótulos são configuráveis (default = textos da
+/// Aparência) para outras telas reaproveitarem o mesmo rodapé com o próprio
+/// vocabulário.
 class BarraAcoesAparencia extends StatelessWidget {
   const BarraAcoesAparencia({
     super.key,
     required this.alteracoesPendentes,
     required this.aoRestaurar,
     required this.aoAplicar,
+    this.rotuloIndicador = 'Alterações não salvas',
+    this.rotuloSecundario = 'Restaurar padrão',
+    this.rotuloPrimario = 'Aplicar alterações',
   });
 
   final bool alteracoesPendentes;
   final VoidCallback aoRestaurar;
   final VoidCallback aoAplicar;
+  final String rotuloIndicador;
+  final String rotuloSecundario;
+  final String rotuloPrimario;
 
   @override
   Widget build(BuildContext context) {
@@ -42,16 +51,17 @@ class BarraAcoesAparencia extends StatelessWidget {
           child: LayoutBuilder(
             builder: (contexto, restricoes) {
               final indicador = alteracoesPendentes
-                  ? const Row(
+                  ? Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.circle, size: 9, color: _ambarAlteracao),
-                        SizedBox(width: 7),
+                        const Icon(Icons.circle,
+                            size: 9, color: _ambarAlteracao),
+                        const SizedBox(width: 7),
                         Flexible(
                           child: Text(
-                            'Alterações não salvas',
+                            rotuloIndicador,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: _ambarAlteracao,
@@ -62,12 +72,12 @@ class BarraAcoesAparencia extends StatelessWidget {
                     )
                   : const SizedBox.shrink();
               final restaurar = BotaoSecundario(
-                rotulo: 'Restaurar padrão',
+                rotulo: rotuloSecundario,
                 aoTocar: aoRestaurar,
                 expandido: false,
               );
               final aplicar = BotaoPrimario(
-                rotulo: 'Aplicar alterações',
+                rotulo: rotuloPrimario,
                 aoTocar: alteracoesPendentes ? aoAplicar : null,
                 expandido: false,
               );
@@ -87,12 +97,12 @@ class BarraAcoesAparencia extends StatelessWidget {
                       children: [
                         Expanded(
                           child: BotaoSecundario(
-                              rotulo: 'Restaurar padrão', aoTocar: aoRestaurar),
+                              rotulo: rotuloSecundario, aoTocar: aoRestaurar),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: BotaoPrimario(
-                            rotulo: 'Aplicar alterações',
+                            rotulo: rotuloPrimario,
                             aoTocar: alteracoesPendentes ? aoAplicar : null,
                           ),
                         ),
