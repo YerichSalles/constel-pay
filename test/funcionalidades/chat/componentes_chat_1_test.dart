@@ -1,11 +1,9 @@
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/bolha_mensagem.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/card_comanda.dart';
-import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/card_mesa.dart';
 import 'package:constel_pay/funcionalidades/chat/dominio/entidades/mensagem.dart';
 import 'package:constel_pay/funcionalidades/chat/dominio/entidades/tipo_mensagem.dart';
 import 'package:constel_pay/funcionalidades/leitura_cartao/dominio/entidades/cartao_consumo.dart';
 import 'package:constel_pay/funcionalidades/leitura_cartao/dominio/entidades/item_consumo.dart';
-import 'package:constel_pay/funcionalidades/leitura_cartao/dominio/entidades/mesa.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -66,19 +64,6 @@ void main() {
     expect(find.text('Olá!'), findsOneWidget);
     expect(find.text('Bem-vindo'), findsOneWidget);
     expect(find.text('🍽️'), findsOneWidget);
-  });
-
-  testWidgets('CardMesa mostra numero e total consumido', (tester) async {
-    final mesa = Mesa(
-        numero: 12,
-        abertoEm: DateTime(2026, 7, 6, 19, 42),
-        totalComandas: 3,
-        totalCentavos: 31800);
-    await tester.pumpWidget(_app(CardMesa(mesa: mesa)));
-    expect(find.text('Mesa 12'), findsOneWidget);
-    expect(find.textContaining('19:42'), findsOneWidget);
-    expect(find.text(r'R$ 318,00'), findsOneWidget);
-    expect(find.text('ABERTA'), findsOneWidget);
   });
 
   testWidgets('CardComanda lista os itens sem precisar tocar em nada',

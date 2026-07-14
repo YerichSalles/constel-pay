@@ -17,13 +17,6 @@ void main() {
     casoUso = CasoUsoLerCartao(repositorio);
   });
 
-  test('mesa mock e a mesa 12 com total R\$ 318,00', () {
-    final mesa = fonte.obterMesa();
-    expect(mesa.numero, 12);
-    expect(mesa.totalComandas, 3);
-    expect(mesa.totalCentavos, 31800);
-  });
-
   test('subtotal de cada comanda coincide com a soma dos itens', () async {
     for (var i = 0; i < 3; i++) {
       final resultado = await casoUso.executar();

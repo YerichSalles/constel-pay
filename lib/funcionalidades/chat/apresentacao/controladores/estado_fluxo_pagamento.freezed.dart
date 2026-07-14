@@ -18,7 +18,6 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$EstadoFluxoPagamento {
   EtapaFluxo get etapa => throw _privateConstructorUsedError;
   List<Mensagem> get mensagens => throw _privateConstructorUsedError;
-  Mesa? get mesa => throw _privateConstructorUsedError;
   List<CartaoConsumo> get cartoes => throw _privateConstructorUsedError;
   int get cartoesRestantes => throw _privateConstructorUsedError;
   DadosPix? get dadosPix => throw _privateConstructorUsedError;
@@ -41,14 +40,12 @@ abstract class $EstadoFluxoPagamentoCopyWith<$Res> {
   $Res call(
       {EtapaFluxo etapa,
       List<Mensagem> mensagens,
-      Mesa? mesa,
       List<CartaoConsumo> cartoes,
       int cartoesRestantes,
       DadosPix? dadosPix,
       bool digitando,
       bool copiado});
 
-  $MesaCopyWith<$Res>? get mesa;
   $DadosPixCopyWith<$Res>? get dadosPix;
 }
 
@@ -70,7 +67,6 @@ class _$EstadoFluxoPagamentoCopyWithImpl<$Res,
   $Res call({
     Object? etapa = null,
     Object? mensagens = null,
-    Object? mesa = freezed,
     Object? cartoes = null,
     Object? cartoesRestantes = null,
     Object? dadosPix = freezed,
@@ -86,10 +82,6 @@ class _$EstadoFluxoPagamentoCopyWithImpl<$Res,
           ? _value.mensagens
           : mensagens // ignore: cast_nullable_to_non_nullable
               as List<Mensagem>,
-      mesa: freezed == mesa
-          ? _value.mesa
-          : mesa // ignore: cast_nullable_to_non_nullable
-              as Mesa?,
       cartoes: null == cartoes
           ? _value.cartoes
           : cartoes // ignore: cast_nullable_to_non_nullable
@@ -111,20 +103,6 @@ class _$EstadoFluxoPagamentoCopyWithImpl<$Res,
           : copiado // ignore: cast_nullable_to_non_nullable
               as bool,
     ) as $Val);
-  }
-
-  /// Create a copy of EstadoFluxoPagamento
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $MesaCopyWith<$Res>? get mesa {
-    if (_value.mesa == null) {
-      return null;
-    }
-
-    return $MesaCopyWith<$Res>(_value.mesa!, (value) {
-      return _then(_value.copyWith(mesa: value) as $Val);
-    });
   }
 
   /// Create a copy of EstadoFluxoPagamento
@@ -153,15 +131,12 @@ abstract class _$$EstadoFluxoPagamentoImplCopyWith<$Res>
   $Res call(
       {EtapaFluxo etapa,
       List<Mensagem> mensagens,
-      Mesa? mesa,
       List<CartaoConsumo> cartoes,
       int cartoesRestantes,
       DadosPix? dadosPix,
       bool digitando,
       bool copiado});
 
-  @override
-  $MesaCopyWith<$Res>? get mesa;
   @override
   $DadosPixCopyWith<$Res>? get dadosPix;
 }
@@ -181,7 +156,6 @@ class __$$EstadoFluxoPagamentoImplCopyWithImpl<$Res>
   $Res call({
     Object? etapa = null,
     Object? mensagens = null,
-    Object? mesa = freezed,
     Object? cartoes = null,
     Object? cartoesRestantes = null,
     Object? dadosPix = freezed,
@@ -197,10 +171,6 @@ class __$$EstadoFluxoPagamentoImplCopyWithImpl<$Res>
           ? _value._mensagens
           : mensagens // ignore: cast_nullable_to_non_nullable
               as List<Mensagem>,
-      mesa: freezed == mesa
-          ? _value.mesa
-          : mesa // ignore: cast_nullable_to_non_nullable
-              as Mesa?,
       cartoes: null == cartoes
           ? _value._cartoes
           : cartoes // ignore: cast_nullable_to_non_nullable
@@ -231,7 +201,6 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
   const _$EstadoFluxoPagamentoImpl(
       {this.etapa = EtapaFluxo.inicial,
       final List<Mensagem> mensagens = const [],
-      this.mesa,
       final List<CartaoConsumo> cartoes = const [],
       this.cartoesRestantes = 0,
       this.dadosPix,
@@ -253,8 +222,6 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
     return EqualUnmodifiableListView(_mensagens);
   }
 
-  @override
-  final Mesa? mesa;
   final List<CartaoConsumo> _cartoes;
   @override
   @JsonKey()
@@ -278,7 +245,7 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
 
   @override
   String toString() {
-    return 'EstadoFluxoPagamento(etapa: $etapa, mensagens: $mensagens, mesa: $mesa, cartoes: $cartoes, cartoesRestantes: $cartoesRestantes, dadosPix: $dadosPix, digitando: $digitando, copiado: $copiado)';
+    return 'EstadoFluxoPagamento(etapa: $etapa, mensagens: $mensagens, cartoes: $cartoes, cartoesRestantes: $cartoesRestantes, dadosPix: $dadosPix, digitando: $digitando, copiado: $copiado)';
   }
 
   @override
@@ -289,7 +256,6 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
             (identical(other.etapa, etapa) || other.etapa == etapa) &&
             const DeepCollectionEquality()
                 .equals(other._mensagens, _mensagens) &&
-            (identical(other.mesa, mesa) || other.mesa == mesa) &&
             const DeepCollectionEquality().equals(other._cartoes, _cartoes) &&
             (identical(other.cartoesRestantes, cartoesRestantes) ||
                 other.cartoesRestantes == cartoesRestantes) &&
@@ -305,7 +271,6 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
       runtimeType,
       etapa,
       const DeepCollectionEquality().hash(_mensagens),
-      mesa,
       const DeepCollectionEquality().hash(_cartoes),
       cartoesRestantes,
       dadosPix,
@@ -327,7 +292,6 @@ abstract class _EstadoFluxoPagamento extends EstadoFluxoPagamento {
   const factory _EstadoFluxoPagamento(
       {final EtapaFluxo etapa,
       final List<Mensagem> mensagens,
-      final Mesa? mesa,
       final List<CartaoConsumo> cartoes,
       final int cartoesRestantes,
       final DadosPix? dadosPix,
@@ -339,8 +303,6 @@ abstract class _EstadoFluxoPagamento extends EstadoFluxoPagamento {
   EtapaFluxo get etapa;
   @override
   List<Mensagem> get mensagens;
-  @override
-  Mesa? get mesa;
   @override
   List<CartaoConsumo> get cartoes;
   @override

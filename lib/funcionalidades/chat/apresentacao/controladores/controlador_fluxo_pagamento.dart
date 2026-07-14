@@ -126,7 +126,6 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     state = state.copyWith(etapa: EtapaFluxo.lendo);
     await _bot(() {
       _adicionar(_mensagem(TipoMensagem.texto,
-          emoji: '🍽️',
           texto: 'Olá! Bem-vindo(a). Vou fechar sua conta em segundos. 😊'));
       _adicionar(_mensagem(TipoMensagem.texto,
           texto:
@@ -138,14 +137,6 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
   Future<void> lerCartao() async {
     if (state.etapa != EtapaFluxo.lendo || state.digitando) return;
     state = state.copyWith(digitando: true);
-    final primeiraLeitura = state.cartoes.isEmpty;
-    if (primeiraLeitura) {
-      final resultadoMesa = await _repositorioLeitura.obterMesa();
-      resultadoMesa.quando(
-        sucesso: (mesa) => state = state.copyWith(mesa: mesa),
-        erro: (_) {},
-      );
-    }
     final resultado = await _casoUsoLerCartao.executar();
     if (!mounted) return;
     state = state.copyWith(digitando: false);
@@ -155,20 +146,12 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
           cartoes: [...state.cartoes, cartao.copyWith(selecionado: true)],
           cartoesRestantes: _repositorioLeitura.cartoesRestantes,
         );
-        if (primeiraLeitura && state.mesa != null) {
-          _adicionar(_mensagem(TipoMensagem.texto,
-              emoji: '📍',
-              texto:
-                  'Cartão lido! Identificamos sua mesa: Mesa ${state.mesa!.numero} 🪑'));
-          _adicionar(_mensagem(TipoMensagem.mesa));
-        }
         _adicionar(_mensagem(TipoMensagem.leituraCartao,
             dados: {'comandaId': cartao.id}));
         _adicionar(_mensagem(TipoMensagem.texto,
-            emoji: '✅',
             texto: state.cartoesRestantes > 0
-                ? 'Deseja adicionar mais cartões da mesa?'
-                : 'Esse foi o último cartão em aberto da mesa.'));
+                ? 'Deseja adicionar mais cartões?'
+                : 'Esse foi o último cartão em aberto.'));
         state = state.copyWith(etapa: EtapaFluxo.aguardandoMaisCartoes);
       },
       erro: (falha) {
@@ -210,7 +193,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
               dados: {'comandaId': cartao.id}));
         }
         _adicionar(_mensagem(TipoMensagem.texto,
-            emoji: '✅', texto: 'Deseja adicionar mais cartões da mesa?'));
+            texto: 'Deseja adicionar mais cartões?'));
         state = state.copyWith(etapa: EtapaFluxo.aguardandoMaisCartoes);
       },
       erro: (falha) {
@@ -352,12 +335,12 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
           _adicionar(_mensagem(TipoMensagem.texto,
               emoji: '🧾',
               texto:
-                  'Ainda há $restantes ${restantes > 1 ? 'comandas' : 'comanda'} em aberto na mesa. Quer pagar agora?'));
+                  'Ainda há $restantes ${restantes > 1 ? 'cartões' : 'cartão'} em aberto. Quer pagar agora?'));
           state = state.copyWith(etapa: EtapaFluxo.sucessoComRestante);
         } else {
           _adicionar(_mensagem(TipoMensagem.texto,
               emoji: '🥳',
-              texto: 'Tudo certo! Sua mesa está totalmente quitada.'));
+              texto: 'Tudo certo! Todos os cartões foram quitados.'));
           state = state.copyWith(etapa: EtapaFluxo.sucessoCompleto);
         }
       },

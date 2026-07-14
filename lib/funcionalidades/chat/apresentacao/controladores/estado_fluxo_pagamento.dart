@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../leitura_cartao/dominio/entidades/cartao_consumo.dart';
-import '../../../leitura_cartao/dominio/entidades/mesa.dart';
 import '../../../pagamento/dominio/entidades/dados_pix.dart';
 import '../../dominio/entidades/mensagem.dart';
 
@@ -26,7 +25,6 @@ class EstadoFluxoPagamento with _$EstadoFluxoPagamento {
   const factory EstadoFluxoPagamento({
     @Default(EtapaFluxo.inicial) EtapaFluxo etapa,
     @Default([]) List<Mensagem> mensagens,
-    Mesa? mesa,
     @Default([]) List<CartaoConsumo> cartoes,
     @Default(0) int cartoesRestantes,
     DadosPix? dadosPix,

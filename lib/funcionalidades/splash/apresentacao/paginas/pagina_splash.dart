@@ -133,7 +133,7 @@ class _PaginaSplashState extends ConsumerState<PaginaSplash> {
               ),
               const SizedBox(height: 6),
               Text(
-                'Terminal de autoatendimento',
+                'Terminal de AutoPagamento',
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,

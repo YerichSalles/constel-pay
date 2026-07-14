@@ -136,17 +136,15 @@ void main() {
     expect(controlador.state.mensagens.length, quantidade);
   });
 
-  test('primeira leitura identifica a mesa e seleciona a comanda', () async {
+  test('primeira leitura seleciona a comanda', () async {
     await controlador.iniciar();
     await controlador.lerCartao();
     final estado = controlador.state;
     expect(estado.etapa, EtapaFluxo.aguardandoMaisCartoes);
-    expect(estado.mesa?.numero, 12);
     expect(estado.cartoes, hasLength(1));
     expect(estado.selecionados, hasLength(1));
     expect(estado.subtotalCentavos, 13600);
     expect(estado.cartoesRestantes, 2);
-    expect(estado.mensagens.any((m) => m.tipo == TipoMensagem.mesa), isTrue);
     expect(estado.mensagens.any((m) => m.tipo == TipoMensagem.leituraCartao),
         isTrue);
   });

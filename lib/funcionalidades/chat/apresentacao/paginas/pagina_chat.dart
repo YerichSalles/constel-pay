@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../aplicativo/injecao.dart';
-import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../compartilhado/layout/layout_responsivo.dart';
 import '../../../../compartilhado/widgets/barra_superior.dart';
 import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
@@ -18,7 +17,6 @@ import '../componentes/avatar_bot.dart';
 import '../componentes/banner_boas_vindas.dart';
 import '../componentes/bolha_mensagem.dart';
 import '../componentes/card_comanda.dart';
-import '../componentes/card_mesa.dart';
 import '../componentes/card_metodos_pagamento.dart';
 import '../componentes/card_pix.dart';
 import '../componentes/card_scanner.dart';
@@ -87,11 +85,6 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
     switch (mensagem.tipo) {
       case TipoMensagem.texto:
         return BolhaMensagem(mensagem: mensagem);
-      case TipoMensagem.mesa:
-        final mesa = estado.mesa;
-        return mesa == null
-            ? const SizedBox.shrink()
-            : recuado(CardMesa(mesa: mesa));
       case TipoMensagem.leituraCartao:
       case TipoMensagem.comanda:
         final id = mensagem.dados?['comandaId'] as String?;
@@ -158,43 +151,14 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
     ref.listen(provedorFluxoPagamento.select((e) => e.digitando),
         (_, __) => _rolarParaFim());
 
-    final subtitulo = estado.mesa != null
-        ? 'Mesa ${estado.mesa!.numero} · Atendimento online'
-        : 'Atendimento online';
-    final modo = modoPorLargura(MediaQuery.sizeOf(context).width);
-
     return Scaffold(
       appBar: BarraSuperior(
         titulo: _nomeRestaurante,
-        subtitulo: subtitulo,
         avatar: const AvatarBot(tamanho: 40),
         aoVoltar: _confirmarSaida,
       ),
       body: Column(
         children: [
-          if (modo == ModoDispositivo.totem)
-            Container(
-              width: double.infinity,
-              color: CoresApp.textoPrincipal,
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 11),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('🏧 AUTOATENDIMENTO',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 2.5)),
-                  Text(_nomeRestaurante.toUpperCase(),
-                      style: const TextStyle(
-                          color: CoresApp.secundariaPadrao,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 2.5)),
-                ],
-              ),
-            ),
           Expanded(
             child: ConteudoCentralizado(
               filho: ListView(
@@ -224,7 +188,37 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
               context.go('/splash');
             },
           ),
+          const _BarraCreditos(),
         ],
+      ),
+    );
+  }
+}
+
+/// Faixa fina de créditos no rodapé; segue a cor primária do tema,
+/// mais discreta que a barra superior.
+class _BarraCreditos extends StatelessWidget {
+  const _BarraCreditos();
+
+  @override
+  Widget build(BuildContext context) {
+    final primaria = Theme.of(context).colorScheme.primary;
+    return Container(
+      width: double.infinity,
+      color: primaria,
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: SafeArea(
+        top: false,
+        child: Text(
+          'Audax e Solução Sistemas',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            letterSpacing: .8,
+            color: Colors.white.withValues(alpha: .85),
+          ),
+        ),
       ),
     );
   }
