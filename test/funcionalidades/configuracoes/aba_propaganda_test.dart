@@ -351,4 +351,33 @@ void main() {
         reason: 'o IndexedStack mantem a secao montada; o campo nao pode '
             'voltar ao valor persistido ao trocar de secao interna');
   });
+
+  testWidgets(
+      'Conteudo da tela usa a nova hierarquia: orientacao, bloco informativo '
+      'e lista de midias', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: const MaterialApp(home: Scaffold(body: SecaoConteudoTela())),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(
+        find.text('Configure as imagens, GIFs e vídeos exibidos enquanto o '
+            'terminal aguarda um atendimento.'),
+        findsOneWidget,
+        reason: 'descricao do cabecalho segue o texto definido');
+    expect(find.text('Orientação da mídia'), findsOneWidget);
+    expect(find.text('Tela do totem:'), findsNothing,
+        reason: 'o rotulo antigo saiu; a orientacao virou subtitulo');
+    expect(find.byKey(const Key('bloco_orientacoes')), findsOneWidget,
+        reason: 'as recomendacoes moram num bloco informativo discreto');
+    expect(find.text('Mídias'), findsOneWidget,
+        reason: 'a lista de midias ganha subtitulo proprio');
+  });
 }

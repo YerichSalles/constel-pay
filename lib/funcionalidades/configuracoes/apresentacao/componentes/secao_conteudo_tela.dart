@@ -253,58 +253,69 @@ class SecaoConteudoTela extends ConsumerWidget {
         SecaoConfiguracoes(
           titulo: 'Conteúdo da tela',
           descricao: 'Configure as imagens, GIFs e vídeos exibidos enquanto '
-              'o terminal estiver aguardando um atendimento.',
+              'o terminal aguarda um atendimento.',
           filho: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Wrap(
-                spacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  const Text('Tela do totem:',
-                      style: TextStyle(
-                          fontSize: 11.5, color: CoresApp.textoSecundario)),
-                  SegmentedButton<OrientacaoTela>(
-                    style: const ButtonStyle(
-                      visualDensity: VisualDensity.compact,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    segments: const [
-                      ButtonSegment(
-                          value: OrientacaoTela.vertical, label: Text('Em pé')),
-                      ButtonSegment(
-                          value: OrientacaoTela.horizontal,
-                          label: Text('Deitada')),
-                    ],
-                    selected: {tema.orientacaoTela},
-                    onSelectionChanged: (selecao) => ref
-                        .read(provedorTema.notifier)
-                        .atualizar(
-                            tema.copyWith(orientacaoTela: selecao.single)),
-                  ),
+              const Text('Orientação da mídia',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 8),
+              SegmentedButton<OrientacaoTela>(
+                style: const ButtonStyle(
+                  visualDensity: VisualDensity.compact,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                segments: const [
+                  ButtonSegment(
+                      value: OrientacaoTela.vertical, label: Text('Em pé')),
+                  ButtonSegment(
+                      value: OrientacaoTela.horizontal, label: Text('Deitada')),
                 ],
+                selected: {tema.orientacaoTela},
+                onSelectionChanged: (selecao) => ref
+                    .read(provedorTema.notifier)
+                    .atualizar(tema.copyWith(orientacaoTela: selecao.single)),
               ),
-              const SizedBox(height: 10),
-              Text(
-                deitada
-                    ? 'Formato indicado para terminais horizontais.'
-                    : 'Formato indicado para terminais verticais.',
-                style: const TextStyle(
-                    fontSize: 11.5, fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Ideal: mídia ${deitada ? 'deitada (paisagem), 1920 x 1080' : 'em pé (retrato), 1080 x 1920'} px. '
-                'Vídeos em MP4 com codec H.264, 30 fps e no máximo 6 Mbps. GIF é '
-                'aceito e roda em loop até a duração acabar. No ajuste Automático a '
-                'mídia aparece inteira, sem corte: a sobra vira um fundo borrado da '
-                'própria imagem (vídeos usam a cor primária do tema). Toque em '
-                '"Ajustar…" para trocar o modo, o fundo da sobra, o corte, o zoom '
-                'e o giro.',
-                style: const TextStyle(
-                    fontSize: 11.5, color: CoresApp.textoSecundario),
+              const SizedBox(height: 12),
+              // Bloco informativo discreto com as recomendações do formato,
+              // no mesmo tratamento do bloco "Estilo visual" do letreiro.
+              Container(
+                key: const Key('bloco_orientacoes'),
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: CoresApp.lilasClaro,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      deitada
+                          ? 'Formato indicado para terminais horizontais.'
+                          : 'Formato indicado para terminais verticais.',
+                      style: const TextStyle(
+                          fontSize: 11.5, fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Ideal: mídia ${deitada ? 'deitada (paisagem), 1920 x 1080' : 'em pé (retrato), 1080 x 1920'} px. '
+                      'Vídeos em MP4 com codec H.264, 30 fps e no máximo 6 Mbps. GIF é '
+                      'aceito e roda em loop até a duração acabar. No ajuste Automático a '
+                      'mídia aparece inteira, sem corte: a sobra vira um fundo borrado da '
+                      'própria imagem (vídeos usam a cor primária do tema). Toque em '
+                      '"Ajustar…" para trocar o modo, o fundo da sobra, o corte, o zoom '
+                      'e o giro.',
+                      style: const TextStyle(
+                          fontSize: 11.5, color: CoresApp.textoSecundario),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 14),
+              const Text('Mídias',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 8),
               if (estado.midias.isEmpty && !estado.carregando)
                 const EstadoVazio(
                   emoji: '🎬',
