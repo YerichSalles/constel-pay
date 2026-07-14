@@ -316,24 +316,27 @@ void main() {
     expect(fonteRecurso.consultados, ['item-burger']);
   });
 
-  test('lerComandaDigitada sem consumo mostra aviso e segue lendo', () async {
+  test('lerComandaDigitada sem consumo vai para semConsumo com aviso', () async {
     fonteConsumo.resultado = const Sucesso([]);
     await controlador.iniciar();
     await controlador.lerComandaDigitada('505');
     final estado = controlador.state;
-    expect(estado.etapa, EtapaFluxo.lendo);
+    expect(estado.etapa, EtapaFluxo.semConsumo);
     expect(estado.cartoes, isEmpty);
-    expect(estado.mensagens.last.texto, contains('505'));
+    expect(estado.mensagens.last.texto, 'Nenhum consumo em aberto');
+    expect(estado.mensagens.last.subtexto, contains('505'));
   });
 
-  test('lerComandaDigitada com falha mostra a mensagem de erro', () async {
+  test('lerComandaDigitada com falha vai para erroLeitura com a mensagem',
+      () async {
     fonteConsumo.resultado = const Erro(FalhaNaoAutorizado());
     await controlador.iniciar();
     await controlador.lerComandaDigitada('502');
     final estado = controlador.state;
-    expect(estado.etapa, EtapaFluxo.lendo);
+    expect(estado.etapa, EtapaFluxo.erroLeitura);
     expect(estado.cartoes, isEmpty);
-    expect(estado.mensagens.last.texto, contains('não autorizado'));
+    expect(estado.mensagens.last.texto, 'Não foi possível ler o cartão');
+    expect(estado.mensagens.last.subtexto, contains('não autorizado'));
   });
 
   test('lerComandaDigitada não duplica cartão já adicionado', () async {
@@ -349,5 +352,95 @@ void main() {
     await controlador.iniciar();
     await controlador.lerCartao();
     expect(controlador.state.cartoes.single.itens, isNotEmpty);
+  });
+
+  test('continuarComCartoes durante leitura adicional avanca para metodo',
+      () async {
+    await controlador.iniciar();
+    await controlador.lerCartao();
+    await controlador.lerOutroCartao();
+    expect(controlador.state.etapa, EtapaFluxo.lendo);
+    await controlador.continuarComCartoes();
+    final estado = controlador.state;
+    expect(estado.etapa, EtapaFluxo.escolhaMetodo);
+    expect(estado.selecionados, hasLength(1));
+    expect(estado.subtotalCentavos, 13600);
+    expect(estado.mensagens.any((m) => m.tipo == TipoMensagem.metodos), isTrue);
+  });
+
+  test('continuarComCartoes na primeira leitura e ignorado', () async {
+    await controlador.iniciar();
+    final quantidade = controlador.state.mensagens.length;
+    await controlador.continuarComCartoes();
+    expect(controlador.state.etapa, EtapaFluxo.lendo);
+    expect(controlador.state.mensagens.length, quantidade);
+  });
+
+  test('tentarNovamente apos sem consumo volta ao scanner preservando cartoes',
+      () async {
+    await controlador.iniciar();
+    await controlador.lerComandaDigitada('502');
+    await controlador.lerOutroCartao();
+    fonteConsumo.resultado = const Sucesso([]);
+    await controlador.lerComandaDigitada('411');
+    expect(controlador.state.etapa, EtapaFluxo.semConsumo);
+    expect(controlador.state.cartoes, hasLength(1));
+    await controlador.tentarNovamente();
+    final estado = controlador.state;
+    expect(estado.etapa, EtapaFluxo.lendo);
+    expect(estado.mensagens.last.tipo, TipoMensagem.scanner);
+    expect(estado.selecionados, hasLength(1));
+    expect(estado.subtotalCentavos, 4530);
+  });
+
+  test('tentarNovamente fora de semConsumo/erroLeitura e ignorado', () async {
+    await controlador.iniciar();
+    final quantidade = controlador.state.mensagens.length;
+    await controlador.tentarNovamente();
+    expect(controlador.state.mensagens.length, quantidade);
+    expect(controlador.state.etapa, EtapaFluxo.lendo);
+  });
+
+  test('continuarComCartoes apos erro preserva comandas e avanca', () async {
+    await controlador.iniciar();
+    await controlador.lerComandaDigitada('502');
+    await controlador.lerOutroCartao();
+    fonteConsumo.resultado = const Erro(FalhaNaoAutorizado());
+    await controlador.lerComandaDigitada('999');
+    expect(controlador.state.etapa, EtapaFluxo.erroLeitura);
+    expect(controlador.state.cartoes, hasLength(1));
+    await controlador.continuarComCartoes();
+    expect(controlador.state.etapa, EtapaFluxo.escolhaMetodo);
+    expect(controlador.state.subtotalCentavos, 4530);
+  });
+
+  test('duplicado avisa, nao duplica e mantem os totais', () async {
+    await controlador.iniciar();
+    await controlador.lerComandaDigitada('502');
+    final subtotal = controlador.state.subtotalCentavos;
+    await controlador.lerOutroCartao();
+    await controlador.lerComandaDigitada('502');
+    final estado = controlador.state;
+    expect(estado.etapa, EtapaFluxo.aguardandoMaisCartoes);
+    expect(estado.cartoes, hasLength(1));
+    expect(estado.subtotalCentavos, subtotal);
+    expect(estado.mensagens.last.texto, 'Cartão já adicionado');
+    expect(estado.mensagens.last.subtexto, contains('502'));
+  });
+
+  test('erro do leitor simulado esgotado vai para erroLeitura com saida',
+      () async {
+    await controlador.iniciar();
+    await controlador.lerCartao();
+    await controlador.lerOutroCartao();
+    await controlador.lerCartao();
+    await controlador.lerOutroCartao();
+    await controlador.lerCartao();
+    await controlador.lerOutroCartao();
+    await controlador.lerCartao(); // mock esgotado -> falha
+    expect(controlador.state.etapa, EtapaFluxo.erroLeitura);
+    expect(controlador.state.selecionados, hasLength(3));
+    await controlador.continuarComCartoes();
+    expect(controlador.state.etapa, EtapaFluxo.escolhaMetodo);
   });
 }

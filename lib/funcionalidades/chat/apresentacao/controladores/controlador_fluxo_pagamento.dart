@@ -150,14 +150,16 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
             dados: {'comandaId': cartao.id}));
         _adicionar(_mensagem(TipoMensagem.texto,
             texto: state.cartoesRestantes > 0
-                ? 'Deseja adicionar mais cartões?'
+                ? 'Deseja incluir outro cartão nesta conta?'
                 : 'Esse foi o último cartão em aberto.'));
         state = state.copyWith(etapa: EtapaFluxo.aguardandoMaisCartoes);
       },
       erro: (falha) {
-        _adicionar(
-            _mensagem(TipoMensagem.texto, emoji: '⚠️', texto: falha.mensagem));
-        state = state.copyWith(etapa: EtapaFluxo.aguardandoMaisCartoes);
+        _adicionar(_mensagem(TipoMensagem.texto,
+            emoji: '⚠️',
+            texto: 'Não foi possível ler o cartão',
+            subtexto: falha.mensagem));
+        state = state.copyWith(etapa: EtapaFluxo.erroLeitura);
       },
     );
   }
@@ -181,9 +183,13 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
         if (atendimentos.isEmpty) {
           _adicionar(_mensagem(TipoMensagem.texto,
               emoji: '🔎',
-              texto: 'Nenhum consumo em aberto para a comanda $ref.'));
+              texto: 'Nenhum consumo em aberto',
+              subtexto:
+                  'Não encontramos itens pendentes para o cartão $ref.'));
+          state = state.copyWith(etapa: EtapaFluxo.semConsumo);
           return;
         }
+        var adicionouNovo = false;
         for (final atendimento in atendimentos) {
           if (state.cartoes.any((c) => c.id == atendimento.id)) continue;
           final cartao = AdaptadorAtendimento.paraCartao(atendimento)
@@ -191,14 +197,26 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
           state = state.copyWith(cartoes: [...state.cartoes, cartao]);
           _adicionar(_mensagem(TipoMensagem.leituraCartao,
               dados: {'comandaId': cartao.id}));
+          adicionouNovo = true;
+        }
+        if (!adicionouNovo) {
+          _adicionar(_mensagem(TipoMensagem.texto,
+              emoji: '🔁',
+              texto: 'Cartão já adicionado',
+              subtexto: 'A comanda $ref já está incluída nesta conta.'));
+          state = state.copyWith(etapa: EtapaFluxo.aguardandoMaisCartoes);
+          return;
         }
         _adicionar(_mensagem(TipoMensagem.texto,
-            texto: 'Deseja adicionar mais cartões?'));
+            texto: 'Deseja incluir outro cartão nesta conta?'));
         state = state.copyWith(etapa: EtapaFluxo.aguardandoMaisCartoes);
       },
       erro: (falha) {
-        _adicionar(
-            _mensagem(TipoMensagem.texto, emoji: '⚠️', texto: falha.mensagem));
+        _adicionar(_mensagem(TipoMensagem.texto,
+            emoji: '⚠️',
+            texto: 'Não foi possível ler o cartão',
+            subtexto: falha.mensagem));
+        state = state.copyWith(etapa: EtapaFluxo.erroLeitura);
       },
     );
     await _carregarFotosItens();
@@ -207,11 +225,31 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
   Future<void> lerOutroCartao() async {
     if (state.etapa != EtapaFluxo.aguardandoMaisCartoes) return;
     _adicionar(_mensagem(TipoMensagem.texto,
-        lado: LadoMensagem.cliente, texto: 'Ler outro cartão'));
+        lado: LadoMensagem.cliente, texto: 'Adicionar outro cartão'));
     state = state.copyWith(etapa: EtapaFluxo.lendo);
     await _bot(() {
       _adicionar(_mensagem(TipoMensagem.texto,
-          texto: 'Beleza! Aponte para o próximo código 👇'));
+          texto: 'Beleza! Aponte a câmera para o próximo código 👇'));
+      _adicionar(_mensagem(TipoMensagem.scanner));
+    });
+  }
+
+  /// Sai de um aviso (sem consumo / erro de leitura) de volta ao leitor,
+  /// preservando todas as comandas já adicionadas.
+  Future<void> tentarNovamente() async {
+    if (state.etapa != EtapaFluxo.semConsumo &&
+        state.etapa != EtapaFluxo.erroLeitura) {
+      return;
+    }
+    _adicionar(_mensagem(TipoMensagem.texto,
+        lado: LadoMensagem.cliente,
+        texto: state.etapa == EtapaFluxo.semConsumo
+            ? 'Tentar outro cartão'
+            : 'Tentar novamente'));
+    state = state.copyWith(etapa: EtapaFluxo.lendo);
+    await _bot(() {
+      _adicionar(_mensagem(TipoMensagem.texto,
+          texto: 'Beleza! Aponte a câmera para o próximo código 👇'));
       _adicionar(_mensagem(TipoMensagem.scanner));
     });
   }
@@ -224,7 +262,30 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     _adicionar(_mensagem(TipoMensagem.texto,
         lado: LadoMensagem.cliente,
         texto:
-            'Ir para o pagamento · ${FormatadorMoeda.formatar(state.subtotalCentavos)}'));
+            'Continuar para pagamento · ${FormatadorMoeda.formatar(state.subtotalCentavos)}'));
+    await _avancarParaEscolhaMetodo();
+  }
+
+  /// Desiste da inclusão em andamento e avança usando só as comandas
+  /// já adicionadas. Não remove nada e não altera totais.
+  Future<void> continuarComCartoes() async {
+    const etapasInclusao = [
+      EtapaFluxo.lendo,
+      EtapaFluxo.semConsumo,
+      EtapaFluxo.erroLeitura,
+    ];
+    if (!etapasInclusao.contains(state.etapa) ||
+        state.digitando ||
+        state.selecionados.isEmpty) {
+      return;
+    }
+    _adicionar(_mensagem(TipoMensagem.texto,
+        lado: LadoMensagem.cliente,
+        texto: 'Continuar com ${state.rotuloCartoesAdicionados}'));
+    await _avancarParaEscolhaMetodo();
+  }
+
+  Future<void> _avancarParaEscolhaMetodo() async {
     _chaveIdempotencia = _uuid.v4();
     state = state.copyWith(etapa: EtapaFluxo.escolhaMetodo);
     await _bot(() {
@@ -359,7 +420,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     state = state.copyWith(etapa: EtapaFluxo.lendo);
     await _bot(() {
       _adicionar(_mensagem(TipoMensagem.texto,
-          texto: 'Beleza! Aponte para o próximo código 👇'));
+          texto: 'Beleza! Aponte a câmera para o próximo código 👇'));
       _adicionar(_mensagem(TipoMensagem.scanner));
     });
   }
