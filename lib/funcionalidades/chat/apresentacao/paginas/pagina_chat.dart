@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +10,7 @@ import '../../../../aplicativo/injecao.dart';
 import '../../../../compartilhado/layout/layout_responsivo.dart';
 import '../../../../compartilhado/widgets/barra_superior.dart';
 import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
+import '../../../../compartilhado/widgets/imagem_logo.dart';
 import '../../../comprovante/apresentacao/componentes/card_comprovante.dart';
 import '../../../pagamento/dominio/entidades/metodo_pagamento.dart';
 import '../../dominio/entidades/mensagem.dart';
@@ -142,6 +145,29 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
     }
   }
 
+  /// Logo do estabelecimento na barra; sem logo configurada, mantém o
+  /// avatar com ícone de pagamento.
+  Widget _avatarBarra() {
+    final logoPath = ref.watch(provedorTema).logoPath;
+    if (logoPath == null || !File(logoPath).existsSync()) {
+      return const AvatarBot(tamanho: 40);
+    }
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white,
+      ),
+      clipBehavior: Clip.antiAlias,
+      padding: const EdgeInsets.all(4),
+      child: ImagemLogo(
+        caminho: logoPath,
+        reserva: const AvatarBot(tamanho: 40),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final estado = ref.watch(provedorFluxoPagamento);
@@ -154,7 +180,7 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
     return Scaffold(
       appBar: BarraSuperior(
         titulo: _nomeRestaurante,
-        avatar: const AvatarBot(tamanho: 40),
+        avatar: _avatarBarra(),
         aoVoltar: _confirmarSaida,
       ),
       body: Column(
