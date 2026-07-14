@@ -81,9 +81,10 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
   }
 
   /// O listener do video dispara varias vezes no fim da reproducao; sem esta
-  /// guarda a playlist pularia midias.
+  /// guarda a playlist pularia midias. Inativo nunca termina: latchar aqui
+  /// deixaria o totem preso quando este player fosse promovido.
   void _terminar() {
-    if (_terminado) return;
+    if (!widget.ativo || _terminado) return;
     _terminado = true;
     widget.aoTerminar();
   }
@@ -165,10 +166,18 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
       return;
     }
     final video = _video;
-    if (video != null && video.value.isInitialized) {
-      video.play();
-    } else if (_falhou) {
+    if (video == null) {
+      if (_falhou) _agendarAvancoDeErro();
+      return;
+    }
+    if (video.value.hasError) {
+      // Erro que chegou enquanto era o seguinte: avancar como erro em vez de
+      // dar play num controller morto (travaria o totem no frame congelado).
       _agendarAvancoDeErro();
+      return;
+    }
+    if (video.value.isInitialized) {
+      video.play();
     }
     // Se o initialize ainda esta em andamento, o proprio then da o play:
     // ele le widget.ativo na hora em que termina.
