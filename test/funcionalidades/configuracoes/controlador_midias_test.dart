@@ -65,14 +65,6 @@ void main() {
     expect(midia.ajuste, AjusteMidia.automatico);
   });
 
-  test('definirAjuste atualiza o estado e persiste', () async {
-    await controlador.adicionarArquivos(['/m/a.png']);
-    final id = controlador.state.midias.single.id;
-    await controlador.definirAjuste(id, AjusteMidia.esticar);
-    expect(controlador.state.midias.single.ajuste, AjusteMidia.esticar);
-    expect((await repositorio.obterTodas()).single.ajuste, AjusteMidia.esticar);
-  });
-
   test('definirEnquadramento persiste modo, fundo, ancora e zoom', () async {
     await controlador.adicionarArquivos(['/m/a.png']);
     final id = controlador.state.midias.single.id;

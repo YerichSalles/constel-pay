@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/cores_app.dart';
+import '../../../../aplicativo/tema/tema_constel.dart';
 import '../../../../compartilhado/feedback/estado_vazio.dart';
 import '../../../../compartilhado/feedback/snackbar_padrao.dart';
 import '../../../../compartilhado/widgets/botao_primario.dart';
@@ -15,7 +17,7 @@ import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
 import '../../../propaganda/apresentacao/paginas/pagina_propaganda.dart';
 import '../../../propaganda/dominio/entidades/midia_propaganda.dart';
 import '../controladores/controlador_midias.dart';
-import 'seletor_ajuste_midia.dart';
+import 'dialogo_ajuste_midia.dart';
 
 class AbaPropaganda extends ConsumerWidget {
   const AbaPropaganda({super.key});
@@ -73,6 +75,32 @@ class AbaPropaganda extends ConsumerWidget {
     if (copiados.isNotEmpty) {
       await ref.read(provedorMidias.notifier).adicionarArquivos(copiados);
     }
+  }
+
+  void _abrirAjuste(
+      BuildContext context, WidgetRef ref, MidiaPropaganda midia) {
+    final tema = ref.read(provedorTema);
+    final corTema = TemaConstel.corDeHex(
+        tema.corPrimaria, Theme.of(context).colorScheme.primary);
+    final controlador = ref.read(provedorMidias.notifier);
+    showDialog<void>(
+      context: context,
+      builder: (_) => DialogoAjusteMidia(
+        midia: midia,
+        corTema: corTema,
+        aoSalvar: ({
+          required AjusteMidia ajuste,
+          required FundoMidia fundo,
+          required AncoraMidia ancora,
+          required int zoomPercentual,
+        }) =>
+            controlador.definirEnquadramento(midia.id,
+                ajuste: ajuste,
+                fundo: fundo,
+                ancora: ancora,
+                zoomPercentual: zoomPercentual),
+      ),
+    );
   }
 
   Widget _cardMidia(
@@ -151,10 +179,28 @@ class AbaPropaganda extends ConsumerWidget {
                                   color: CoresApp.textoSecundario)),
                         ],
                       ),
-                    SeletorAjusteMidia(
-                      valor: midia.ajuste,
-                      aoMudar: (ajuste) =>
-                          controlador.definirAjuste(midia.id, ajuste),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(resumoEnquadramento(midia),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: const TextStyle(
+                                  fontSize: 11.5,
+                                  color: CoresApp.textoSecundario)),
+                        ),
+                        const SizedBox(width: 4),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                              visualDensity: VisualDensity.compact,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8)),
+                          onPressed: () => _abrirAjuste(context, ref, midia),
+                          child: const Text('Ajustar…',
+                              style: TextStyle(fontSize: 11.5)),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -197,10 +243,11 @@ class AbaPropaganda extends ConsumerWidget {
       children: [
         const Text(
           'Ideal: mídia em pé (retrato), 1080 x 1920 px. Vídeos em MP4 com '
-          'codec H.264, 30 fps e no máximo 6 Mbps. GIF é aceito e roda em loop '
-          'até a duração acabar. O Ajuste decide como cada mídia ocupa a tela: '
-          'no Automático, o app preenche quando o formato é parecido com o da '
-          'tela e encaixa (com tarja na cor primária) quando cortaria demais.',
+          'codec H.264, 30 fps e no máximo 6 Mbps. GIF é aceito e roda em '
+          'loop até a duração acabar. No ajuste Automático a mídia aparece '
+          'inteira, sem corte: a sobra vira um fundo borrado da própria '
+          'imagem (vídeos usam a cor primária do tema). Toque em "Ajustar…" '
+          'para trocar o modo, o fundo da sobra, o corte e o zoom.',
           style: TextStyle(fontSize: 11.5, color: CoresApp.textoSecundario),
         ),
         const SizedBox(height: 14),

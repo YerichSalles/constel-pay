@@ -95,13 +95,6 @@ class ControladorMidias extends StateNotifier<EstadoMidias> {
     ]);
   }
 
-  Future<void> definirAjuste(String id, AjusteMidia ajuste) async {
-    await _persistir([
-      for (final midia in state.midias)
-        midia.id == id ? midia.copyWith(ajuste: ajuste) : midia,
-    ]);
-  }
-
   /// Persiste o enquadramento completo escolhido no dialogo Ajustar.
   Future<void> definirEnquadramento(
     String id, {
