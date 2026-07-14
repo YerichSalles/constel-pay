@@ -1,0 +1,403 @@
+{
+  "@@locale": "pt",
+
+  "welcomeMessage": "Olá! Bem-vindo(a). Vou fechar sua conta em segundos. 😊",
+  "@welcomeMessage": {
+    "description": "Primeira mensagem do bot ao iniciar o atendimento."
+  },
+  "scanInstruction": "Para começar, aponte a câmera para o código do seu cartão de consumo 👇",
+  "@scanInstruction": {
+    "description": "Instrução do bot para escanear o cartão."
+  },
+  "addAnotherCardQuestion": "Deseja incluir outro cartão nesta conta?",
+  "@addAnotherCardQuestion": {
+    "description": "Pergunta do bot após ler um cartão com sucesso."
+  },
+  "lastCardOpenMessage": "Esse foi o último cartão em aberto.",
+  "@lastCardOpenMessage": {
+    "description": "Aviso do bot quando não há mais cartões em aberto no mock."
+  },
+  "cardReadErrorTitle": "Não foi possível ler o cartão",
+  "@cardReadErrorTitle": {
+    "description": "Título da mensagem de erro de leitura do cartão."
+  },
+  "clientCardEcho": "Comanda {reference}",
+  "@clientCardEcho": {
+    "description": "Eco do cliente ao digitar o número da comanda (fluxo temporário de teste).",
+    "placeholders": {
+      "reference": {"type": "String"}
+    }
+  },
+  "noOpenItemsTitle": "Nenhum consumo em aberto",
+  "@noOpenItemsTitle": {
+    "description": "Título quando a comanda digitada não tem itens pendentes."
+  },
+  "noOpenItemsMessage": "Não encontramos itens pendentes para o cartão {reference}.",
+  "@noOpenItemsMessage": {
+    "description": "Subtexto quando a comanda digitada não tem itens pendentes.",
+    "placeholders": {
+      "reference": {"type": "String"}
+    }
+  },
+  "cardAlreadyAddedTitle": "Cartão já adicionado",
+  "@cardAlreadyAddedTitle": {
+    "description": "Título quando a comanda digitada já foi incluída."
+  },
+  "cardAlreadyAddedMessage": "A comanda {reference} já está incluída nesta conta.",
+  "@cardAlreadyAddedMessage": {
+    "description": "Subtexto quando a comanda digitada já foi incluída.",
+    "placeholders": {
+      "reference": {"type": "String"}
+    }
+  },
+  "addAnotherCard": "Adicionar outro cartão",
+  "@addAnotherCard": {
+    "description": "Chip de ação e eco do cliente para ler mais um cartão."
+  },
+  "nextCardInstruction": "Beleza! Aponte a câmera para o próximo código 👇",
+  "@nextCardInstruction": {
+    "description": "Instrução do bot para ler o próximo cartão (reaparece em vários pontos do fluxo)."
+  },
+  "tryAnotherCard": "Tentar outro cartão",
+  "@tryAnotherCard": {
+    "description": "Chip/eco quando não há consumo em aberto e o cliente tenta outro cartão."
+  },
+  "tryAgain": "Tentar novamente",
+  "@tryAgain": {
+    "description": "Chip/eco após erro de leitura do cartão."
+  },
+  "continueToPayment": "Continuar para pagamento",
+  "@continueToPayment": {
+    "description": "Rótulo do chip que avança para a escolha do método de pagamento."
+  },
+  "continueToPaymentWithAmount": "Continuar para pagamento · {amount}",
+  "@continueToPaymentWithAmount": {
+    "description": "Eco do cliente ao tocar em avançar para pagamento, com o valor já formatado.",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "continueWithAddedCards": "Continuar com os cartões já adicionados",
+  "@continueWithAddedCards": {
+    "description": "Chip discreto exibido durante a leitura de mais cartões, sem quantidade."
+  },
+  "continueWithAddedCardsCount": "{count, plural, one{Continuar com 1 cartão adicionado} other{Continuar com {count} cartões adicionados}}",
+  "@continueWithAddedCardsCount": {
+    "description": "Chip/eco para continuar com os cartões já adicionados, com a contagem.",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "howWouldYouLikePay": "Como você quer pagar {amount}?",
+  "@howWouldYouLikePay": {
+    "description": "Pergunta do bot ao chegar na escolha do método de pagamento.",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "includesServiceFee": "Inclui {amount} de serviço.",
+  "@includesServiceFee": {
+    "description": "Subtexto informando o valor da taxa de serviço incluída no total.",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "methodNotAvailable": "Este método ainda não está disponível neste terminal. Use o Pix por enquanto. 😉",
+  "@methodNotAvailable": {
+    "description": "Aviso quando o cliente escolhe um método diferente de Pix."
+  },
+  "pixReadyMessage": "Pronto! Escaneie o QR Code ou copie o código Pix 👇",
+  "@pixReadyMessage": {
+    "description": "Mensagem do bot ao gerar o Pix com sucesso."
+  },
+  "paymentNotApproved": "Pagamento {status}. Tente novamente.",
+  "@paymentNotApproved": {
+    "description": "Mensagem quando o pagamento não foi aprovado; status já vem traduzido e em minúsculas.",
+    "placeholders": {
+      "status": {"type": "String"}
+    }
+  },
+  "remainingCardsQuestion": "{count, plural, one{Ainda há 1 cartão em aberto. Quer pagar agora?} other{Ainda há {count} cartões em aberto. Quer pagar agora?}}",
+  "@remainingCardsQuestion": {
+    "description": "Mensagem do bot após um pagamento aprovado quando ainda há cartões em aberto.",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "allCardsSettled": "Tudo certo! Todos os cartões foram quitados.",
+  "@allCardsSettled": {
+    "description": "Mensagem do bot quando o pagamento aprovado quita todos os cartões."
+  },
+  "payRemaining": "Pagar restante",
+  "@payRemaining": {
+    "description": "Chip/eco para pagar os cartões restantes."
+  },
+  "endService": "Encerrar",
+  "@endService": {
+    "description": "Chip/eco para encerrar o atendimento."
+  },
+  "thankYouMessage": "Obrigado pela visita! Volte sempre 💜",
+  "@thankYouMessage": {
+    "description": "Mensagem de despedida do bot ao encerrar o atendimento."
+  },
+  "receiptMessage": "Aqui está o seu comprovante.",
+  "@receiptMessage": {
+    "description": "Subtexto que antecede o cartão de comprovante."
+  },
+  "newPayment": "Novo pagamento",
+  "@newPayment": {
+    "description": "Chip para iniciar um novo atendimento a partir da tela de encerramento."
+  },
+  "tapOptionHint": "👆 Toque em uma opção acima para continuar",
+  "@tapOptionHint": {
+    "description": "Dica exibida na área de ações quando não há chips visíveis."
+  },
+  "totalBarCards": "{count, plural, one{1 cartão} other{{count} cartões}}",
+  "@totalBarCards": {
+    "description": "Contagem de cartões selecionados exibida na barra de total.",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "totalBarServiceSuffix": " · inclui serviço",
+  "@totalBarServiceSuffix": {
+    "description": "Sufixo concatenado ao rótulo da barra de total quando há taxa de serviço."
+  },
+
+  "scanPositionHint": "Posicione o código do cartão dentro da área",
+  "@scanPositionHint": {
+    "description": "Texto sobreposto ao visor do scanner simulado."
+  },
+  "simulateScanButton": "📷 Simular leitura do código",
+  "@simulateScanButton": {
+    "description": "Botão que simula a leitura do código de barras."
+  },
+  "cardNumberHint": "Nº do cartão",
+  "@cardNumberHint": {
+    "description": "Hint do campo temporário de digitação do número da comanda."
+  },
+  "searchButton": "Buscar",
+  "@searchButton": {
+    "description": "Botão de busca ao lado do campo temporário de comanda digitada."
+  },
+
+  "paidLabel": "Pago ✓",
+  "@paidLabel": {
+    "description": "Rótulo exibido no cartão de comanda quando ela já foi paga."
+  },
+  "subtotalLabel": "Subtotal",
+  "@subtotalLabel": {
+    "description": "Rótulo da linha de subtotal no cartão de comanda."
+  },
+  "serviceFeeLabel": "Taxa de serviço ({percent})",
+  "@serviceFeeLabel": {
+    "description": "Rótulo da linha de taxa de serviço, com o percentual já formatado.",
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
+  },
+  "discountLabel": "Desconto",
+  "@discountLabel": {
+    "description": "Rótulo da linha de desconto no cartão de comanda."
+  },
+  "cardTotalLabel": "Total da comanda",
+  "@cardTotalLabel": {
+    "description": "Rótulo do total da comanda individual."
+  },
+  "itemQuantityLabel": "{quantity} un · {amount} cada",
+  "@itemQuantityLabel": {
+    "description": "Linha de quantidade e valor unitário de um item consumido.",
+    "placeholders": {
+      "quantity": {"type": "int"},
+      "amount": {"type": "String"}
+    }
+  },
+
+  "payWithPix": "Pague com Pix",
+  "@payWithPix": {
+    "description": "Título do cartão de pagamento via Pix."
+  },
+  "validFor5Minutes": "Válido por 5 minutos",
+  "@validFor5Minutes": {
+    "description": "Aviso de validade do QR Code Pix."
+  },
+  "codeCopied": "Código copiado ✓",
+  "@codeCopied": {
+    "description": "Confirmação após copiar o código Pix."
+  },
+  "copyPixCode": "📋 Copiar código Pix",
+  "@copyPixCode": {
+    "description": "Botão para copiar o código Pix."
+  },
+  "paymentDoneButton": "Já fiz o pagamento",
+  "@paymentDoneButton": {
+    "description": "Botão para confirmar que o pagamento Pix foi feito."
+  },
+
+  "paymentApprovedTitle": "Pagamento aprovado! 🎉",
+  "@paymentApprovedTitle": {
+    "description": "Título do cartão de sucesso do pagamento."
+  },
+  "settledOrdersLabel": "COMANDAS QUITADAS",
+  "@settledOrdersLabel": {
+    "description": "Rótulo acima da lista de comandas quitadas no cartão de sucesso."
+  },
+
+  "selfCheckoutSubtitle": "AutoPagamento · Cartões de consumo",
+  "@selfCheckoutSubtitle": {
+    "description": "Subtítulo abaixo do nome do restaurante no banner de boas-vindas."
+  },
+
+  "receiptTitle": "Comprovante de pagamento",
+  "@receiptTitle": {
+    "description": "Título do cartão de comprovante."
+  },
+  "dateTimeLabel": "Data e hora",
+  "@dateTimeLabel": {
+    "description": "Rótulo da linha de data e hora no comprovante."
+  },
+  "ordersLabel": "Comandas",
+  "@ordersLabel": {
+    "description": "Rótulo da linha de comandas no comprovante."
+  },
+  "paymentMethodLabel": "Forma de pagamento",
+  "@paymentMethodLabel": {
+    "description": "Rótulo da linha de forma de pagamento no comprovante."
+  },
+  "identifierLabel": "Identificador",
+  "@identifierLabel": {
+    "description": "Rótulo da linha de identificador do comprovante."
+  },
+  "amountPaidLabel": "Valor pago",
+  "@amountPaidLabel": {
+    "description": "Rótulo do valor total pago no comprovante."
+  },
+
+  "cancelOperationTitle": "Cancelar operação?",
+  "@cancelOperationTitle": {
+    "description": "Título do diálogo de confirmação de saída do atendimento."
+  },
+  "cancelOperationMessage": "O atendimento atual será encerrado e nada será cobrado.",
+  "@cancelOperationMessage": {
+    "description": "Mensagem do diálogo de confirmação de saída do atendimento."
+  },
+  "confirmCancel": "Sim, cancelar",
+  "@confirmCancel": {
+    "description": "Botão de confirmar a saída do atendimento."
+  },
+  "continueHere": "Continuar aqui",
+  "@continueHere": {
+    "description": "Botão para permanecer no atendimento; reaparece no aviso de inatividade."
+  },
+
+  "stillThereTitle": "Você ainda está aí?",
+  "@stillThereTitle": {
+    "description": "Título do diálogo de aviso de inatividade."
+  },
+  "inactivityMessage": "Sem atividade há algum tempo. Voltaremos à tela inicial em {seconds, plural, one{1 segundo} other{{seconds} segundos}}.",
+  "@inactivityMessage": {
+    "description": "Mensagem do diálogo de inatividade com a contagem regressiva.",
+    "placeholders": {
+      "seconds": {"type": "int"}
+    }
+  },
+
+  "selfCheckoutTerminal": "Terminal de AutoPagamento",
+  "@selfCheckoutTerminal": {
+    "description": "Subtítulo exibido na tela de splash."
+  },
+
+  "errorNetwork": "Falha de comunicação com a API. Verifique a URL configurada, a rede e se o serviço está no ar.",
+  "@errorNetwork": {
+    "description": "Mensagem padrão de FalhaRede."
+  },
+  "errorTimeout": "O servidor demorou para responder. Tente novamente.",
+  "@errorTimeout": {
+    "description": "Mensagem padrão de FalhaTimeout."
+  },
+  "errorServer": "Erro ao comunicar com o servidor.",
+  "@errorServer": {
+    "description": "Mensagem padrão de FalhaServidor."
+  },
+  "errorUnauthorized": "Acesso não autorizado. Verifique usuário e senha.",
+  "@errorUnauthorized": {
+    "description": "Mensagem padrão de FalhaNaoAutorizado."
+  },
+  "errorUnknown": "Ocorreu um erro inesperado.",
+  "@errorUnknown": {
+    "description": "Mensagem padrão de FalhaDesconhecida e chave genérica de fallback para FalhaValidacao sem mensagem customizada."
+  },
+
+  "paymentMethodPix": "Pix",
+  "@paymentMethodPix": {"description": "Rótulo do método de pagamento Pix."},
+  "paymentMethodCredit": "Crédito",
+  "@paymentMethodCredit": {"description": "Rótulo do método de pagamento Crédito."},
+  "paymentMethodDebit": "Débito",
+  "@paymentMethodDebit": {"description": "Rótulo do método de pagamento Débito."},
+  "paymentMethodTef": "TEF",
+  "@paymentMethodTef": {"description": "Rótulo do método de pagamento TEF."},
+  "paymentMethodPos": "POS",
+  "@paymentMethodPos": {"description": "Rótulo do método de pagamento POS."},
+  "paymentMethodVoucher": "Voucher",
+  "@paymentMethodVoucher": {"description": "Rótulo do método de pagamento Voucher."},
+  "paymentMethodCash": "Dinheiro",
+  "@paymentMethodCash": {"description": "Rótulo do método de pagamento Dinheiro."},
+  "paymentMethodPixDescription": "Aprovação na hora",
+  "@paymentMethodPixDescription": {"description": "Descrição do método de pagamento Pix."},
+  "paymentMethodCreditDescription": "Em até 12x",
+  "@paymentMethodCreditDescription": {"description": "Descrição do método de pagamento Crédito."},
+  "paymentMethodDebitDescription": "À vista",
+  "@paymentMethodDebitDescription": {"description": "Descrição do método de pagamento Débito."},
+  "paymentMethodTefDescription": "Terminal integrado",
+  "@paymentMethodTefDescription": {"description": "Descrição do método de pagamento TEF."},
+  "paymentMethodPosDescription": "Maquininha",
+  "@paymentMethodPosDescription": {"description": "Descrição do método de pagamento POS."},
+  "paymentMethodVoucherDescription": "Vale-refeição",
+  "@paymentMethodVoucherDescription": {"description": "Descrição do método de pagamento Voucher."},
+  "paymentMethodCashDescription": "No caixa",
+  "@paymentMethodCashDescription": {"description": "Descrição do método de pagamento Dinheiro."},
+
+  "paymentStatusWaiting": "Aguardando",
+  "@paymentStatusWaiting": {"description": "Rótulo de StatusPagamento.aguardando."},
+  "paymentStatusProcessing": "Processando",
+  "@paymentStatusProcessing": {"description": "Rótulo de StatusPagamento.processando."},
+  "paymentStatusApproved": "Aprovado",
+  "@paymentStatusApproved": {"description": "Rótulo de StatusPagamento.aprovado."},
+  "paymentStatusDeclined": "Recusado",
+  "@paymentStatusDeclined": {"description": "Rótulo de StatusPagamento.recusado."},
+  "paymentStatusCancelled": "Cancelado",
+  "@paymentStatusCancelled": {"description": "Rótulo de StatusPagamento.cancelado."},
+  "paymentStatusExpired": "Expirado",
+  "@paymentStatusExpired": {"description": "Rótulo de StatusPagamento.expirado."},
+  "paymentStatusError": "Erro",
+  "@paymentStatusError": {"description": "Rótulo de StatusPagamento.erro."},
+
+  "tapToPay": "Toque para pagar",
+  "@tapToPay": {
+    "description": "Texto padrão da faixa de chamada na tela inicial (textoFaixaPadrao)."
+  },
+
+  "chooseLanguageTitle": "Escolha o idioma",
+  "@chooseLanguageTitle": {
+    "description": "Título do diálogo do seletor de idioma."
+  },
+  "languagePortuguese": "Português",
+  "@languagePortuguese": {
+    "description": "Nome do idioma português, sempre no próprio idioma."
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "Nome do idioma inglês, sempre no próprio idioma."
+  },
+  "languageSpanish": "Español",
+  "@languageSpanish": {
+    "description": "Nome do idioma espanhol, sempre no próprio idioma."
+  },
+  "changeLanguageSemantics": "Alterar idioma. Idioma atual: {languageName}.",
+  "@changeLanguageSemantics": {
+    "description": "Texto de acessibilidade do botão seletor de idioma.",
+    "placeholders": {
+      "languageName": {"type": "String"}
+    }
+  }
+}

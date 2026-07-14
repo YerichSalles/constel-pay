@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../l10n/app_localizations.dart';
 import 'injecao.dart';
 import 'tema/tema_constel.dart';
 
@@ -18,9 +18,9 @@ class ConstelPayApp extends ConsumerWidget {
       title: 'Constel Pay',
       debugShowCheckedModeBanner: false,
       theme: TemaConstel.criar(tema),
-      locale: const Locale('pt', 'BR'),
-      supportedLocales: const [Locale('pt', 'BR')],
-      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      locale: ref.watch(provedorIdioma),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       routerConfig: roteador,
     );
   }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../aplicativo/injecao.dart';
 import '../../funcionalidades/chat/apresentacao/controladores/controlador_fluxo_pagamento.dart';
 import '../../nucleo/constantes/constantes_app.dart';
 
@@ -81,6 +82,7 @@ class _DetectorInatividadeState extends ConsumerState<DetectorInatividade> {
       _reiniciar();
     } else {
       ref.read(provedorFluxoPagamento.notifier).novaOperacao();
+      ref.read(provedorIdioma.notifier).resetar();
       context.go('/splash');
     }
   }

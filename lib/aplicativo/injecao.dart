@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,6 +39,7 @@ import '../nucleo/configuracao/cliente_api.dart';
 import '../nucleo/constantes/constantes_app.dart';
 import '../nucleo/dispositivo/info_aplicativo.dart';
 import '../nucleo/erros/resultado.dart';
+import 'idioma/controlador_idioma.dart';
 import 'tema/controlador_tema.dart';
 
 final provedorSharedPreferences = Provider<SharedPreferences>(
@@ -57,6 +59,12 @@ final provedorRepositorioTema = Provider<RepositorioTema>(
 
 final provedorTema = StateNotifierProvider<ControladorTema, TemaPersonalizado>(
   (ref) => ControladorTema(ref.watch(provedorRepositorioTema)),
+);
+
+// Idioma do atendimento atual — sem persistência, volta a pt-BR a cada novo
+// atendimento (reset nos mesmos pontos que disparam `novaOperacao()`).
+final provedorIdioma = StateNotifierProvider<ControladorIdioma, Locale>(
+  (ref) => ControladorIdioma(),
 );
 
 final provedorArmazenamentoSeguro = Provider<FlutterSecureStorage>(

@@ -78,6 +78,7 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
     );
     if (sair && mounted) {
       ref.read(provedorFluxoPagamento.notifier).novaOperacao();
+      ref.read(provedorIdioma.notifier).resetar();
       context.go('/splash');
     }
   }
@@ -216,6 +217,7 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
             aoEncerrar: controlador.encerrar,
             aoNovaOperacao: () {
               controlador.novaOperacao();
+              ref.read(provedorIdioma.notifier).resetar();
               context.go('/splash');
             },
             aoTentarNovamente: controlador.tentarNovamente,
