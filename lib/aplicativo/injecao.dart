@@ -31,7 +31,9 @@ import '../funcionalidades/configuracoes/dominio/repositorios/repositorio_config
 import '../funcionalidades/configuracoes/dominio/repositorios/repositorio_credencial.dart';
 import '../funcionalidades/configuracoes/dominio/repositorios/repositorio_tema.dart';
 import '../funcionalidades/propaganda/dados/repositorios/repositorio_propaganda_impl.dart';
+import '../funcionalidades/propaganda/dados/repositorios/repositorio_publicidade_impl.dart';
 import '../funcionalidades/propaganda/dominio/repositorios/repositorio_propaganda.dart';
+import '../funcionalidades/propaganda/dominio/repositorios/repositorio_publicidade.dart';
 import '../nucleo/configuracao/cliente_api.dart';
 import '../nucleo/constantes/constantes_app.dart';
 import '../nucleo/dispositivo/info_aplicativo.dart';
@@ -67,6 +69,10 @@ final provedorRepositorioCredencial = Provider<RepositorioCredencial>(
 
 final provedorRepositorioPropaganda = Provider<RepositorioPropaganda>(
   (ref) => RepositorioPropagandaImpl(ref.watch(provedorSharedPreferences)),
+);
+
+final provedorRepositorioPublicidade = Provider<RepositorioPublicidade>(
+  (ref) => RepositorioPublicidadeImpl(ref.watch(provedorSharedPreferences)),
 );
 
 // Cliente da API local (consumo do cartão) — usa a URL base do ambiente ativo.
