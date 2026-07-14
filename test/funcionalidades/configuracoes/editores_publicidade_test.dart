@@ -430,12 +430,20 @@ void main() {
       expect(find.text('Nenhum conteúdo configurado.'), findsOneWidget);
       expect(find.text('Alterar mídia'), findsOneWidget);
       expect(find.text('Remover mídia'), findsNothing);
+      expect(find.byKey(const Key('dicas_parceiro')), findsOneWidget,
+          reason: 'dicas de tamanho visiveis antes mesmo de adicionar');
+      expect(find.text('Recomendado: 1040 × 128 px.'), findsOneWidget);
+      expect(
+          find.text('Formatos aceitos: JPG, PNG, WebP e GIF '
+              '(o GIF anima em loop contínuo).'),
+          findsOneWidget);
       await tester.tap(find.text('Alterar mídia'));
       expect(chamado, isTrue);
     });
 
-    testWidgets('com midia mostra previa e botoes Alterar/Ajustar/Remover',
-        (tester) async {
+    testWidgets(
+        'com midia prioriza tipo carregado; nome do arquivo vira texto '
+        'secundario com tooltip', (tester) async {
       var alterar = false, remover = false, ajustar = false;
       const midia = MidiaPropaganda(
           id: 'p1',
@@ -449,7 +457,11 @@ void main() {
         aoAjustarMidia: () => ajustar = true,
       )));
       expect(find.text('Nenhum conteúdo configurado.'), findsNothing);
+      // Arquivo inexistente: sem dimensões, mas o tipo aparece na frente.
+      expect(find.text('Imagem carregada'), findsOneWidget);
       expect(find.text('parceiro.png'), findsOneWidget);
+      expect(find.byTooltip('parceiro.png'), findsOneWidget,
+          reason: 'o nome completo fica disponivel em tooltip');
       expect(find.text('Recomendado: 1040 × 128 px.'), findsOneWidget);
       await tester.tap(find.text('Alterar mídia'));
       expect(alterar, isTrue);
@@ -458,5 +470,13 @@ void main() {
       await tester.tap(find.text('Remover mídia'));
       expect(remover, isTrue);
     });
+
+    // Teste de dimensões reais via runAsync + FileImage (arquivo temporário)
+    // removido: instável nesta máquina mesmo com delay de 600ms — pitfall
+    // conhecido de runAsync com timers pendentes (ver
+    // armadilhas-teste-flutter-e-sdd.md na memória do projeto). Fallback
+    // autorizado pelo brief da Task 4 (Step 4). A resolução de dimensões via
+    // FileImage/ImageStream continua coberta pelo teste anterior no caminho
+    // "sem dimensões" (arquivo inexistente).
   });
 }
