@@ -58,6 +58,16 @@ void main() {
           RepositorioTemaImpl(await SharedPreferences.getInstance());
       expect(await repositorio.obter(), const TemaPersonalizado());
     });
+
+    test('a orientacao da tela sobrevive ao round-trip', () async {
+      SharedPreferences.setMockInitialValues({});
+      final repositorio =
+          RepositorioTemaImpl(await SharedPreferences.getInstance());
+      const tema = TemaPersonalizado(orientacaoTela: OrientacaoTela.horizontal);
+      await repositorio.salvar(tema);
+      expect((await repositorio.obter()).orientacaoTela,
+          OrientacaoTela.horizontal);
+    });
   });
 
   group('faixa de pagamento no tema', () {
@@ -136,6 +146,8 @@ void main() {
       expect(tema.corFaixaEfetiva, '#C0392B');
       expect(tema.corTextoFaixa, '#FFFFFF');
       expect(tema.textoFaixa, textoFaixaPadrao);
+      expect(tema.orientacaoTela, OrientacaoTela.vertical,
+          reason: 'tema legado sem o campo carrega com o padrao em pe');
     });
   });
 }

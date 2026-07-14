@@ -4,6 +4,10 @@ part 'tema_personalizado.freezed.dart';
 
 const String textoFaixaPadrao = 'Toque para pagar';
 
+/// Orientacao fisica da tela onde o app roda; o preview do dialogo Ajustar
+/// simula esta orientacao.
+enum OrientacaoTela { vertical, horizontal }
+
 @freezed
 class TemaPersonalizado with _$TemaPersonalizado {
   const TemaPersonalizado._();
@@ -19,6 +23,7 @@ class TemaPersonalizado with _$TemaPersonalizado {
     @Default(textoFaixaPadrao) String textoFaixa,
     @Default('Inter') String fonte,
     String? logoPath,
+    @Default(OrientacaoTela.vertical) OrientacaoTela orientacaoTela,
   }) = _TemaPersonalizado;
 
   /// A faixa acompanha a cor principal ate o operador escolher uma cor propria

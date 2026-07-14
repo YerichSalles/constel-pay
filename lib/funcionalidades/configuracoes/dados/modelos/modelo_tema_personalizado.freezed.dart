@@ -32,6 +32,8 @@ mixin _$ModeloTemaPersonalizado {
   String get textoFaixa => throw _privateConstructorUsedError;
   String get fonte => throw _privateConstructorUsedError;
   String? get logoPath => throw _privateConstructorUsedError;
+  @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
+  OrientacaoTela get orientacaoTela => throw _privateConstructorUsedError;
 
   /// Serializes this ModeloTemaPersonalizado to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -59,7 +61,9 @@ abstract class $ModeloTemaPersonalizadoCopyWith<$Res> {
       String corTextoFaixa,
       String textoFaixa,
       String fonte,
-      String? logoPath});
+      String? logoPath,
+      @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
+      OrientacaoTela orientacaoTela});
 }
 
 /// @nodoc
@@ -88,6 +92,7 @@ class _$ModeloTemaPersonalizadoCopyWithImpl<$Res,
     Object? textoFaixa = null,
     Object? fonte = null,
     Object? logoPath = freezed,
+    Object? orientacaoTela = null,
   }) {
     return _then(_value.copyWith(
       corPrimaria: null == corPrimaria
@@ -130,6 +135,10 @@ class _$ModeloTemaPersonalizadoCopyWithImpl<$Res,
           ? _value.logoPath
           : logoPath // ignore: cast_nullable_to_non_nullable
               as String?,
+      orientacaoTela: null == orientacaoTela
+          ? _value.orientacaoTela
+          : orientacaoTela // ignore: cast_nullable_to_non_nullable
+              as OrientacaoTela,
     ) as $Val);
   }
 }
@@ -153,7 +162,9 @@ abstract class _$$ModeloTemaPersonalizadoImplCopyWith<$Res>
       String corTextoFaixa,
       String textoFaixa,
       String fonte,
-      String? logoPath});
+      String? logoPath,
+      @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
+      OrientacaoTela orientacaoTela});
 }
 
 /// @nodoc
@@ -181,6 +192,7 @@ class __$$ModeloTemaPersonalizadoImplCopyWithImpl<$Res>
     Object? textoFaixa = null,
     Object? fonte = null,
     Object? logoPath = freezed,
+    Object? orientacaoTela = null,
   }) {
     return _then(_$ModeloTemaPersonalizadoImpl(
       corPrimaria: null == corPrimaria
@@ -223,6 +235,10 @@ class __$$ModeloTemaPersonalizadoImplCopyWithImpl<$Res>
           ? _value.logoPath
           : logoPath // ignore: cast_nullable_to_non_nullable
               as String?,
+      orientacaoTela: null == orientacaoTela
+          ? _value.orientacaoTela
+          : orientacaoTela // ignore: cast_nullable_to_non_nullable
+              as OrientacaoTela,
     ));
   }
 }
@@ -240,7 +256,9 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
       this.corTextoFaixa = '#FFFFFF',
       this.textoFaixa = textoFaixaPadrao,
       this.fonte = 'Inter',
-      this.logoPath})
+      this.logoPath,
+      @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
+      this.orientacaoTela = OrientacaoTela.vertical})
       : super._();
 
   factory _$ModeloTemaPersonalizadoImpl.fromJson(Map<String, dynamic> json) =>
@@ -271,10 +289,13 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
   final String fonte;
   @override
   final String? logoPath;
+  @override
+  @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
+  final OrientacaoTela orientacaoTela;
 
   @override
   String toString() {
-    return 'ModeloTemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, corTexto: $corTexto, corFaixa: $corFaixa, corTextoFaixa: $corTextoFaixa, textoFaixa: $textoFaixa, fonte: $fonte, logoPath: $logoPath)';
+    return 'ModeloTemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, corTexto: $corTexto, corFaixa: $corFaixa, corTextoFaixa: $corTextoFaixa, textoFaixa: $textoFaixa, fonte: $fonte, logoPath: $logoPath, orientacaoTela: $orientacaoTela)';
   }
 
   @override
@@ -300,7 +321,9 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
                 other.textoFaixa == textoFaixa) &&
             (identical(other.fonte, fonte) || other.fonte == fonte) &&
             (identical(other.logoPath, logoPath) ||
-                other.logoPath == logoPath));
+                other.logoPath == logoPath) &&
+            (identical(other.orientacaoTela, orientacaoTela) ||
+                other.orientacaoTela == orientacaoTela));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -316,7 +339,8 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
       corTextoFaixa,
       textoFaixa,
       fonte,
-      logoPath);
+      logoPath,
+      orientacaoTela);
 
   /// Create a copy of ModeloTemaPersonalizado
   /// with the given fields replaced by the non-null parameter values.
@@ -346,7 +370,9 @@ abstract class _ModeloTemaPersonalizado extends ModeloTemaPersonalizado {
       final String corTextoFaixa,
       final String textoFaixa,
       final String fonte,
-      final String? logoPath}) = _$ModeloTemaPersonalizadoImpl;
+      final String? logoPath,
+      @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
+      final OrientacaoTela orientacaoTela}) = _$ModeloTemaPersonalizadoImpl;
   const _ModeloTemaPersonalizado._() : super._();
 
   factory _ModeloTemaPersonalizado.fromJson(Map<String, dynamic> json) =
@@ -373,6 +399,9 @@ abstract class _ModeloTemaPersonalizado extends ModeloTemaPersonalizado {
   String get fonte;
   @override
   String? get logoPath;
+  @override
+  @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
+  OrientacaoTela get orientacaoTela;
 
   /// Create a copy of ModeloTemaPersonalizado
   /// with the given fields replaced by the non-null parameter values.

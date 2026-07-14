@@ -1,3 +1,6 @@
+// O JsonKey abaixo anota um parametro de construtor (padrao freezed), o que o
+// analyzer confunde com alvo invalido mesmo sendo o uso correto e documentado.
+// ignore_for_file: invalid_annotation_target
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../dominio/entidades/tema_personalizado.dart';
@@ -21,6 +24,9 @@ class ModeloTemaPersonalizado with _$ModeloTemaPersonalizado {
     @Default(textoFaixaPadrao) String textoFaixa,
     @Default('Inter') String fonte,
     String? logoPath,
+    @Default(OrientacaoTela.vertical)
+    @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
+    OrientacaoTela orientacaoTela,
   }) = _ModeloTemaPersonalizado;
 
   factory ModeloTemaPersonalizado.fromJson(Map<String, dynamic> json) =>
@@ -38,6 +44,7 @@ class ModeloTemaPersonalizado with _$ModeloTemaPersonalizado {
         textoFaixa: entidade.textoFaixa,
         fonte: entidade.fonte,
         logoPath: entidade.logoPath,
+        orientacaoTela: entidade.orientacaoTela,
       );
 
   TemaPersonalizado paraEntidade() => TemaPersonalizado(
@@ -51,5 +58,6 @@ class ModeloTemaPersonalizado with _$ModeloTemaPersonalizado {
         textoFaixa: textoFaixa,
         fonte: fonte,
         logoPath: logoPath,
+        orientacaoTela: orientacaoTela,
       );
 }
