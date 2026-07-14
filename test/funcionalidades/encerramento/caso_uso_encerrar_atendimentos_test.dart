@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_encerramento_atendimento.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_fatura.dart';
@@ -48,7 +49,20 @@ class _FonteFaturaFake implements FonteFatura {
   final List<String> identificadores = [];
   final List<Resultado<FaturaReferencia>> respostas = [];
   Resultado<List<FaturaReferencia>> consulta = const Sucesso([]);
+  Resultado<List<Map<String, dynamic>>> brutas = const Sucesso([]);
+  final Map<String, Map<String, dynamic>> detalhes = {};
   int consultas = 0;
+
+  @override
+  Future<Resultado<List<Map<String, dynamic>>>> consultarBrutasPorSessao(
+          String sessaoId) async =>
+      brutas;
+
+  @override
+  Future<Resultado<Map<String, dynamic>>> obterBruta(String id) async =>
+      detalhes.containsKey(id)
+          ? Sucesso(detalhes[id]!)
+          : const Erro(FalhaServidor());
 
   @override
   Future<Resultado<FaturaReferencia>> criar(Map<String, dynamic> faturaJson,
@@ -92,7 +106,9 @@ class _ConfiguracaoFake implements RepositorioConfiguracaoFaturamento {
   Future<ConfiguracaoFaturamento?> obter() async => configuracao;
 
   @override
-  Future<void> salvar(String jsonBruto) async {}
+  Future<void> salvar(String jsonBruto) async =>
+      configuracao = ConfiguracaoFaturamento.deJson(
+          jsonDecode(jsonBruto) as Map<String, dynamic>);
 
   @override
   Future<void> remover() async {}
@@ -339,18 +355,52 @@ void main() {
         reason: 'ação 30 não pode rodar com fatura não quitada');
   });
 
-  test('sem configuração de faturamento recusa com mensagem clara', () async {
-    final cenario = _Cenario(
-        configuracao:
-            ConfiguracaoFaturamento.deJson(const {}) // inválida → null
-        );
+  test('sem cache e sem fatura derivável recusa com mensagem clara', () async {
+    final cenario = _Cenario();
     cenario.repositorioConfiguracao.configuracao = null;
     final resultado = await cenario.executar();
     expect(resultado, isA<Erro<ResultadoEncerramento>>());
     final falha = (resultado as Erro<ResultadoEncerramento>).falha;
     expect(falha, isA<FalhaValidacao>());
-    expect(falha.mensagem, contains('Faturamento não configurado'));
+    expect(falha.mensagem, contains('dados de faturamento'));
     expect(cenario.fonteEncerramento.enviadas, isEmpty);
+  });
+
+  test('sem cache, deriva a configuração das faturas da sessão e encerra',
+      () async {
+    final cenario = _Cenario();
+    cenario.repositorioConfiguracao.configuracao = null;
+    cenario.fonteFatura.brutas = Sucesso([faturaCompletaParaDerivacao()]);
+    final resultado = await cenario.executar();
+    expect(resultado, isA<Sucesso<ResultadoEncerramento>>());
+    // Cache aprendido, com a sessão de origem carimbada.
+    final salvo = cenario.repositorioConfiguracao.configuracao;
+    expect(salvo, isNotNull);
+    expect(salvo!.sessaoOrigem, idSessao);
+    expect(salvo.completaPara(MetodoPagamento.dinheiro), isTrue);
+    // A fatura enviada usa os dados derivados (forma Dinheiro do caixa).
+    final pagamento = (cenario.fonteFatura.criadas.single['faturaPagamentos']
+        as List)[0] as Map;
+    expect((pagamento['forma'] as Map)['nome'], 'Dinheiro');
+  });
+
+  test('coleção enxuta: busca o detalhe da fatura para derivar', () async {
+    final cenario = _Cenario();
+    cenario.repositorioConfiguracao.configuracao = null;
+    cenario.fonteFatura.brutas = const Sucesso([
+      {'id': 'f-enxuta', 'tipo': 110, 'inclusao': '2026-07-14T16:00:00Z'},
+    ]);
+    cenario.fonteFatura.detalhes['f-enxuta'] = faturaCompletaParaDerivacao();
+    final resultado = await cenario.executar();
+    expect(resultado, isA<Sucesso<ResultadoEncerramento>>());
+  });
+
+  test('sessão sem vendas usa o cache aprendido antes', () async {
+    // Cache existente com sessaoOrigem vazio (≠ sessão atual) + consulta
+    // vazia: o cache antigo segura a operação.
+    final cenario = _Cenario();
+    final resultado = await cenario.executar();
+    expect(resultado, isA<Sucesso<ResultadoEncerramento>>());
   });
 
   test('total da requisição corresponde ao total do atendimento', () async {
@@ -416,12 +466,24 @@ void main() {
   });
 
   group('validarAntesDoPagamento', () {
-    test('sem configuração devolve null (fluxo local, pode cobrar)', () async {
+    test('sem cache e sem fatura derivável barra ANTES da cobrança', () async {
       final cenario = _Cenario();
       cenario.repositorioConfiguracao.configuracao = null;
       final falha = await cenario.casoUso.validarAntesDoPagamento(
         atendimentos: [atendimentoCartao512()],
         metodo: MetodoPagamento.pix,
+      );
+      expect(falha, isA<FalhaValidacao>());
+      expect(falha!.mensagem, contains('dados de faturamento'));
+    });
+
+    test('deriva na hora quando a sessão já tem fatura', () async {
+      final cenario = _Cenario();
+      cenario.repositorioConfiguracao.configuracao = null;
+      cenario.fonteFatura.brutas = Sucesso([faturaCompletaParaDerivacao()]);
+      final falha = await cenario.casoUso.validarAntesDoPagamento(
+        atendimentos: [atendimentoCartao512()],
+        metodo: MetodoPagamento.dinheiro,
       );
       expect(falha, isNull);
     });

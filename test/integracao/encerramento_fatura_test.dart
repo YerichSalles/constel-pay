@@ -25,6 +25,7 @@ import '../funcionalidades/encerramento/fixtures_encerramento.dart';
 class _AdaptadorRotas implements HttpClientAdapter {
   final List<Map<String, dynamic>> encerramentos = [];
   final List<Map<String, dynamic>> faturas = [];
+  int consultasDeFatura = 0;
 
   @override
   Future<ResponseBody> fetch(RequestOptions options,
@@ -33,6 +34,12 @@ class _AdaptadorRotas implements HttpClientAdapter {
     Object corpoResposta = const {};
     if (caminho.endsWith('venda/atendimento/encerra')) {
       encerramentos.add(_corpo(options));
+    } else if (caminho.endsWith('movimento/fatura') &&
+        options.method == 'GET') {
+      // Consulta usada pela derivação automática da configuração: devolve
+      // uma venda completa já feita pelo caixa na mesma sessão.
+      consultasDeFatura++;
+      corpoResposta = [faturaCompletaParaDerivacao()];
     } else if (caminho.endsWith('movimento/fatura')) {
       final corpo = _corpo(options);
       faturas.add(corpo);
@@ -70,10 +77,10 @@ void main() {
       () async {
     SharedPreferences.setMockInitialValues(const {});
     final preferencias = await SharedPreferences.getInstance();
+    // SEM configuração prévia: o terminal deriva tudo da fatura que o caixa
+    // já fez na sessão (zero configuração do técnico).
     final repositorioFaturamento =
         RepositorioConfiguracaoFaturamentoImpl(preferencias);
-    await repositorioFaturamento
-        .salvar(jsonEncode(configuracaoFaturamentoJson()));
 
     final adaptador = _AdaptadorRotas();
     final cliente = ClienteApi(

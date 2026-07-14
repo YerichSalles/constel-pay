@@ -40,7 +40,6 @@ class ApoioEncerramentoChat {
     if (casoUso == null) return null;
     final reais = _reais(selecionados);
     if (reais.isEmpty) return null;
-    if (!await casoUso.faturamentoConfigurado()) return null;
     if (reais.length != selecionados.length) {
       return const FalhaValidacao(
           'Comandas de demonstração não podem ser encerradas junto com '
@@ -51,9 +50,9 @@ class ApoioEncerramentoChat {
 
   /// Executa o encerramento real das comandas selecionadas.
   ///
-  /// Retorna `null` quando o encerramento não se aplica — sem caso de uso,
-  /// nenhuma comanda veio da API, ou faturamento não configurado no
-  /// terminal (fluxo segue como hoje, só com o comprovante local).
+  /// Retorna `null` quando o encerramento não se aplica — sem caso de uso
+  /// injetado ou nenhuma comanda veio da API (fluxo de demonstração segue
+  /// só com o comprovante local).
   Future<Resultado<ResultadoEncerramento>?> encerrar({
     required List<CartaoConsumo> selecionados,
     required MetodoPagamento metodo,
@@ -63,7 +62,6 @@ class ApoioEncerramentoChat {
     if (casoUso == null) return null;
     final reais = _reais(selecionados);
     if (reais.isEmpty) return null;
-    if (!await casoUso.faturamentoConfigurado()) return null;
     if (reais.length != selecionados.length) {
       return const Erro(FalhaValidacao(
           'Comandas de demonstração não podem ser encerradas junto com '

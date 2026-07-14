@@ -238,6 +238,125 @@ Map<String, dynamic> respostaFaturaPaga(String identificador) => {
       'id': 'e0c2eafc-493f-40a6-a3b9-eddfff7b1522',
     };
 
+/// Fatura COMPLETA como o retaguarda devolve (VN0051636 real, resumida) —
+/// base da derivação automática da configuração de faturamento. Traz tudo
+/// que o terminal aprende: histórico, operação, moeda, modalidade,
+/// resultado, dispositivo e pagamentos com espécie (1=dinheiro, 230=pix).
+Map<String, dynamic> faturaCompletaParaDerivacao() => {
+      'id': '7ef09146-5631-4fa4-9e7f-a16d5f080c79',
+      'inclusao': '2026-07-14T17:34:32.666Z',
+      'codigo': 'VN0051636',
+      'situacao': 340,
+      'tipo': 110,
+      'natureza': 1,
+      'historico': {
+        'id': 'ca40f80c-f6f9-4b76-9149-1ad8e2a9203d',
+        'codigo': '3.01',
+        'nome': 'Venda',
+        'tipo': 30,
+      },
+      'operacao': {
+        'id': '4fd3c889-1fb9-4ede-abcc-92cf4c8f1d23',
+        'codigo': '510',
+        'nome': 'Venda CST 102 - Simples Nacional',
+      },
+      'moeda': {
+        'id': 'bd8acb0a-6206-462c-81ce-9cc76b18f528',
+        'codigo': 'BRL',
+        'nome': 'Real Brasileiro',
+        'simbolo': r'R$',
+      },
+      'modalidade': {
+        'id': '877a7dbb-c1c3-4c14-b369-bbb48592434b',
+        'codigo': '01',
+        'nome': 'Balcão',
+        'tipo': 10,
+      },
+      'dispositivo': {
+        'id': '39dfe2d9-ea47-4a8b-b5ed-76a03d09ca7a',
+        'codigo': '0072',
+        'nome': 'NOE CAIXA',
+      },
+      'estabelecimentoDepartamento': {
+        'id': 'ef58a474-f5ea-4657-a3bd-d48833ee2c01',
+        'nome': 'Almoxarifado',
+      },
+      'total': 61.53,
+      'pago': 61.53,
+      'saldo': 0,
+      'sessao': {'id': idSessao, 'codigo': codigoSessao},
+      'faturaResultados': [
+        {
+          'sequencial': 1,
+          'resultado': {
+            'id': '0699fb41-2943-417d-a2f7-017ffce3ce01',
+            'codigo': '2.06.22',
+            'nome': 'Vendas',
+            'situacao': 1,
+            'analitico': true,
+          },
+          'percentual': 100,
+        }
+      ],
+      'faturaPagamentos': [
+        {
+          'sequencial': 1,
+          'forma': {
+            'id': 'ff01756f-df45-40de-bf8e-75b595abcf88',
+            'codigo': '1',
+            'nome': 'Dinheiro',
+            'especie': 1,
+            'baixa': true,
+          },
+          'especie': 1,
+          'plano': {
+            'id': '71a8ab3f-dd2e-496a-9137-f63c37d0eb8f',
+            'codigo': '01',
+            'nome': 'A vista',
+            'parcelas': 1,
+          },
+          'conta': {
+            'id': '20e4d490-4152-4453-b302-0f5f5fa487b8',
+            'codigo': '1.1.01.01.03',
+            'nome': 'Caixa Miron',
+            'analitica': true,
+          },
+          'parcelas': 1,
+          'subtotal': 61.53,
+          'troco': 0,
+          'total': 61.53,
+        },
+        {
+          'sequencial': 2,
+          'forma': {
+            'id': '530feff8-3d7f-4168-b713-35ffc36e33f3',
+            'codigo': '12',
+            'nome': 'Recebimento em PIX',
+            'especie': 230,
+            'baixa': true,
+          },
+          'especie': 230,
+          'plano': {
+            'id': '71a8ab3f-dd2e-496a-9137-f63c37d0eb8f',
+            'codigo': '01',
+            'nome': 'A vista',
+            'parcelas': 1,
+          },
+          'conta': {
+            'id': 'baca1738-acbf-4010-94ca-179048d2a636',
+            'codigo': '1.1.01.02.01',
+            'nome': 'Banco do Brasil Aldeota',
+            'analitica': true,
+            'tipo': 10,
+          },
+          'parcelas': 1,
+          'subtotal': 0,
+          'troco': 0,
+          'total': 0,
+        }
+      ],
+    };
+
 /// Fatura como a CONSULTA do retaguarda devolve (fatura real VN0051634,
 /// resumida): SEM o campo `identificador`, mas com o id do atendimento em
 /// `faturaModalidades[].referenciaId`.

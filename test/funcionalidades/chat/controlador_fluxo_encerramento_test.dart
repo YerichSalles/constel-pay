@@ -42,12 +42,8 @@ class _FonteConsumoFake implements FonteConsumoAtendimento {
 }
 
 class _CasoUsoEncerrarFake implements CasoUsoEncerrarAtendimentos {
-  bool configurado = true;
   Falha? impedimento;
   int validacoes = 0;
-
-  @override
-  Future<bool> faturamentoConfigurado() async => configurado;
 
   @override
   Future<Falha?> validarAntesDoPagamento({

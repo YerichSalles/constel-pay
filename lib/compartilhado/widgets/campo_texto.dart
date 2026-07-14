@@ -10,7 +10,6 @@ class CampoTexto extends StatelessWidget {
     this.tipoTeclado,
     this.aoMudar,
     this.habilitado = true,
-    this.linhas = 1,
   });
 
   final String rotulo;
@@ -21,9 +20,6 @@ class CampoTexto extends StatelessWidget {
   final void Function(String)? aoMudar;
   final bool habilitado;
 
-  /// Número de linhas visíveis; acima de 1 vira área de texto (ex.: JSON).
-  final int linhas;
-
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -32,7 +28,6 @@ class CampoTexto extends StatelessWidget {
       keyboardType: tipoTeclado,
       validator: validador,
       onChanged: aoMudar,
-      maxLines: linhas,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(labelText: rotulo, hintText: dica),
     );

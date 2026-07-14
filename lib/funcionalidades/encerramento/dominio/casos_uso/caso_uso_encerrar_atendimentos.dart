@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../../nucleo/erros/falha.dart';
 import '../../../../nucleo/erros/resultado.dart';
 import '../../../../nucleo/utils/gerador_identificador.dart';
@@ -8,6 +10,7 @@ import '../../../leitura_cartao/dados/fontes_dados/fonte_consumo_atendimento.dar
 import '../../../leitura_cartao/dados/modelos/resposta_consumo_atendimento.dart';
 import '../../../leitura_cartao/dominio/entidades/atendimento.dart';
 import '../../../pagamento/dominio/entidades/metodo_pagamento.dart';
+import '../../dados/adaptadores/derivador_configuracao_faturamento.dart';
 import '../../dados/adaptadores/mapeador_fatura.dart';
 import '../../dados/fontes_dados/fonte_encerramento_atendimento.dart';
 import '../../dados/fontes_dados/fonte_fatura.dart';
@@ -62,22 +65,17 @@ class CasoUsoEncerrarAtendimentos {
   /// FaturaSituacao.paga — quitação validada quando a fatura foi criada.
   static const int _situacaoPaga = 340;
 
-  /// Encerramento real habilitado no terminal? Sem configuração de
-  /// faturamento o fluxo segue apenas com o comprovante local.
-  Future<bool> faturamentoConfigurado() async =>
-      await _configuracoes.obter() != null;
-
   /// Validação ANTES da cobrança: nada pode ser cobrado do cliente se o
   /// encerramento estiver fadado a falhar por estado conhecido (configuração
-  /// incompleta, operação em andamento, pendência de outra combinação,
-  /// atendimento inválido). `null` = pode cobrar — inclusive quando o
-  /// faturamento está desligado (fluxo local).
+  /// não derivável, operação em andamento, pendência de outra combinação,
+  /// atendimento inválido). `null` = pode cobrar.
   Future<Falha?> validarAntesDoPagamento({
     required List<Atendimento> atendimentos,
     required MetodoPagamento metodo,
   }) async {
-    final configuracao = await _configuracoes.obter();
-    if (configuracao == null) return null;
+    if (atendimentos.isEmpty) {
+      return const FalhaValidacao('Nenhum atendimento selecionado.');
+    }
     if (_emAndamento) {
       return const FalhaValidacao(
           'Há um encerramento em andamento. Aguarde alguns instantes e '
@@ -97,6 +95,8 @@ class CasoUsoEncerrarAtendimentos {
             'Conclua-o (mesmas comandas) antes de iniciar outro.');
       }
     }
+    final configuracao =
+        await _resolverConfiguracao(atendimentos.first.sessaoId);
     return ValidacoesEncerramento.validarAtendimentos(
         atendimentos, metodo, configuracao);
   }
@@ -143,7 +143,8 @@ class CasoUsoEncerrarAtendimentos {
     required int? valorRecebidoCentavos,
     required void Function(FaseEncerramento fase) aoMudarFase,
   }) async {
-    final configuracao = await _configuracoes.obter();
+    final configuracao = await _resolverConfiguracao(
+        atendimentos.isEmpty ? '' : atendimentos.first.sessaoId);
 
     // Pendência primeiro: retomada não passa pelas validações de frescor
     // (o atendimento relido pode já vir com a fatura vinculada — é
@@ -481,6 +482,58 @@ class CasoUsoEncerrarAtendimentos {
   }
 
   // ---- auxiliares ----
+
+  /// Configuração de faturamento SEM intervenção do técnico: cache da mesma
+  /// sessão → derivação das faturas que o caixa já gerou → cache antigo como
+  /// reserva (nuvem fora do ar ou sessão ainda sem vendas).
+  Future<ConfiguracaoFaturamento?> _resolverConfiguracao(
+      String sessaoId) async {
+    final cache = await _configuracoes.obter();
+    if (sessaoId.isEmpty) return cache;
+    if (cache != null && cache.sessaoOrigem == sessaoId) return cache;
+
+    final derivada = await _derivarConfiguracao(sessaoId);
+    if (derivada == null) {
+      if (cache != null) {
+        registrador.i('Faturamento: sessão $sessaoId sem faturas deriváveis; '
+            'usando configuração aprendida anteriormente.');
+      }
+      return cache;
+    }
+    final mesclada = derivada.mesclandoFormasDe(cache);
+    try {
+      await _configuracoes.salvar(jsonEncode(mesclada.paraJson()));
+    } catch (erro) {
+      registrador.w('Faturamento: falha ao gravar cache derivado: $erro');
+    }
+    return mesclada;
+  }
+
+  Future<ConfiguracaoFaturamento?> _derivarConfiguracao(String sessaoId) async {
+    final consulta = await _fonteFatura.consultarBrutasPorSessao(sessaoId);
+    if (consulta is! Sucesso<List<Map<String, dynamic>>>) return null;
+    final faturas = consulta.valor;
+    final direta =
+        DerivadorConfiguracaoFaturamento.derivar(faturas, sessaoId: sessaoId);
+    if (direta != null) return direta;
+
+    // Coleção enxuta (sem pagamentos embutidos): busca o detalhe das mais
+    // recentes — limitado para não atrasar o fluxo de pagamento.
+    final ordenadas = [...faturas]..sort((a, b) =>
+        JsonLeniente.texto(b['inclusao'])
+            .compareTo(JsonLeniente.texto(a['inclusao'])));
+    final detalhadas = <Map<String, dynamic>>[];
+    for (final fatura in ordenadas.take(3)) {
+      final id = JsonLeniente.texto(fatura['id']);
+      if (id.isEmpty) continue;
+      final detalhe = await _fonteFatura.obterBruta(id);
+      if (detalhe is Sucesso<Map<String, dynamic>>) {
+        detalhadas.add(detalhe.valor);
+      }
+    }
+    return DerivadorConfiguracaoFaturamento.derivar(detalhadas,
+        sessaoId: sessaoId);
+  }
 
   Future<TransacaoPendente?> _pendenteEnvolvendo(List<String> ids) async {
     for (final pendente in await _pendentes.obterTodas()) {
