@@ -21,19 +21,28 @@ class BannerPublicidade extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fit = resolverBoxFit(midia.ajuste);
+    // Na faixa da barra o modo automático PREENCHE a área (cover): o
+    // "encaixar" da tela cheia viraria uma caixinha centralizada num slot
+    // largo e baixo, deixando a barra vazia dos dois lados. Os modos
+    // escolhidos explicitamente no Ajustar… continuam respeitados.
+    final fit = midia.ajuste == AjusteMidia.automatico
+        ? BoxFit.cover
+        : resolverBoxFit(midia.ajuste);
     final alinhamento = resolverAlinhamento(midia.ancora);
     final escala = resolverEscala(midia.zoomPercentual);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
-      child: Transform.scale(
-        scale: escala,
-        alignment: alinhamento,
-        child: Image.file(
-          File(midia.caminho),
-          fit: fit,
+      child: SizedBox.expand(
+        child: Transform.scale(
+          scale: escala,
           alignment: alinhamento,
-          errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+          child: Image.file(
+            File(midia.caminho),
+            fit: fit,
+            alignment: alinhamento,
+            errorBuilder: (context, error, stackTrace) =>
+                const SizedBox.shrink(),
+          ),
         ),
       ),
     );

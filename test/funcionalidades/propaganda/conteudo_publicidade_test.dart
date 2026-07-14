@@ -478,5 +478,18 @@ void main() {
           tester.widget<AnimatedSwitcher>(find.byType(AnimatedSwitcher));
       expect(switcher.duration, const Duration(milliseconds: 400));
     });
+
+    testWidgets(
+        'banner com ajuste automatico preenche a faixa (cover), nao encaixa',
+        (tester) async {
+      await tester.pumpWidget(_app(BannerPublicidade(midia: _midia())));
+      await tester.pump();
+
+      final imagem = tester.widget<Image>(find.byType(Image));
+      expect(imagem.fit, BoxFit.cover,
+          reason: 'automatico na barra deve cobrir o slot, '
+              'nao virar caixinha centralizada');
+      expect(find.byType(SizedBox), findsWidgets);
+    });
   });
 }
