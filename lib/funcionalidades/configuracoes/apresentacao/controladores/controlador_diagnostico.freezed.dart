@@ -17,15 +17,9 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$EstadoDiagnostico {
   String get versaoApp => throw _privateConstructorUsedError;
-  String get versaoApi => throw _privateConstructorUsedError;
   String get ambienteRotulo => throw _privateConstructorUsedError;
-  String get identificador => throw _privateConstructorUsedError;
   String get ip => throw _privateConstructorUsedError;
-  bool get conectado => throw _privateConstructorUsedError;
   DateTime? get ultimaSincronizacao => throw _privateConstructorUsedError;
-  bool get testando => throw _privateConstructorUsedError;
-  String? get mensagem => throw _privateConstructorUsedError;
-  bool get mensagemErro => throw _privateConstructorUsedError;
 
   /// Create a copy of EstadoDiagnostico
   /// with the given fields replaced by the non-null parameter values.
@@ -42,15 +36,9 @@ abstract class $EstadoDiagnosticoCopyWith<$Res> {
   @useResult
   $Res call(
       {String versaoApp,
-      String versaoApi,
       String ambienteRotulo,
-      String identificador,
       String ip,
-      bool conectado,
-      DateTime? ultimaSincronizacao,
-      bool testando,
-      String? mensagem,
-      bool mensagemErro});
+      DateTime? ultimaSincronizacao});
 }
 
 /// @nodoc
@@ -69,57 +57,27 @@ class _$EstadoDiagnosticoCopyWithImpl<$Res, $Val extends EstadoDiagnostico>
   @override
   $Res call({
     Object? versaoApp = null,
-    Object? versaoApi = null,
     Object? ambienteRotulo = null,
-    Object? identificador = null,
     Object? ip = null,
-    Object? conectado = null,
     Object? ultimaSincronizacao = freezed,
-    Object? testando = null,
-    Object? mensagem = freezed,
-    Object? mensagemErro = null,
   }) {
     return _then(_value.copyWith(
       versaoApp: null == versaoApp
           ? _value.versaoApp
           : versaoApp // ignore: cast_nullable_to_non_nullable
               as String,
-      versaoApi: null == versaoApi
-          ? _value.versaoApi
-          : versaoApi // ignore: cast_nullable_to_non_nullable
-              as String,
       ambienteRotulo: null == ambienteRotulo
           ? _value.ambienteRotulo
           : ambienteRotulo // ignore: cast_nullable_to_non_nullable
-              as String,
-      identificador: null == identificador
-          ? _value.identificador
-          : identificador // ignore: cast_nullable_to_non_nullable
               as String,
       ip: null == ip
           ? _value.ip
           : ip // ignore: cast_nullable_to_non_nullable
               as String,
-      conectado: null == conectado
-          ? _value.conectado
-          : conectado // ignore: cast_nullable_to_non_nullable
-              as bool,
       ultimaSincronizacao: freezed == ultimaSincronizacao
           ? _value.ultimaSincronizacao
           : ultimaSincronizacao // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      testando: null == testando
-          ? _value.testando
-          : testando // ignore: cast_nullable_to_non_nullable
-              as bool,
-      mensagem: freezed == mensagem
-          ? _value.mensagem
-          : mensagem // ignore: cast_nullable_to_non_nullable
-              as String?,
-      mensagemErro: null == mensagemErro
-          ? _value.mensagemErro
-          : mensagemErro // ignore: cast_nullable_to_non_nullable
-              as bool,
     ) as $Val);
   }
 }
@@ -134,15 +92,9 @@ abstract class _$$EstadoDiagnosticoImplCopyWith<$Res>
   @useResult
   $Res call(
       {String versaoApp,
-      String versaoApi,
       String ambienteRotulo,
-      String identificador,
       String ip,
-      bool conectado,
-      DateTime? ultimaSincronizacao,
-      bool testando,
-      String? mensagem,
-      bool mensagemErro});
+      DateTime? ultimaSincronizacao});
 }
 
 /// @nodoc
@@ -159,57 +111,27 @@ class __$$EstadoDiagnosticoImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? versaoApp = null,
-    Object? versaoApi = null,
     Object? ambienteRotulo = null,
-    Object? identificador = null,
     Object? ip = null,
-    Object? conectado = null,
     Object? ultimaSincronizacao = freezed,
-    Object? testando = null,
-    Object? mensagem = freezed,
-    Object? mensagemErro = null,
   }) {
     return _then(_$EstadoDiagnosticoImpl(
       versaoApp: null == versaoApp
           ? _value.versaoApp
           : versaoApp // ignore: cast_nullable_to_non_nullable
               as String,
-      versaoApi: null == versaoApi
-          ? _value.versaoApi
-          : versaoApi // ignore: cast_nullable_to_non_nullable
-              as String,
       ambienteRotulo: null == ambienteRotulo
           ? _value.ambienteRotulo
           : ambienteRotulo // ignore: cast_nullable_to_non_nullable
-              as String,
-      identificador: null == identificador
-          ? _value.identificador
-          : identificador // ignore: cast_nullable_to_non_nullable
               as String,
       ip: null == ip
           ? _value.ip
           : ip // ignore: cast_nullable_to_non_nullable
               as String,
-      conectado: null == conectado
-          ? _value.conectado
-          : conectado // ignore: cast_nullable_to_non_nullable
-              as bool,
       ultimaSincronizacao: freezed == ultimaSincronizacao
           ? _value.ultimaSincronizacao
           : ultimaSincronizacao // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      testando: null == testando
-          ? _value.testando
-          : testando // ignore: cast_nullable_to_non_nullable
-              as bool,
-      mensagem: freezed == mensagem
-          ? _value.mensagem
-          : mensagem // ignore: cast_nullable_to_non_nullable
-              as String?,
-      mensagemErro: null == mensagemErro
-          ? _value.mensagemErro
-          : mensagemErro // ignore: cast_nullable_to_non_nullable
-              as bool,
     ));
   }
 }
@@ -219,48 +141,25 @@ class __$$EstadoDiagnosticoImplCopyWithImpl<$Res>
 class _$EstadoDiagnosticoImpl implements _EstadoDiagnostico {
   const _$EstadoDiagnosticoImpl(
       {this.versaoApp = '—',
-      this.versaoApi = 'não disponível (mock)',
       this.ambienteRotulo = '',
-      this.identificador = '',
       this.ip = '—',
-      this.conectado = false,
-      this.ultimaSincronizacao,
-      this.testando = false,
-      this.mensagem,
-      this.mensagemErro = false});
+      this.ultimaSincronizacao});
 
   @override
   @JsonKey()
   final String versaoApp;
   @override
   @JsonKey()
-  final String versaoApi;
-  @override
-  @JsonKey()
   final String ambienteRotulo;
-  @override
-  @JsonKey()
-  final String identificador;
   @override
   @JsonKey()
   final String ip;
   @override
-  @JsonKey()
-  final bool conectado;
-  @override
   final DateTime? ultimaSincronizacao;
-  @override
-  @JsonKey()
-  final bool testando;
-  @override
-  final String? mensagem;
-  @override
-  @JsonKey()
-  final bool mensagemErro;
 
   @override
   String toString() {
-    return 'EstadoDiagnostico(versaoApp: $versaoApp, versaoApi: $versaoApi, ambienteRotulo: $ambienteRotulo, identificador: $identificador, ip: $ip, conectado: $conectado, ultimaSincronizacao: $ultimaSincronizacao, testando: $testando, mensagem: $mensagem, mensagemErro: $mensagemErro)';
+    return 'EstadoDiagnostico(versaoApp: $versaoApp, ambienteRotulo: $ambienteRotulo, ip: $ip, ultimaSincronizacao: $ultimaSincronizacao)';
   }
 
   @override
@@ -270,38 +169,16 @@ class _$EstadoDiagnosticoImpl implements _EstadoDiagnostico {
             other is _$EstadoDiagnosticoImpl &&
             (identical(other.versaoApp, versaoApp) ||
                 other.versaoApp == versaoApp) &&
-            (identical(other.versaoApi, versaoApi) ||
-                other.versaoApi == versaoApi) &&
             (identical(other.ambienteRotulo, ambienteRotulo) ||
                 other.ambienteRotulo == ambienteRotulo) &&
-            (identical(other.identificador, identificador) ||
-                other.identificador == identificador) &&
             (identical(other.ip, ip) || other.ip == ip) &&
-            (identical(other.conectado, conectado) ||
-                other.conectado == conectado) &&
             (identical(other.ultimaSincronizacao, ultimaSincronizacao) ||
-                other.ultimaSincronizacao == ultimaSincronizacao) &&
-            (identical(other.testando, testando) ||
-                other.testando == testando) &&
-            (identical(other.mensagem, mensagem) ||
-                other.mensagem == mensagem) &&
-            (identical(other.mensagemErro, mensagemErro) ||
-                other.mensagemErro == mensagemErro));
+                other.ultimaSincronizacao == ultimaSincronizacao));
   }
 
   @override
   int get hashCode => Object.hash(
-      runtimeType,
-      versaoApp,
-      versaoApi,
-      ambienteRotulo,
-      identificador,
-      ip,
-      conectado,
-      ultimaSincronizacao,
-      testando,
-      mensagem,
-      mensagemErro);
+      runtimeType, versaoApp, ambienteRotulo, ip, ultimaSincronizacao);
 
   /// Create a copy of EstadoDiagnostico
   /// with the given fields replaced by the non-null parameter values.
@@ -316,36 +193,18 @@ class _$EstadoDiagnosticoImpl implements _EstadoDiagnostico {
 abstract class _EstadoDiagnostico implements EstadoDiagnostico {
   const factory _EstadoDiagnostico(
       {final String versaoApp,
-      final String versaoApi,
       final String ambienteRotulo,
-      final String identificador,
       final String ip,
-      final bool conectado,
-      final DateTime? ultimaSincronizacao,
-      final bool testando,
-      final String? mensagem,
-      final bool mensagemErro}) = _$EstadoDiagnosticoImpl;
+      final DateTime? ultimaSincronizacao}) = _$EstadoDiagnosticoImpl;
 
   @override
   String get versaoApp;
   @override
-  String get versaoApi;
-  @override
   String get ambienteRotulo;
-  @override
-  String get identificador;
   @override
   String get ip;
   @override
-  bool get conectado;
-  @override
   DateTime? get ultimaSincronizacao;
-  @override
-  bool get testando;
-  @override
-  String? get mensagem;
-  @override
-  bool get mensagemErro;
 
   /// Create a copy of EstadoDiagnostico
   /// with the given fields replaced by the non-null parameter values.
