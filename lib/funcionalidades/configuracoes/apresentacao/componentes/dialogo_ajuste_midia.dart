@@ -127,11 +127,13 @@ class _DialogoAjusteMidiaState extends State<DialogoAjusteMidia> {
                         height: 34,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
-                          color: _ancora == ancora ? CoresApp.lilasClaro : null,
+                          color: _ancora == ancora
+                              ? widget.corTema.withValues(alpha: .18)
+                              : null,
                           border: Border.all(
                             color: _ancora == ancora
-                                ? CoresApp.primariaPadrao
-                                : CoresApp.bordaCard,
+                                ? widget.corTema
+                                : widget.corTema.withValues(alpha: .45),
                             width: _ancora == ancora ? 2 : 1,
                           ),
                         ),

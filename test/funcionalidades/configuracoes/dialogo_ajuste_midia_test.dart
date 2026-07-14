@@ -208,6 +208,54 @@ void main() {
     await drenar(tester);
   });
 
+  testWidgets(
+      'no preencher, o controle de fundo aparece quando o zoom '
+      'encolhe', (tester) async {
+    await abrir(tester, midiaImagem);
+    await escolherModo(tester, 'Preencher (corta)');
+    expect(find.byType(SegmentedButton<FundoMidia>), findsNothing,
+        reason: 'zoom 100 cobre a tela: nao ha sobra para configurar');
+
+    await tester.ensureVisible(find.byType(Slider));
+    await tester.pumpAndSettle();
+    // Toca perto do inicio do trilho: o valor salta para baixo de 100%.
+    final trilho = tester.getTopLeft(find.byType(Slider));
+    final centroY = tester.getCenter(find.byType(Slider)).dy;
+    await tester.tapAt(Offset(trilho.dx + 30, centroY));
+    await tester.pump();
+    final slider = tester.widget<Slider>(find.byType(Slider));
+    expect(slider.value, lessThan(100));
+    expect(slider.value, greaterThanOrEqualTo(50));
+    expect(find.byType(SegmentedButton<FundoMidia>), findsOneWidget,
+        reason: 'com sobra, o operador escolhe o fundo');
+    await drenar(tester);
+  });
+
+  testWidgets('grade de ancoras usa a cor do tema', (tester) async {
+    const corTema = Color(0xFF5E52D6);
+    await abrir(tester, midiaImagem);
+    await escolherModo(tester, 'Preencher (corta)');
+
+    BoxDecoration decoracaoDe(String chave) {
+      final container = tester.widget<Container>(find.descendant(
+        of: find.byKey(ValueKey(chave)),
+        matching: find.byType(Container),
+      ));
+      return container.decoration! as BoxDecoration;
+    }
+
+    final selecionada = decoracaoDe('ancora-centro');
+    expect(selecionada.border!.top.color, corTema,
+        reason: 'selecionada marca com a cor primaria da loja');
+    expect(selecionada.color, corTema.withValues(alpha: .18));
+
+    final vizinha = decoracaoDe('ancora-topo');
+    expect(vizinha.border!.top.color, corTema.withValues(alpha: .45),
+        reason: 'as demais celulas ficam visiveis em qualquer tema');
+    expect(vizinha.color, isNull);
+    await drenar(tester);
+  });
+
   test('resumo do enquadramento por modo', () {
     expect(resumoEnquadramento(midiaImagem), 'Automático · fundo borrado');
     expect(resumoEnquadramento(midiaImagem.copyWith(fundo: FundoMidia.cor)),
