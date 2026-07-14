@@ -77,18 +77,28 @@ class ConteudoPublicidade extends StatelessWidget {
   /// Pausavel na previa (edicao); no atendimento fica sempre true.
   final bool reproduzindo;
 
+  /// Altura padrão da área publicitária. O letreiro já tem essa altura no
+  /// próprio container; carrossel e parceiro (Stack/imagem sem tamanho
+  /// intrínseco) PRECISAM dela para nunca receber constraints sem limite
+  /// (ex.: prévia dentro de coluna rolável) — sem isso o Stack do carrossel
+  /// estoura `size.isFinite` e nada é exibido.
+  static const double alturaPublicidade = 40;
+
   @override
   Widget build(BuildContext context) {
     if (!publicidade.exibivel) return const SizedBox.shrink();
     final cores = calcularCoresPublicidade(tema);
     switch (publicidade.formato) {
       case FormatoPublicidade.carrossel:
-        return CarrosselPublicidade(
-          banners: publicidade.bannersAtivos,
-          intervaloSegundos: publicidade.intervaloSegundos,
-          transicao: publicidade.transicao,
-          corIndicadores: cores.destaque,
-          reproduzindo: reproduzindo,
+        return SizedBox(
+          height: alturaPublicidade,
+          child: CarrosselPublicidade(
+            banners: publicidade.bannersAtivos,
+            intervaloSegundos: publicidade.intervaloSegundos,
+            transicao: publicidade.transicao,
+            corIndicadores: cores.destaque,
+            reproduzindo: reproduzindo,
+          ),
         );
       case FormatoPublicidade.letreiro:
         return LetreiroPublicidade(
@@ -103,7 +113,10 @@ class ConteudoPublicidade extends StatelessWidget {
         );
       case FormatoPublicidade.parceiro:
         // Mesmo render do banner do carrossel, sem timer nem indicadores.
-        return BannerPublicidade(midia: publicidade.midiaParceiro!);
+        return SizedBox(
+          height: alturaPublicidade,
+          child: BannerPublicidade(midia: publicidade.midiaParceiro!),
+        );
     }
   }
 }

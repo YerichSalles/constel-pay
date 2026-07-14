@@ -9,6 +9,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   testWidgets('repro: adicionar banners no carrossel nao trava nem lanca',
       (tester) async {
+    // Janela larga: layout de duas colunas com a prévia na coluna direita —
+    // foi onde o Stack do carrossel estourou constraints no app real.
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
     SharedPreferences.setMockInitialValues({});
     final preferencias = await SharedPreferences.getInstance();
     late WidgetRef refCapturada;
@@ -39,6 +44,10 @@ void main() {
     // Carrossel já é o formato default. Adiciona 2 banners direto no
     // controlador (mesmo caminho pós-FilePicker do _adicionarBanners).
     final controlador = refCapturada.read(provedorPublicidade.notifier);
+    // Publicidade ATIVA: a prévia monta o carrossel de verdade (foi assim
+    // que o estouro de constraints do Stack escapou da primeira versão
+    // deste teste).
+    controlador.alternarAtiva(true);
     controlador.adicionarBanners(
         ['C:/tmp/inexistente-a.png', 'C:/tmp/inexistente-b.png']);
     await tester.pump();
