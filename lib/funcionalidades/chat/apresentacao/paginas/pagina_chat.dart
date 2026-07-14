@@ -177,13 +177,16 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
         (_, __) => _rolarParaFim());
     ref.listen(provedorFluxoPagamento.select((e) => e.digitando),
         (_, __) => _rolarParaFim());
+    final publicidadeSalva = ref.watch(provedorPublicidadeSalva).valueOrNull;
 
     return Scaffold(
       appBar: BarraSuperior(
         titulo: _nomeRestaurante,
         avatar: _avatarBarra(),
         aoVoltar: _confirmarSaida,
-        publicidade: const PublicidadeBarraSuperior(),
+        publicidade: (publicidadeSalva?.exibivel ?? false)
+            ? const PublicidadeBarraSuperior()
+            : null,
       ),
       body: Column(
         children: [

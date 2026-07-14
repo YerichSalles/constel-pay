@@ -53,6 +53,42 @@ void main() {
     expect(find.byKey(const Key('publicidade_teste')), findsOneWidget);
   });
 
+  testWidgets(
+      'com publicidade o titulo usa flex 3 e a publicidade flex 2 (loose)',
+      (tester) async {
+    await tester.pumpWidget(montar(
+      publicidade: const ColoredBox(
+        key: Key('publicidade_teste'),
+        color: Colors.red,
+      ),
+    ));
+
+    final flexivel = tester.widget<Flexible>(find.ancestor(
+      of: find.text('Dionísio Torres'),
+      matching: find.byType(Flexible),
+    ));
+    expect(flexivel.flex, 3);
+    expect(flexivel.fit, FlexFit.loose);
+
+    final expandido = tester.widget<Expanded>(find.ancestor(
+      of: find.byKey(const Key('publicidade_teste')),
+      matching: find.byType(Expanded),
+    ));
+    expect(expandido.flex, 2);
+  });
+
+  testWidgets('sem publicidade o titulo usa FlexFit.tight (comportamento atual)',
+      (tester) async {
+    await tester.pumpWidget(montar());
+
+    final flexivel = tester.widget<Flexible>(find.ancestor(
+      of: find.text('Dionísio Torres'),
+      matching: find.byType(Flexible),
+    ));
+    expect(flexivel.fit, FlexFit.tight);
+    expect(flexivel.flex, 1);
+  });
+
   testWidgets('sem publicidade nao sobra espaco reservado para ela',
       (tester) async {
     await tester.pumpWidget(montar());

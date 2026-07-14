@@ -71,6 +71,7 @@ class BarraSuperior extends StatelessWidget implements PreferredSizeWidget {
           if (avatar != null) ...[avatar!, const SizedBox(width: 16)],
           Flexible(
             fit: publicidade != null ? FlexFit.loose : FlexFit.tight,
+            flex: publicidade != null ? 3 : 1,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -97,7 +98,7 @@ class BarraSuperior extends StatelessWidget implements PreferredSizeWidget {
           ),
           if (publicidade != null) ...[
             const SizedBox(width: 12),
-            Expanded(child: publicidade!),
+            Expanded(flex: 2, child: publicidade!),
           ],
         ],
       ),
