@@ -49,10 +49,15 @@ Future<ResultadoSelecaoMidia> escolherECopiarMidias({
   required List<String> extensoes,
   bool multiplas = true,
 }) async {
+  // lockParentWindow: no Windows o pickFiles bloqueia a UI e, sem janela
+  // pai, o diálogo nativo pode abrir ATRÁS do app (quase tela cheia no
+  // totem) — o app parece congelado para sempre. Preso à janela pai, o
+  // diálogo vem modal e na frente.
   final resultado = await FilePicker.platform.pickFiles(
     allowMultiple: multiplas,
     type: FileType.custom,
     allowedExtensions: extensoes,
+    lockParentWindow: true,
   );
   final caminhos =
       resultado?.files.map((f) => f.path).whereType<String>().toList() ??
