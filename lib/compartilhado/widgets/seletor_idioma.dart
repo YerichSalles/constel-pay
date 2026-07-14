@@ -37,6 +37,11 @@ class SeletorIdioma extends ConsumerWidget {
         _ => 'PT',
       };
 
+  static String _bandeira(String languageCode) => _idiomasSuportados
+      .firstWhere((idioma) => idioma.locale.languageCode == languageCode,
+          orElse: () => _idiomasSuportados.first)
+      .bandeira;
+
   static String _nome(AppLocalizations textos, String languageCode) =>
       switch (languageCode) {
         'en' => textos.languageEnglish,
@@ -99,7 +104,11 @@ class SeletorIdioma extends ConsumerWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('🌐', style: TextStyle(fontSize: 16)),
+                _BandeiraIdioma(
+                  bandeira: _bandeira(languageCode),
+                  width: 22,
+                  height: 15,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   _sigla(languageCode),
@@ -147,20 +156,7 @@ class _OpcaoIdioma extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(3),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0x22000000)),
-                ),
-                child: SvgPicture.asset(
-                  bandeira,
-                  width: 28,
-                  height: 19,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
+            _BandeiraIdioma(bandeira: bandeira, width: 28, height: 19),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -174,6 +170,40 @@ class _OpcaoIdioma extends StatelessWidget {
             if (selecionado)
               const Icon(Icons.check, color: CoresApp.sucesso, size: 22),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Bandeira do idioma como apoio visual, compartilhada entre o pill e as
+/// opções do diálogo (tamanhos diferentes, mesmo desenho: cantos levemente
+/// arredondados + borda fina). Nunca usada sozinha como identificador — quem
+/// a chama sempre acompanha de texto (sigla no pill, nome no diálogo).
+class _BandeiraIdioma extends StatelessWidget {
+  const _BandeiraIdioma({
+    required this.bandeira,
+    required this.width,
+    required this.height,
+  });
+
+  final String bandeira;
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(3),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0x22000000)),
+        ),
+        child: SvgPicture.asset(
+          bandeira,
+          width: width,
+          height: height,
+          fit: BoxFit.cover,
         ),
       ),
     );
