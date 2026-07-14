@@ -204,6 +204,53 @@ void main() {
 
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets(
+        'separador usa corSeparador e mensagens usam corTexto no '
+        'texto composto', (tester) async {
+      await tester.pumpWidget(_app(
+        const LetreiroPublicidade(
+          mensagens: ['Primeira', 'Segunda'],
+          separador: '•',
+          velocidade: VelocidadeLetreiro.normal,
+          corFundo: Color(0xFF202020),
+          corTexto: Colors.white,
+          corSeparador: Colors.amber,
+          fonte: 'Inter',
+          animar: false,
+        ),
+        largura: 800,
+      ));
+      await tester.pump();
+
+      final richText = tester.widget<RichText>(find.descendant(
+        of: find.byType(LetreiroPublicidade),
+        matching: find.byType(RichText),
+      ));
+      final raiz = richText.text as TextSpan;
+
+      final spansSeparador = <TextSpan>[];
+      final spansMensagem = <TextSpan>[];
+      raiz.visitChildren((span) {
+        if (span is TextSpan && span.text != null) {
+          if (span.text!.contains('•')) {
+            spansSeparador.add(span);
+          } else if (span.text == 'Primeira' || span.text == 'Segunda') {
+            spansMensagem.add(span);
+          }
+        }
+        return true;
+      });
+
+      expect(spansSeparador, isNotEmpty);
+      for (final span in spansSeparador) {
+        expect(span.style?.color, Colors.amber);
+      }
+      expect(spansMensagem, hasLength(2));
+      for (final span in spansMensagem) {
+        expect(span.style?.color, Colors.white);
+      }
+    });
   });
 
   group('CarrosselPublicidade', () {
@@ -257,6 +304,43 @@ void main() {
       await tester.pump(const Duration(milliseconds: 50));
 
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets(
+        'semAnimacao usa AnimatedSwitcher com duration zero (troca '
+        'instantanea, sem coexistencia)', (tester) async {
+      await tester.pumpWidget(_app(
+        CarrosselPublicidade(
+          banners: [_midia(id: 'b1', ordem: 1), _midia(id: 'b2', ordem: 2)],
+          intervaloSegundos: 6,
+          transicao: TransicaoCarrossel.semAnimacao,
+          corIndicadores: Colors.amber,
+          reproduzindo: false,
+        ),
+      ));
+      await tester.pump();
+
+      final switcher =
+          tester.widget<AnimatedSwitcher>(find.byType(AnimatedSwitcher));
+      expect(switcher.duration, Duration.zero);
+    });
+
+    testWidgets('suave mantem AnimatedSwitcher com duration de 400ms',
+        (tester) async {
+      await tester.pumpWidget(_app(
+        CarrosselPublicidade(
+          banners: [_midia(id: 'b1', ordem: 1), _midia(id: 'b2', ordem: 2)],
+          intervaloSegundos: 6,
+          transicao: TransicaoCarrossel.suave,
+          corIndicadores: Colors.amber,
+          reproduzindo: false,
+        ),
+      ));
+      await tester.pump();
+
+      final switcher =
+          tester.widget<AnimatedSwitcher>(find.byType(AnimatedSwitcher));
+      expect(switcher.duration, const Duration(milliseconds: 400));
     });
   });
 }

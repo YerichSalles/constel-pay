@@ -154,7 +154,9 @@ class _CarrosselPublicidadeState extends State<CarrosselPublicidade> {
       children: [
         Positioned.fill(
           child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 400),
+            duration: widget.transicao == TransicaoCarrossel.semAnimacao
+                ? Duration.zero
+                : const Duration(milliseconds: 400),
             transitionBuilder: _transicao,
             child: BannerPublicidade(
               key: ValueKey('banner-carrossel-${banner.id}'),

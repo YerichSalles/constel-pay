@@ -59,16 +59,31 @@ class _LetreiroPublicidadeState extends State<LetreiroPublicidade>
   AnimationController? _controlador;
   int? _duracaoMsAtual;
 
-  String get _textoComposto => widget.mensagens.join(' ${widget.separador} ');
-
   TextStyle get _estilo => EstilosTexto.estilo(
         widget.fonte,
         const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       ).copyWith(color: widget.corTexto);
 
+  /// Spans do texto composto: mensagens em `corTexto`, separadores
+  /// (` <separador> `) em `corSeparador`, ambos com o mesmo estilo base.
+  List<InlineSpan> get _spans {
+    final estiloSeparador = _estilo.copyWith(color: widget.corSeparador);
+    final spans = <InlineSpan>[];
+    for (var i = 0; i < widget.mensagens.length; i++) {
+      if (i > 0) {
+        spans.add(TextSpan(
+          text: ' ${widget.separador} ',
+          style: estiloSeparador,
+        ));
+      }
+      spans.add(TextSpan(text: widget.mensagens[i], style: _estilo));
+    }
+    return spans;
+  }
+
   double _medirLargura() {
     final painter = TextPainter(
-      text: TextSpan(text: _textoComposto, style: _estilo),
+      text: TextSpan(style: _estilo, children: _spans),
       textDirection: TextDirection.ltr,
     )..layout();
     return painter.width;
@@ -99,12 +114,11 @@ class _LetreiroPublicidadeState extends State<LetreiroPublicidade>
     super.dispose();
   }
 
-  Widget _linhaEstatica(String texto) => Center(
+  Widget _linhaEstatica() => Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Text(
-            texto,
-            style: _estilo,
+          child: Text.rich(
+            TextSpan(style: _estilo, children: _spans),
             maxLines: 1,
             softWrap: false,
             overflow: TextOverflow.clip,
@@ -112,10 +126,11 @@ class _LetreiroPublicidadeState extends State<LetreiroPublicidade>
         ),
       );
 
-  Widget _linhaAnimada(String texto, double largura) {
+  Widget _linhaAnimada(double largura) {
     final periodo = largura + _espacamentoRepeticao;
     _prepararControlador(periodo);
     final controlador = _controlador!;
+    final spans = _spans;
     return AnimatedBuilder(
       animation: controlador,
       builder: (context, _) {
@@ -131,9 +146,8 @@ class _LetreiroPublicidadeState extends State<LetreiroPublicidade>
                   child: Padding(
                     padding:
                         const EdgeInsets.only(right: _espacamentoRepeticao),
-                    child: Text(
-                      texto,
-                      style: _estilo,
+                    child: Text.rich(
+                      TextSpan(style: _estilo, children: spans),
                       maxLines: 1,
                       softWrap: false,
                       overflow: TextOverflow.visible,
@@ -149,7 +163,6 @@ class _LetreiroPublicidadeState extends State<LetreiroPublicidade>
 
   @override
   Widget build(BuildContext context) {
-    final texto = _textoComposto;
     return Container(
       height: _alturaLetreiro,
       decoration: BoxDecoration(
@@ -164,9 +177,9 @@ class _LetreiroPublicidadeState extends State<LetreiroPublicidade>
             final anima = widget.animar && largura > restricoes.maxWidth;
             if (!anima) {
               _pararControlador();
-              return _linhaEstatica(texto);
+              return _linhaEstatica();
             }
-            return _linhaAnimada(texto, largura);
+            return _linhaAnimada(largura);
           },
         ),
       ),
