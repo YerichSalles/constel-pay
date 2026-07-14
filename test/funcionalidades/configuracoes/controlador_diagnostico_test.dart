@@ -1,8 +1,26 @@
+import 'dart:io';
+
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/controladores/controlador_diagnostico.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dados/repositorios/repositorio_configuracao_impl.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/configuracao_terminal.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Interface de rede falsa para exercitar a escolha do IP sem depender dos
+/// adaptadores reais da máquina de teste.
+class _InterfaceFake implements NetworkInterface {
+  _InterfaceFake(this.name, List<String> ips)
+      : addresses = [for (final ip in ips) InternetAddress(ip)];
+
+  @override
+  final String name;
+
+  @override
+  final List<InternetAddress> addresses;
+
+  @override
+  int get index => 0;
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -46,5 +64,36 @@ void main() {
     );
     await controlador.carregar();
     expect(controlador.state.ultimaSincronizacao, isNull);
+  });
+
+  group('escolherIpPreferido', () {
+    test('pula o vEthernet do Hyper-V mesmo vindo primeiro na lista', () {
+      // Cenário real da máquina da loja (print do ipconfig): o adaptador
+      // virtual do Default Switch aparece antes do Ethernet físico.
+      final interfaces = [
+        _InterfaceFake('vEthernet (Default Switch)', ['172.19.160.1']),
+        _InterfaceFake('Ethernet', ['192.168.0.4']),
+      ];
+      expect(escolherIpPreferido(interfaces), '192.168.0.4');
+    });
+
+    test('endereco real vence APIPA (169.254.x) de outro adaptador', () {
+      final interfaces = [
+        _InterfaceFake('Ethernet', ['169.254.10.7']),
+        _InterfaceFake('Wi-Fi', ['10.0.0.12']),
+      ];
+      expect(escolherIpPreferido(interfaces), '10.0.0.12');
+    });
+
+    test('so adaptador virtual disponivel: usa ele como ultimo recurso', () {
+      final interfaces = [
+        _InterfaceFake('vEthernet (WSL)', ['172.22.0.1']),
+      ];
+      expect(escolherIpPreferido(interfaces), '172.22.0.1');
+    });
+
+    test('sem interface utilizavel devolve null', () {
+      expect(escolherIpPreferido([]), isNull);
+    });
   });
 }
