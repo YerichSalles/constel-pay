@@ -269,6 +269,21 @@ void main() {
             zoomPercentual: 140)),
         'Preencher (corta) · topo · 140%');
     expect(
+        resumoEnquadramento(midiaImagem.copyWith(
+            ajuste: AjusteMidia.preencher,
+            ancora: AncoraMidia.centro,
+            zoomPercentual: 80)),
+        'Preencher (corta) · centro · 80% · fundo borrado',
+        reason: 'zoom < 100 deixa sobra com fundo borrado por padrao');
+    expect(
+        resumoEnquadramento(midiaImagem.copyWith(
+            ajuste: AjusteMidia.preencher,
+            ancora: AncoraMidia.centro,
+            zoomPercentual: 80,
+            fundo: FundoMidia.cor)),
+        'Preencher (corta) · centro · 80% · fundo na cor do tema',
+        reason: 'zoom < 100 com fundo cor personalizado');
+    expect(
         resumoEnquadramento(midiaImagem.copyWith(ajuste: AjusteMidia.esticar)),
         'Esticar (distorce)');
     expect(resumoEnquadramento(midiaImagem.copyWith(rotacaoGraus: 90)),

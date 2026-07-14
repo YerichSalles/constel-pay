@@ -27,7 +27,14 @@ String _resumoBase(MidiaPropaganda midia) {
       final ancora =
           DialogoAjusteMidia.rotulosAncora[midia.ancora]!.toLowerCase();
       final zoom = midia.zoomPercentual.clamp(zoomMinimo, zoomMaximo);
-      return '$modo · $ancora · $zoom%';
+      var resultado = '$modo · $ancora · $zoom%';
+      if (zoom < 100) {
+        final fundo = fundoEfetivo(tipo: midia.tipo, fundo: midia.fundo);
+        final rotuloFundo =
+            fundo == FundoMidia.borrado ? 'borrado' : 'na cor do tema';
+        resultado += ' · fundo $rotuloFundo';
+      }
+      return resultado;
     case AjusteMidia.esticar:
       return modo;
   }
