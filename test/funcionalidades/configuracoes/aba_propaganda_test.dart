@@ -27,7 +27,7 @@ void main() {
 
     await tester.tap(find.byType(DropdownButton<AjusteMidia>));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Encaixar (tarja)').last);
+    await tester.tap(find.text('Encaixar (mostra tudo)').last);
     await tester.pumpAndSettle();
 
     expect(escolhido, AjusteMidia.encaixar);

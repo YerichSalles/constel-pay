@@ -25,8 +25,9 @@ class PlayerPropaganda extends StatefulWidget {
 
   final MidiaPropaganda midia;
 
-  /// Pinta a sobra do modo encaixar (quando o fundo e cor) e o intervalo em
-  /// que a midia ainda esta carregando. Vem da cor primaria do tema da loja.
+  /// Pinta a sobra dos modos automatico e encaixar (quando o fundo e cor) e o
+  /// intervalo em que a midia ainda esta carregando. Vem da cor primaria do
+  /// tema da loja.
   final Color corFundo;
 
   final VoidCallback aoTerminar;

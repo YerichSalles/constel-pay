@@ -16,7 +16,7 @@ class SeletorAjusteMidia extends StatelessWidget {
   static const Map<AjusteMidia, String> rotulos = {
     AjusteMidia.automatico: 'Automático',
     AjusteMidia.preencher: 'Preencher (corta)',
-    AjusteMidia.encaixar: 'Encaixar (tarja)',
+    AjusteMidia.encaixar: 'Encaixar (mostra tudo)',
     AjusteMidia.esticar: 'Esticar (distorce)',
   };
 
