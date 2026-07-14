@@ -7,7 +7,6 @@ import '../../../../compartilhado/feedback/estado_vazio.dart';
 import '../../../../compartilhado/widgets/botao_secundario.dart';
 import '../../../propaganda/dominio/entidades/publicidade_barra.dart';
 import '../../dominio/entidades/tema_personalizado.dart';
-import 'secao_configuracoes.dart';
 
 /// Editor do formato "Letreiro de mensagens" (1B). Controlado: recebe o
 /// rascunho da publicidade + tema (só leitura, herdado da Aparência) +
@@ -180,76 +179,79 @@ class EditorLetreiro extends StatelessWidget {
     final corSecundaria =
         TemaConstel.corDeHex(tema.corSecundaria, CoresApp.secundariaPadrao);
     final mensagens = publicidade.mensagens;
-    return SecaoConfiguracoes(
-      titulo: 'Letreiro de mensagens',
-      descricao: 'Crie avisos e divulgações sem precisar produzir imagens.',
-      filho: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Mensagens',
-              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
-          const SizedBox(height: 8),
-          if (mensagens.isEmpty)
-            const EstadoVazio(
-                emoji: '📢', titulo: 'Nenhum conteúdo configurado.')
-          else
-            ...mensagens.map((m) => _cardMensagem(context, m)),
-          const SizedBox(height: 8),
-          BotaoSecundario(
-              rotulo: '+ Adicionar mensagem',
-              aoTocar: () => _abrirDialogo(context)),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 20,
-            runSpacing: 12,
-            children: [
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                _rotulo('Velocidade'),
-                const SizedBox(width: 8),
-                DropdownButtonHideUnderline(
-                  child: DropdownButton<VelocidadeLetreiro>(
-                    value: publicidade.velocidade,
-                    isDense: true,
-                    items: [
-                      for (final v in VelocidadeLetreiro.values)
-                        DropdownMenuItem(
-                            value: v, child: Text(_rotulosVelocidade[v]!)),
-                    ],
-                    onChanged: (novo) {
-                      if (novo != null) aoDefinirVelocidade(novo);
-                    },
-                  ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Configure o letreiro',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
+        const SizedBox(height: 2),
+        const Text(
+          'Crie avisos e divulgações sem precisar produzir imagens.',
+          style: TextStyle(fontSize: 11.5, color: CoresApp.textoSecundario),
+        ),
+        const SizedBox(height: 12),
+        const Text('Mensagens',
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+        const SizedBox(height: 8),
+        if (mensagens.isEmpty)
+          const EstadoVazio(emoji: '📢', titulo: 'Nenhum conteúdo configurado.')
+        else
+          ...mensagens.map((m) => _cardMensagem(context, m)),
+        const SizedBox(height: 8),
+        BotaoSecundario(
+            rotulo: '+ Adicionar mensagem',
+            aoTocar: () => _abrirDialogo(context)),
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 20,
+          runSpacing: 12,
+          children: [
+            Row(mainAxisSize: MainAxisSize.min, children: [
+              _rotulo('Velocidade'),
+              const SizedBox(width: 8),
+              DropdownButtonHideUnderline(
+                child: DropdownButton<VelocidadeLetreiro>(
+                  value: publicidade.velocidade,
+                  isDense: true,
+                  items: [
+                    for (final v in VelocidadeLetreiro.values)
+                      DropdownMenuItem(
+                          value: v, child: Text(_rotulosVelocidade[v]!)),
+                  ],
+                  onChanged: (novo) {
+                    if (novo != null) aoDefinirVelocidade(novo);
+                  },
                 ),
-              ]),
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                _rotulo('Separador'),
-                const SizedBox(width: 8),
-                DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: publicidade.separador,
-                    isDense: true,
-                    items: [
-                      for (final s in separadoresLetreiro)
-                        DropdownMenuItem(
-                          value: s,
-                          child: Text(s,
-                              style: TextStyle(
-                                  color: corSecundaria,
-                                  fontWeight: FontWeight.w700)),
-                        ),
-                    ],
-                    onChanged: (novo) {
-                      if (novo != null) aoDefinirSeparador(novo);
-                    },
-                  ),
+              ),
+            ]),
+            Row(mainAxisSize: MainAxisSize.min, children: [
+              _rotulo('Separador'),
+              const SizedBox(width: 8),
+              DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: publicidade.separador,
+                  isDense: true,
+                  items: [
+                    for (final s in separadoresLetreiro)
+                      DropdownMenuItem(
+                        value: s,
+                        child: Text(s,
+                            style: TextStyle(
+                                color: corSecundaria,
+                                fontWeight: FontWeight.w700)),
+                      ),
+                  ],
+                  onChanged: (novo) {
+                    if (novo != null) aoDefinirSeparador(novo);
+                  },
                 ),
-              ]),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _estiloVisual(),
-        ],
-      ),
+              ),
+            ]),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _estiloVisual(),
+      ],
     );
   }
 }

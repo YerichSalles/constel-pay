@@ -182,8 +182,8 @@ class _SecaoBarraSuperiorState extends ConsumerState<SecaoBarraSuperior> {
     );
   }
 
-  Widget _secaoFormatos(
-      PublicidadeBarra publicidade, ControladorPublicidade controlador) {
+  Widget _secaoFormatos(PublicidadeBarra publicidade, TemaPersonalizado tema,
+      ControladorPublicidade controlador) {
     final cartoes = [
       CartaoFormatoPublicidade(
         codigo: '1A',
@@ -221,32 +221,41 @@ class _SecaoBarraSuperiorState extends ConsumerState<SecaoBarraSuperior> {
     ];
     return SecaoConfiguracoes(
       titulo: 'Formato de exibição',
-      filho: LayoutBuilder(
-        builder: (context, restricoes) {
-          if (restricoes.maxWidth < _larguraCardsEmpilhados) {
-            return Column(
-              children: [
-                for (final cartao in cartoes)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: cartao,
-                  ),
-              ],
-            );
-          }
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (final cartao in cartoes)
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: cartao,
-                  ),
-                ),
-            ],
-          );
-        },
+      filho: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          LayoutBuilder(
+            builder: (context, restricoes) {
+              if (restricoes.maxWidth < _larguraCardsEmpilhados) {
+                return Column(
+                  children: [
+                    for (final cartao in cartoes)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: cartao,
+                      ),
+                  ],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final cartao in cartoes)
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: cartao,
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          // Configuração do formato selecionado, na mesma sequência visual
+          // dos cards (sem card separado nem título repetido).
+          _editorAtual(publicidade, tema, controlador),
+        ],
       ),
     );
   }
@@ -357,9 +366,7 @@ class _SecaoBarraSuperiorState extends ConsumerState<SecaoBarraSuperior> {
               final secoes = [
                 _secaoToggle(publicidade, controlador),
                 const SizedBox(height: 16),
-                _secaoFormatos(publicidade, controlador),
-                const SizedBox(height: 16),
-                _editorAtual(publicidade, tema, controlador),
+                _secaoFormatos(publicidade, tema, controlador),
               ];
               if (!duasColunas) {
                 return ListView(

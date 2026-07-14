@@ -340,12 +340,19 @@ void main() {
     await tester.tap(find.text('Barra superior'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(tester.widget<IndexedStack>(find.byType(IndexedStack)).index, 1);
+    // find.byType(IndexedStack).first: com o editor do formato selecionado
+    // agora dentro do card "Formato de exibição", os DropdownButtons
+    // (Tempo entre banners/Transição) passam a ser construídos nesta janela
+    // de teste e também usam IndexedStack internamente; o da AbaPropaganda é
+    // o ancestral, encontrado primeiro na travessia da árvore.
+    expect(
+        tester.widget<IndexedStack>(find.byType(IndexedStack).first).index, 1);
     expect(find.byType(SecaoBarraSuperior), findsOneWidget);
 
     await tester.tap(find.text('Conteúdo da tela'));
     await tester.pump();
-    expect(tester.widget<IndexedStack>(find.byType(IndexedStack)).index, 0);
+    expect(
+        tester.widget<IndexedStack>(find.byType(IndexedStack).first).index, 0);
 
     expect(find.text('15'), findsOneWidget,
         reason: 'o IndexedStack mantem a secao montada; o campo nao pode '

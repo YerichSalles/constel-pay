@@ -157,10 +157,11 @@ void main() {
       expect(find.text('Nenhum conteúdo configurado.'), findsOneWidget);
     });
 
-    testWidgets('titulo e descricao propria da secao sao exibidos',
-        (tester) async {
+    testWidgets('cabecalho interno usa Configure o carrossel', (tester) async {
       await tester.pumpWidget(montar());
-      expect(find.text('Carrossel de banners'), findsOneWidget);
+      expect(find.text('Configure o carrossel'), findsOneWidget);
+      expect(find.text('Carrossel de banners'), findsNothing,
+          reason: 'o nome do formato ja aparece no card 1A; nao repete');
       expect(
           find.text(
               'Alterne automaticamente campanhas dentro da barra superior.'),
@@ -213,6 +214,12 @@ void main() {
           find.text(
               'Recomendamos até 5 banners ativos para manter uma rotação rápida.'),
           findsOneWidget);
+      expect(
+          find.text(
+              'Formatos aceitos: JPG, PNG, WebP e GIF (o GIF anima em loop).'),
+          findsOneWidget);
+      expect(find.byKey(const Key('dicas_banners')), findsOneWidget,
+          reason: 'dicas moram num bloco informativo discreto');
     });
 
     testWidgets('+ Adicionar banner dispara aoAdicionarBanners',
@@ -289,7 +296,9 @@ void main() {
         'titulo, descricao e vazio mostram Nenhum conteúdo configurado.',
         (tester) async {
       await tester.pumpWidget(montar());
-      expect(find.text('Letreiro de mensagens'), findsOneWidget);
+      expect(find.text('Configure o letreiro'), findsOneWidget);
+      expect(find.text('Letreiro de mensagens'), findsNothing,
+          reason: 'o nome do formato ja aparece no card 1B; nao repete');
       expect(
           find.text('Crie avisos e divulgações sem precisar produzir imagens.'),
           findsOneWidget);
@@ -411,7 +420,9 @@ void main() {
         aoRemoverMidia: () {},
         aoAjustarMidia: () {},
       )));
-      expect(find.text('Espaço fixo de parceiro'), findsOneWidget);
+      expect(find.text('Configure o espaço fixo'), findsOneWidget);
+      expect(find.text('Espaço fixo de parceiro'), findsNothing,
+          reason: 'o nome do formato ja aparece no card 1C; nao repete');
       expect(
           find.text(
               'Exiba uma única publicidade continuamente durante o atendimento.'),

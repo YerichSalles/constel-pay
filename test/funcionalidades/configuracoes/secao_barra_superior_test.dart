@@ -57,9 +57,10 @@ void main() {
     expect(find.text('Publicidade na barra superior'), findsOneWidget);
     expect(find.text('Formato de exibição'), findsOneWidget);
     expect(find.text('Pré-visualização'), findsOneWidget);
-    // 'Carrossel de banners' aparece no card do formato E no título do
-    // editor selecionado.
-    expect(find.text('Carrossel de banners'), findsWidgets);
+    // 'Carrossel de banners' aparece só no card 1A; o editor usa o
+    // cabeçalho interno 'Configure o carrossel'.
+    expect(find.text('Carrossel de banners'), findsOneWidget);
+    expect(find.text('Configure o carrossel'), findsOneWidget);
   });
 
   testWidgets(
