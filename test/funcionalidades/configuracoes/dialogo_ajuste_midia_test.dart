@@ -1,4 +1,5 @@
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/dialogo_ajuste_midia.dart';
+import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/tema_personalizado.dart';
 import 'package:constel_pay/funcionalidades/propaganda/apresentacao/ajuste_tela.dart';
 import 'package:constel_pay/funcionalidades/propaganda/apresentacao/componentes/player_propaganda.dart';
 import 'package:constel_pay/funcionalidades/propaganda/dominio/entidades/midia_propaganda.dart';
@@ -22,6 +23,7 @@ void main() {
   Future<void> abrir(
     WidgetTester tester,
     MidiaPropaganda midia, {
+    OrientacaoTela orientacao = OrientacaoTela.vertical,
     void Function(EnquadramentoSalvo salvo)? aoSalvar,
   }) async {
     await tester.pumpWidget(MaterialApp(
@@ -34,6 +36,7 @@ void main() {
                 builder: (_) => DialogoAjusteMidia(
                   midia: midia,
                   corTema: const Color(0xFF5E52D6),
+                  orientacao: orientacao,
                   aoSalvar: ({
                     required AjusteMidia ajuste,
                     required FundoMidia fundo,
@@ -164,6 +167,47 @@ void main() {
     }
   });
 
+  testWidgets('girar cicla 90 em 90 e o preview acompanha', (tester) async {
+    EnquadramentoSalvo? salvo;
+    await abrir(tester, midiaImagem, aoSalvar: (s) => salvo = s);
+    await tester.tap(find.text('Girar 90°'));
+    await tester.pump();
+    var player = tester.widget<PlayerPropaganda>(find.byType(PlayerPropaganda));
+    expect(player.midia.rotacaoGraus, 90);
+
+    await tester.tap(find.text('Girar 90°'));
+    await tester.tap(find.text('Girar 90°'));
+    await tester.tap(find.text('Girar 90°'));
+    await tester.pump();
+    player = tester.widget<PlayerPropaganda>(find.byType(PlayerPropaganda));
+    expect(player.midia.rotacaoGraus, 0, reason: '4 toques dao a volta');
+
+    await tester.tap(find.text('Girar 90°'));
+    await tester.pump();
+    await tester.tap(find.text('Salvar'));
+    await tester.pumpAndSettle();
+    expect(salvo!.rotacaoGraus, 90);
+    await drenar(tester);
+  });
+
+  testWidgets('preview segue a orientacao da tela', (tester) async {
+    await abrir(tester, midiaImagem);
+    var aspecto = tester.widget<AspectRatio>(find.descendant(
+        of: find.byType(DialogoAjusteMidia),
+        matching: find.byType(AspectRatio)));
+    expect(aspecto.aspectRatio, closeTo(9 / 16, 0.001));
+    await tester.tap(find.text('Cancelar'));
+    await tester.pumpAndSettle();
+    await drenar(tester);
+
+    await abrir(tester, midiaImagem, orientacao: OrientacaoTela.horizontal);
+    aspecto = tester.widget<AspectRatio>(find.descendant(
+        of: find.byType(DialogoAjusteMidia),
+        matching: find.byType(AspectRatio)));
+    expect(aspecto.aspectRatio, closeTo(16 / 9, 0.001));
+    await drenar(tester);
+  });
+
   test('resumo do enquadramento por modo', () {
     expect(resumoEnquadramento(midiaImagem), 'Automático · fundo borrado');
     expect(resumoEnquadramento(midiaImagem.copyWith(fundo: FundoMidia.cor)),
@@ -179,5 +223,11 @@ void main() {
     expect(
         resumoEnquadramento(midiaImagem.copyWith(ajuste: AjusteMidia.esticar)),
         'Esticar (distorce)');
+    expect(resumoEnquadramento(midiaImagem.copyWith(rotacaoGraus: 90)),
+        'Automático · fundo borrado · girada 90°');
+    expect(
+        resumoEnquadramento(midiaImagem.copyWith(
+            ajuste: AjusteMidia.esticar, rotacaoGraus: 270)),
+        'Esticar (distorce) · girada 270°');
   });
 }

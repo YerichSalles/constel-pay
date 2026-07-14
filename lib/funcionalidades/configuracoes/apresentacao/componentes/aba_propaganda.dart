@@ -88,6 +88,7 @@ class AbaPropaganda extends ConsumerWidget {
       builder: (_) => DialogoAjusteMidia(
         midia: midia,
         corTema: corTema,
+        orientacao: tema.orientacaoTela,
         aoSalvar: ({
           required AjusteMidia ajuste,
           required FundoMidia fundo,

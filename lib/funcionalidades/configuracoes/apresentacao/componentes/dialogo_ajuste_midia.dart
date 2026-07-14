@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../aplicativo/tema/cores_app.dart';
+import '../../dominio/entidades/tema_personalizado.dart';
 import '../../../propaganda/apresentacao/ajuste_tela.dart';
 import '../../../propaganda/apresentacao/componentes/player_propaganda.dart';
 import '../../../propaganda/dominio/entidades/midia_propaganda.dart';
@@ -8,6 +9,12 @@ import 'seletor_ajuste_midia.dart';
 
 /// Resumo curto do enquadramento, exibido no card da midia.
 String resumoEnquadramento(MidiaPropaganda midia) {
+  final base = _resumoBase(midia);
+  final rotacao = resolverQuartosDeVolta(midia.rotacaoGraus) * 90;
+  return rotacao == 0 ? base : '$base · girada $rotacao°';
+}
+
+String _resumoBase(MidiaPropaganda midia) {
   final modo = SeletorAjusteMidia.rotulos[midia.ajuste] ?? '';
   switch (midia.ajuste) {
     case AjusteMidia.automatico:
@@ -31,6 +38,7 @@ class DialogoAjusteMidia extends StatefulWidget {
     super.key,
     required this.midia,
     required this.corTema,
+    required this.orientacao,
     required this.aoSalvar,
   });
 
@@ -38,6 +46,9 @@ class DialogoAjusteMidia extends StatefulWidget {
 
   /// Cor primaria do tema da loja: o preview pinta o mesmo fundo do totem.
   final Color corTema;
+
+  /// Orientacao da tela do totem: o preview simula esta razao de aspecto.
+  final OrientacaoTela orientacao;
 
   final void Function({
     required AjusteMidia ajuste,
@@ -69,8 +80,7 @@ class _DialogoAjusteMidiaState extends State<DialogoAjusteMidia> {
   late AncoraMidia _ancora = widget.midia.ancora;
   late int _zoom = widget.midia.zoomPercentual.clamp(zoomMinimo, zoomMaximo);
   // Normalizado ja na entrada: estado local so conhece 0/90/180/270.
-  late final int _rotacao =
-      resolverQuartosDeVolta(widget.midia.rotacaoGraus) * 90;
+  late int _rotacao = resolverQuartosDeVolta(widget.midia.rotacaoGraus) * 90;
 
   bool get _mostraFundo =>
       modoDeixaSobra(_ajuste) &&
@@ -150,9 +160,16 @@ class _DialogoAjusteMidiaState extends State<DialogoAjusteMidia> {
             children: [
               Center(
                 child: SizedBox(
-                  height: 220,
+                  width: widget.orientacao == OrientacaoTela.horizontal
+                      ? 300
+                      : null,
+                  height: widget.orientacao == OrientacaoTela.horizontal
+                      ? null
+                      : 220,
                   child: AspectRatio(
-                    aspectRatio: 9 / 16,
+                    aspectRatio: widget.orientacao == OrientacaoTela.horizontal
+                        ? 16 / 9
+                        : 9 / 16,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       // Mesmo player da tela real: o que aparece aqui e o que
@@ -170,6 +187,24 @@ class _DialogoAjusteMidiaState extends State<DialogoAjusteMidia> {
               SeletorAjusteMidia(
                 valor: _ajuste,
                 aoMudar: (ajuste) => setState(() => _ajuste = ajuste),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  TextButton.icon(
+                    style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact),
+                    onPressed: () =>
+                        setState(() => _rotacao = (_rotacao + 90) % 360),
+                    icon: const Icon(Icons.rotate_90_degrees_cw, size: 16),
+                    label: const Text('Girar 90°',
+                        style: TextStyle(fontSize: 11.5)),
+                  ),
+                  if (_rotacao != 0) ...[
+                    const SizedBox(width: 4),
+                    _rotulo('Girada: $_rotacao°'),
+                  ],
+                ],
               ),
               if (_mostraFundo) ...[
                 const SizedBox(height: 10),
