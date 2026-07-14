@@ -213,6 +213,8 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
               controlador.novaOperacao();
               context.go('/splash');
             },
+            aoTentarNovamente: controlador.tentarNovamente,
+            aoContinuarComCartoes: controlador.continuarComCartoes,
           ),
           const _BarraCreditos(),
         ],

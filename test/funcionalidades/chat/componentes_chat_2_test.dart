@@ -69,10 +69,12 @@ void main() {
       aoPagarRestante: () {},
       aoEncerrar: () {},
       aoNovaOperacao: () {},
+      aoTentarNovamente: () {},
+      aoContinuarComCartoes: () {},
     )));
-    await tester.tap(find.text('Ler outro cartão'));
+    await tester.tap(find.text('Adicionar outro cartão'));
     expect(leuOutro, isTrue);
-    expect(find.text('Ir para o pagamento'), findsOneWidget);
+    expect(find.text('Continuar para pagamento'), findsOneWidget);
   });
 
   testWidgets('CardMetodosPagamento lista os metodos e seleciona',

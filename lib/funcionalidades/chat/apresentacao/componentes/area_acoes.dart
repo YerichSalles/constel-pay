@@ -15,6 +15,8 @@ class AreaAcoes extends StatelessWidget {
     required this.aoPagarRestante,
     required this.aoEncerrar,
     required this.aoNovaOperacao,
+    required this.aoTentarNovamente,
+    required this.aoContinuarComCartoes,
   });
 
   final EstadoFluxoPagamento estado;
@@ -23,19 +25,47 @@ class AreaAcoes extends StatelessWidget {
   final VoidCallback aoPagarRestante;
   final VoidCallback aoEncerrar;
   final VoidCallback aoNovaOperacao;
+  final VoidCallback aoTentarNovamente;
+  final VoidCallback aoContinuarComCartoes;
 
   List<Widget> _chips() {
     if (estado.digitando) return const [];
+    final temCartoes = estado.selecionados.isNotEmpty;
     switch (estado.etapa) {
+      case EtapaFluxo.lendo:
+        // Só na leitura adicional: na primeira leitura ainda não há como
+        // continuar sem localizar uma comanda válida.
+        if (!temCartoes) return const [];
+        return [
+          ChipAcao(
+              rotulo: 'Continuar com os cartões já adicionados',
+              aoTocar: aoContinuarComCartoes,
+              discreto: true),
+        ];
       case EtapaFluxo.aguardandoMaisCartoes:
         return [
           // Sempre disponível: com a API real o app não sabe quantas comandas
           // ainda estão abertas na mesa (`cartoesRestantes` só existe no mock).
-          ChipAcao(rotulo: 'Ler outro cartão', aoTocar: aoLerOutro),
+          ChipAcao(rotulo: 'Adicionar outro cartão', aoTocar: aoLerOutro),
           ChipAcao(
-              rotulo: 'Ir para o pagamento',
+              rotulo: 'Continuar para pagamento',
               aoTocar: aoIrPagamento,
               primario: true),
+        ];
+      case EtapaFluxo.semConsumo:
+      case EtapaFluxo.erroLeitura:
+        return [
+          ChipAcao(
+              rotulo: estado.etapa == EtapaFluxo.semConsumo
+                  ? 'Tentar outro cartão'
+                  : 'Tentar novamente',
+              aoTocar: aoTentarNovamente,
+              primario: !temCartoes),
+          if (temCartoes)
+            ChipAcao(
+                rotulo: 'Continuar com ${estado.rotuloCartoesAdicionados}',
+                aoTocar: aoContinuarComCartoes,
+                primario: true),
         ];
       case EtapaFluxo.sucessoComRestante:
         return [
@@ -61,7 +91,10 @@ class AreaAcoes extends StatelessWidget {
 
   bool get _mostraTotal =>
       const [
+        EtapaFluxo.lendo,
         EtapaFluxo.aguardandoMaisCartoes,
+        EtapaFluxo.semConsumo,
+        EtapaFluxo.erroLeitura,
         EtapaFluxo.escolhaMetodo,
         EtapaFluxo.pixAguardando,
       ].contains(estado.etapa) &&

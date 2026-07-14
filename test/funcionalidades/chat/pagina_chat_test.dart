@@ -52,7 +52,7 @@ void main() {
     expect(find.textContaining('Comanda 01'), findsWidgets);
 
     // ir para pagamento: a taxa de serviço da API já vem embutida, sem escolha
-    await tester.tap(find.textContaining('Ir para o pagamento'));
+    await tester.tap(find.textContaining('Continuar para pagamento'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pump();
@@ -81,5 +81,67 @@ void main() {
     await tester.pump();
     expect(find.text('Comprovante de pagamento'), findsOneWidget);
     expect(find.text('Novo pagamento'), findsOneWidget);
+  });
+
+  testWidgets('desistir da inclusao adicional preserva a comanda e avanca',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    final roteador = GoRouter(
+      initialLocation: '/chat',
+      routes: [
+        GoRoute(path: '/chat', builder: (_, __) => const PaginaChat()),
+        GoRoute(
+            path: '/splash',
+            builder: (_, __) => const Scaffold(body: Text('SPLASH'))),
+      ],
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          provedorSharedPreferences.overrideWithValue(preferencias),
+          provedorAtrasoBot.overrideWithValue(Duration.zero),
+          provedorFonteLeituraMock
+              .overrideWithValue(FonteLeituraMock(atraso: Duration.zero)),
+          provedorFontePagamentoMock
+              .overrideWithValue(FontePagamentoMock(atraso: Duration.zero)),
+        ],
+        child: MaterialApp.router(routerConfig: roteador),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pump();
+
+    // primeira leitura: sem ação de desistência disponível
+    expect(find.text('Continuar com os cartões já adicionados'), findsNothing);
+    await tester.tap(find.textContaining('Simular leitura'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pump();
+    expect(find.text('Adicionar outro cartão'), findsOneWidget);
+
+    // entra na inclusão adicional e desiste
+    await tester.tap(find.text('Adicionar outro cartão'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pump();
+    await tester
+        .ensureVisible(find.text('Continuar com os cartões já adicionados'));
+    await tester.tap(find.text('Continuar com os cartões já adicionados'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pump();
+
+    // comanda preservada e fluxo na escolha de método
+    // A ListView acumulou conteúdo suficiente para que "Comanda 01" e "Pix"
+    // não caibam simultaneamente na cacheExtent padrão — cada verificação
+    // rola até o trecho correspondente antes de checar.
+    final rolagem = find.byType(Scrollable).first;
+    await tester.scrollUntilVisible(find.textContaining('Comanda 01'), -300,
+        scrollable: rolagem);
+    expect(find.textContaining('Comanda 01'), findsWidgets);
+    await tester.scrollUntilVisible(find.text('Pix'), 300, scrollable: rolagem);
+    expect(find.text('Pix'), findsOneWidget);
   });
 }
