@@ -6,10 +6,6 @@ import '../../dominio/entidades/publicidade_barra.dart';
 /// Altura fixa do letreiro, com o container ja arredondado.
 const double _alturaLetreiro = 40;
 
-/// Espaco entre uma repeticao do texto e a proxima, para o loop nao parecer
-/// que o texto "colou" nele mesmo.
-const double _espacamentoRepeticao = 48;
-
 /// Padding horizontal da linha estatica (`_linhaEstatica`), de cada lado.
 /// Entra na decisao de animar: sem descontar essa folga, um texto que cabe
 /// em `restricoes.maxWidth` mas nao em `maxWidth - 2 * _preenchimentoEstatico`
@@ -134,35 +130,34 @@ class _LetreiroPublicidadeState extends State<LetreiroPublicidade>
         ),
       );
 
-  Widget _linhaAnimada(double largura) {
-    final periodo = largura + _espacamentoRepeticao;
+  /// Percurso completo: a mensagem nasce totalmente fora da area (encostada
+  /// na borda direita), atravessa toda a largura disponivel e desaparece
+  /// por completo pela esquerda antes de reiniciar — nunca ha duas copias
+  /// simultaneas visiveis, so uma passagem de cada vez.
+  Widget _linhaAnimada(double larguraArea, double larguraTexto) {
+    final periodo = larguraArea + larguraTexto;
     _prepararControlador(periodo);
     final controlador = _controlador!;
     final spans = _spans;
     return AnimatedBuilder(
       animation: controlador,
       builder: (context, _) {
-        final deslocamento = -(controlador.value * periodo);
+        final offset = larguraArea - controlador.value * periodo;
         return Stack(
           children: [
-            for (final offset in [deslocamento, deslocamento + periodo])
-              Positioned(
-                left: offset,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(right: _espacamentoRepeticao),
-                    child: Text.rich(
-                      TextSpan(style: _estilo, children: spans),
-                      maxLines: 1,
-                      softWrap: false,
-                      overflow: TextOverflow.visible,
-                    ),
-                  ),
+            Positioned(
+              left: offset,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: Text.rich(
+                  TextSpan(style: _estilo, children: spans),
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.visible,
                 ),
               ),
+            ),
           ],
         );
       },
@@ -189,7 +184,7 @@ class _LetreiroPublicidadeState extends State<LetreiroPublicidade>
               _pararControlador();
               return _linhaEstatica();
             }
-            return _linhaAnimada(largura);
+            return _linhaAnimada(restricoes.maxWidth, largura);
           },
         ),
       ),

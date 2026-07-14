@@ -33,6 +33,10 @@ class PreviaPublicidade extends StatelessWidget {
   final bool reproduzindo;
   final VoidCallback aoAlternarReproducao;
 
+  /// Mesma fração usada pela `BarraSuperior` real como teto da área do nome
+  /// quando há publicidade.
+  static const double _fracaoMaximaNome = 0.45;
+
   /// Mesmo ajuste de luminosidade (HSL) usado pela `BarraSuperior` real, para
   /// o gradiente da prévia ficar idêntico ao do atendimento.
   Color _ajustarLuminosidade(Color cor, double delta) {
@@ -103,41 +107,52 @@ class PreviaPublicidade extends StatelessWidget {
                   ],
                 ),
               ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: .15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.arrow_back_ios_new,
-                        size: 12, color: Colors.white),
-                  ),
-                  const SizedBox(width: 8),
-                  _avatar(),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      nome,
-                      overflow: TextOverflow.ellipsis,
-                      style: EstilosTexto.estilo(
-                        tema.fonte,
-                        const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white),
+              child: LayoutBuilder(
+                builder: (context, restricoes) {
+                  final tetoNome = restricoes.maxWidth * _fracaoMaximaNome;
+                  return Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: .15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.arrow_back_ios_new,
+                            size: 12, color: Colors.white),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    flex: 2,
-                    child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: _areaConteudo()),
-                  ),
-                ],
+                      const SizedBox(width: 8),
+                      _avatar(),
+                      const SizedBox(width: 8),
+                      ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: tetoNome),
+                        child: Text(
+                          nome,
+                          overflow: TextOverflow.ellipsis,
+                          style: EstilosTexto.estilo(
+                            tema.fonte,
+                            const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Container(
+                        width: 1,
+                        height: 18,
+                        color: Colors.white.withValues(alpha: .25),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: _areaConteudo()),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),

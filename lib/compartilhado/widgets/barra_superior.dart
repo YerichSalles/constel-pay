@@ -17,10 +17,15 @@ class BarraSuperior extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? aoVoltar;
   final List<Widget>? acoes;
 
-  /// Slot opcional de publicidade, exibido à direita do título com o
-  /// espaço que sobrar depois de voltar/logo/nome. Sem publicidade, o
+  /// Slot opcional de publicidade, exibido à direita do título ocupando
+  /// TODO o espaço restante depois de voltar/logo/nome. Sem publicidade, o
   /// layout permanece exatamente igual ao de hoje.
   final Widget? publicidade;
+
+  /// Fração da largura do título reservada como teto para a área do nome
+  /// quando há publicidade — apenas um limite máximo (nome curto não
+  /// empurra o letreiro; o espaço real do nome é o do seu conteúdo).
+  static const double _fracaoMaximaNome = 0.45;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight + 8);
@@ -29,6 +34,35 @@ class BarraSuperior extends StatelessWidget implements PreferredSizeWidget {
     final hsl = HSLColor.fromColor(cor);
     return hsl.withLightness((hsl.lightness + delta).clamp(0.0, 1.0)).toColor();
   }
+
+  Widget _colunaNome() => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            titulo,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              letterSpacing: .2,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (subtitulo != null)
+            Text(
+              subtitulo!,
+              style: TextStyle(
+                  fontSize: 12, color: Colors.white.withValues(alpha: .92)),
+              overflow: TextOverflow.ellipsis,
+            ),
+        ],
+      );
+
+  Widget _divisor() => Container(
+        width: 1,
+        height: 22,
+        color: Colors.white.withValues(alpha: .25),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -66,42 +100,39 @@ class BarraSuperior extends StatelessWidget implements PreferredSizeWidget {
             )
           : null,
       automaticallyImplyLeading: false,
-      title: Row(
-        children: [
-          if (avatar != null) ...[avatar!, const SizedBox(width: 16)],
-          Flexible(
-            fit: publicidade != null ? FlexFit.loose : FlexFit.tight,
-            flex: publicidade != null ? 3 : 1,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
+      title: publicidade == null
+          ? Row(
               children: [
-                Text(
-                  titulo,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: .2,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+                if (avatar != null) ...[avatar!, const SizedBox(width: 16)],
+                Flexible(
+                  fit: FlexFit.tight,
+                  flex: 1,
+                  child: _colunaNome(),
                 ),
-                if (subtitulo != null)
-                  Text(
-                    subtitulo!,
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withValues(alpha: .92)),
-                    overflow: TextOverflow.ellipsis,
-                  ),
               ],
+            )
+          : LayoutBuilder(
+              builder: (context, restricoes) {
+                final tetoNome = restricoes.maxWidth * _fracaoMaximaNome;
+                return Row(
+                  children: [
+                    if (avatar != null) ...[
+                      avatar!,
+                      const SizedBox(width: 16),
+                    ],
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: tetoNome),
+                      child: _colunaNome(),
+                    ),
+                    const SizedBox(width: 12),
+                    _divisor(),
+                    const SizedBox(width: 12),
+                    Expanded(child: publicidade!),
+                    const SizedBox(width: 14),
+                  ],
+                );
+              },
             ),
-          ),
-          if (publicidade != null) ...[
-            const SizedBox(width: 12),
-            Expanded(flex: 2, child: publicidade!),
-          ],
-        ],
-      ),
       actions: acoes,
     );
   }

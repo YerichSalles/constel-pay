@@ -326,7 +326,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 16));
 
-      // Caminho animado usa AnimatedBuilder (Stack com 2 Positioned); o
+      // Caminho animado usa AnimatedBuilder (percurso de 1 copia); o
       // caminho estatico usa Center direto, sem AnimatedBuilder.
       expect(
         find.descendant(
@@ -335,6 +335,53 @@ void main() {
         ),
         findsWidgets,
       );
+      expect(tester.takeException(), isNull);
+
+      // Encerra a animacao antes do fim do teste para nao vazar tickers.
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets(
+        'percurso completo: uma unica copia do texto, nascendo fora da '
+        'area (a direita) e percorrendo tudo ate sumir pela esquerda, sem '
+        'excecao ao longo de varios frames', (tester) async {
+      const mensagem = 'Promoção imperdível hoje: peça já o seu combo especial';
+      const largura = 150.0;
+
+      await tester.pumpWidget(_app(
+        const LetreiroPublicidade(
+          mensagens: [mensagem],
+          separador: '•',
+          velocidade: VelocidadeLetreiro.rapida,
+          corFundo: Color(0xFF202020),
+          corTexto: Colors.white,
+          corSeparador: Colors.amber,
+          fonte: 'Inter',
+          animar: true,
+        ),
+        largura: largura,
+        altura: 40,
+      ));
+      await tester.pump();
+
+      // Uma unica copia visivel: so 1 Positioned dentro da Stack do
+      // caminho animado (nao ha mais duas copias lado a lado com gap).
+      final positioneds = find.descendant(
+        of: find.byType(LetreiroPublicidade),
+        matching: find.byType(Positioned),
+      );
+      expect(positioneds, findsOneWidget);
+
+      // No primeiro frame (t=0), o texto nasce encostado na borda direita
+      // da area: left == larguraArea (totalmente fora, a direita).
+      final posicionado = tester.widget<Positioned>(positioneds);
+      expect(posicionado.left, largura);
+
+      // Avanca varios frames (inclusive alem de um ciclo completo) sem
+      // excecao — cobre a travessia inteira e o reinicio.
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
       expect(tester.takeException(), isNull);
 
       // Encerra a animacao antes do fim do teste para nao vazar tickers.

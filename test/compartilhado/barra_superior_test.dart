@@ -54,7 +54,8 @@ void main() {
   });
 
   testWidgets(
-      'com publicidade o titulo usa flex 3 e a publicidade flex 2 (loose)',
+      'com publicidade a area do nome nao usa flex (largura por conteudo, '
+      'com teto via ConstrainedBox) e ha um divisor antes do letreiro',
       (tester) async {
     await tester.pumpWidget(montar(
       publicidade: const ColoredBox(
@@ -63,18 +64,65 @@ void main() {
       ),
     ));
 
-    final flexivel = tester.widget<Flexible>(find.ancestor(
-      of: find.text('Dionísio Torres'),
-      matching: find.byType(Flexible),
+    // Nome nao esta mais dentro de um Flexible/Expanded: e filho direto do
+    // Row, com um ConstrainedBox definindo apenas um teto de largura.
+    expect(
+      find.ancestor(
+        of: find.text('Dionísio Torres'),
+        matching: find.byType(Flexible),
+      ),
+      findsNothing,
+    );
+    // Pode haver ConstrainedBox internos do framework mais acima na
+    // arvore; o nosso (o teto do nome) e o mais proximo do texto.
+    final restricao = tester
+        .widgetList<ConstrainedBox>(find.ancestor(
+          of: find.text('Dionísio Torres'),
+          matching: find.byType(ConstrainedBox),
+        ))
+        .first;
+    expect(restricao.constraints.maxWidth, greaterThan(0));
+
+    // Divisor discreto entre nome e letreiro.
+    final divisor = tester.widgetList<Container>(find.byType(Container)).where(
+        (c) => c.constraints?.maxWidth == 1 || c.constraints?.minWidth == 1);
+    expect(divisor, isNotEmpty);
+  });
+
+  testWidgets('sem publicidade nao ha divisor', (tester) async {
+    await tester.pumpWidget(montar());
+
+    final divisor = tester.widgetList<Container>(find.byType(Container)).where(
+        (c) => c.constraints?.maxWidth == 1 || c.constraints?.minWidth == 1);
+    expect(divisor, isEmpty);
+  });
+
+  testWidgets(
+      'com publicidade o widget da publicidade fica no ultimo filho '
+      'flexivel (Expanded), ocupando todo o espaco restante', (tester) async {
+    await tester.pumpWidget(montar(
+      publicidade: const ColoredBox(
+        key: Key('publicidade_teste'),
+        color: Colors.red,
+      ),
     ));
-    expect(flexivel.flex, 3);
-    expect(flexivel.fit, FlexFit.loose);
 
     final expandido = tester.widget<Expanded>(find.ancestor(
       of: find.byKey(const Key('publicidade_teste')),
       matching: find.byType(Expanded),
     ));
-    expect(expandido.flex, 2);
+    expect(expandido.child, isA<ColoredBox>());
+
+    final row = tester.widget<Row>(find.ancestor(
+      of: find.byType(Expanded),
+      matching: find.byType(Row),
+    ));
+    final indiceExpanded =
+        row.children.indexWhere((w) => w is Expanded || w is Flexible);
+    final ultimoFlexivelIndex =
+        row.children.lastIndexWhere((w) => w is Expanded || w is Flexible);
+    expect(indiceExpanded, ultimoFlexivelIndex);
+    expect(row.children[ultimoFlexivelIndex], isA<Expanded>());
   });
 
   testWidgets(
