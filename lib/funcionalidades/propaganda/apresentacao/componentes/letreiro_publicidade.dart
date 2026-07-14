@@ -10,6 +10,12 @@ const double _alturaLetreiro = 40;
 /// que o texto "colou" nele mesmo.
 const double _espacamentoRepeticao = 48;
 
+/// Padding horizontal da linha estatica (`_linhaEstatica`), de cada lado.
+/// Entra na decisao de animar: sem descontar essa folga, um texto que cabe
+/// em `restricoes.maxWidth` mas nao em `maxWidth - 2 * _preenchimentoEstatico`
+/// ficaria estatico e cortado.
+const double _preenchimentoEstatico = 12;
+
 /// Velocidade de translacao do letreiro em pixels por segundo.
 const Map<VelocidadeLetreiro, double> _pxPorSegundo = {
   VelocidadeLetreiro.lenta: 40,
@@ -116,12 +122,14 @@ class _LetreiroPublicidadeState extends State<LetreiroPublicidade>
 
   Widget _linhaEstatica() => Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(
+            horizontal: _preenchimentoEstatico,
+          ),
           child: Text.rich(
             TextSpan(style: _estilo, children: _spans),
             maxLines: 1,
             softWrap: false,
-            overflow: TextOverflow.clip,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       );
@@ -174,7 +182,9 @@ class _LetreiroPublicidadeState extends State<LetreiroPublicidade>
         child: LayoutBuilder(
           builder: (context, restricoes) {
             final largura = _medirLargura();
-            final anima = widget.animar && largura > restricoes.maxWidth;
+            final larguraUtil =
+                restricoes.maxWidth - 2 * _preenchimentoEstatico;
+            final anima = widget.animar && largura > larguraUtil;
             if (!anima) {
               _pararControlador();
               return _linhaEstatica();

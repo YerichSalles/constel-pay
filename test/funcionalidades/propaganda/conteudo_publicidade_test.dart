@@ -1,3 +1,4 @@
+import 'package:constel_pay/aplicativo/tema/estilos_texto.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/tema_personalizado.dart';
 import 'package:constel_pay/funcionalidades/propaganda/apresentacao/componentes/carrossel_publicidade.dart';
 import 'package:constel_pay/funcionalidades/propaganda/apresentacao/componentes/conteudo_publicidade.dart';
@@ -284,6 +285,56 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
 
+      expect(tester.takeException(), isNull);
+
+      // Encerra a animacao antes do fim do teste para nao vazar tickers.
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets(
+        'texto no limiar da area util da capsula anima em vez de ficar '
+        'estatico cortado (regressao: padding de 12px nao entrava na '
+        'decisao)', (tester) async {
+      const mensagem = 'Aberto todos os dias das 8h às 20h';
+      final estilo = EstilosTexto.estilo(
+        'Inter',
+        const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+      );
+      final painter = TextPainter(
+        text: TextSpan(text: mensagem, style: estilo),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final larguraTexto = painter.width;
+
+      await tester.pumpWidget(_app(
+        const LetreiroPublicidade(
+          mensagens: [mensagem],
+          separador: '•',
+          velocidade: VelocidadeLetreiro.normal,
+          corFundo: Color(0xFF202020),
+          corTexto: Colors.white,
+          corSeparador: Colors.amber,
+          fonte: 'Inter',
+          animar: true,
+        ),
+        // Zona limiar: maior que o texto, mas a folga (10px) e menor que o
+        // padding de 12px de cada lado da linha estatica (24px total) — o
+        // texto cortaria se o widget escolhesse o caminho estatico.
+        largura: larguraTexto + 10,
+        altura: 40,
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+
+      // Caminho animado usa AnimatedBuilder (Stack com 2 Positioned); o
+      // caminho estatico usa Center direto, sem AnimatedBuilder.
+      expect(
+        find.descendant(
+          of: find.byType(LetreiroPublicidade),
+          matching: find.byType(AnimatedBuilder),
+        ),
+        findsWidgets,
+      );
       expect(tester.takeException(), isNull);
 
       // Encerra a animacao antes do fim do teste para nao vazar tickers.
