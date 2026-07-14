@@ -17,6 +17,9 @@ import '../../dominio/repositorios/repositorio_credencial.dart';
 
 part 'controlador_configuracoes.freezed.dart';
 
+/// Resultado conhecido da última verificação de cada API.
+enum StatusConexao { desconhecido, verificando, conectado, erro }
+
 @freezed
 class EstadoConfiguracoes with _$EstadoConfiguracoes {
   const factory EstadoConfiguracoes({
@@ -29,6 +32,14 @@ class EstadoConfiguracoes with _$EstadoConfiguracoes {
     @Default(false) bool salvando,
     @Default(false) bool testandoLocal,
     @Default(false) bool testandoNuvem,
+    @Default(StatusConexao.desconhecido) StatusConexao statusLocal,
+    @Default(StatusConexao.desconhecido) StatusConexao statusNuvem,
+    // Tempo de resposta do teste de comunicação, em milissegundos.
+    int? latenciaLocalMs,
+    int? latenciaNuvemMs,
+    // Usuário autenticado no último teste da nuvem; vazio sem login.
+    @Default('') String usuarioNuvem,
+    DateTime? ultimaVerificacao,
     String? mensagem,
     @Default(false) bool mensagemErro,
   }) = _EstadoConfiguracoes;
@@ -69,6 +80,7 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
       usuario: credencial?.usuario ?? '',
       senha: credencial?.senha ?? '',
       nomeEstabelecimento: sessao?.estabelecimento.nome ?? '',
+      usuarioNuvem: sessao?.usuario.nome ?? '',
       carregando: false,
     );
   }
@@ -100,28 +112,46 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
       await _repositorioCredencial
           .salvar(Credencial(usuario: usuario, senha: senha));
     }
-    final nova = state.configuracao.copyWith(
+    final anterior = state.configuracao;
+    final nova = anterior.copyWith(
       ambiente: ambiente,
-      identificadorDispositivo: identificadorDispositivo?.trim() ??
-          state.configuracao.identificadorDispositivo,
-      idDispositivo: idDispositivo?.trim() ?? state.configuracao.idDispositivo,
+      identificadorDispositivo:
+          identificadorDispositivo?.trim() ?? anterior.identificadorDispositivo,
+      idDispositivo: idDispositivo?.trim() ?? anterior.idDispositivo,
       urlBaseProducao: comBarraFinal(urlProducao.trim()),
       urlBaseHomologacao: comBarraFinal(urlHomologacao.trim()),
-      urlNuvemProducao: comBarraFinal(
-          urlNuvemProducao?.trim() ?? state.configuracao.urlNuvemProducao),
-      urlNuvemHomologacao: comBarraFinal(urlNuvemHomologacao?.trim() ??
-          state.configuracao.urlNuvemHomologacao),
+      urlNuvemProducao:
+          comBarraFinal(urlNuvemProducao?.trim() ?? anterior.urlNuvemProducao),
+      urlNuvemHomologacao: comBarraFinal(
+          urlNuvemHomologacao?.trim() ?? anterior.urlNuvemHomologacao),
     );
     await _repositorioConfiguracao.salvar(nova);
-    // Credencial, ambiente ou URL podem ter mudado: as sessões gravadas
-    // ficariam apontando para o usuário/ambiente antigo até expirar.
-    await _repositorioSessaoNuvem.remover();
-    await _repositorioSessaoLoja.remover();
+    // Sessões e status só perdem a validade quando credencial, ambiente ou
+    // URL mudam; salvar o identificador do terminal, por exemplo, não derruba
+    // a verificação já feita.
+    final conexaoMudou = usuario != state.usuario ||
+        senha != state.senha ||
+        nova.ambiente != anterior.ambiente ||
+        nova.urlBaseProducao != anterior.urlBaseProducao ||
+        nova.urlBaseHomologacao != anterior.urlBaseHomologacao ||
+        nova.urlNuvemProducao != anterior.urlNuvemProducao ||
+        nova.urlNuvemHomologacao != anterior.urlNuvemHomologacao;
+    if (conexaoMudou) {
+      await _repositorioSessaoNuvem.remover();
+      await _repositorioSessaoLoja.remover();
+    }
     state = state.copyWith(
       configuracao: nova,
       usuario: usuario,
       senha: senha,
-      nomeEstabelecimento: '',
+      nomeEstabelecimento: conexaoMudou ? '' : state.nomeEstabelecimento,
+      statusLocal:
+          conexaoMudou ? StatusConexao.desconhecido : state.statusLocal,
+      statusNuvem:
+          conexaoMudou ? StatusConexao.desconhecido : state.statusNuvem,
+      latenciaLocalMs: conexaoMudou ? null : state.latenciaLocalMs,
+      latenciaNuvemMs: conexaoMudou ? null : state.latenciaNuvemMs,
+      usuarioNuvem: conexaoMudou ? '' : state.usuarioNuvem,
       salvando: false,
       mensagem: 'Comunicação salva.',
       mensagemErro: false,
@@ -131,8 +161,14 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
   /// Testa a API da loja: comunicação + login real com os dados já salvos.
   /// Cada servidor emite o próprio token; um login não vale pelo outro.
   Future<void> testarApiLocal() async {
-    state = state.copyWith(testandoLocal: true, mensagem: null);
+    state = state.copyWith(
+      testandoLocal: true,
+      statusLocal: StatusConexao.verificando,
+      mensagem: null,
+    );
+    final cronometro = Stopwatch()..start();
     final conexao = await _casoUsoTestarConexao.executarLoja();
+    cronometro.stop();
     if (conexao case Erro(:final falha)) {
       return _falhou(falha, origem: 'API Local', local: true);
     }
@@ -140,6 +176,9 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
     state = login.quando(
       sucesso: (sessao) => state.copyWith(
         testandoLocal: false,
+        statusLocal: StatusConexao.conectado,
+        latenciaLocalMs: cronometro.elapsedMilliseconds,
+        ultimaVerificacao: DateTime.now(),
         nomeEstabelecimento: sessao.estabelecimento.nome,
         mensagem: 'API Local OK · ${sessao.usuario.nome}'
             ' · ${sessao.estabelecimento.nome}',
@@ -149,6 +188,8 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
         registrador.w('Teste da API Local: ${falha.mensagem}');
         return state.copyWith(
           testandoLocal: false,
+          statusLocal: StatusConexao.erro,
+          ultimaVerificacao: DateTime.now(),
           mensagem: 'API Local: ${falha.mensagem}',
           mensagemErro: true,
         );
@@ -158,8 +199,14 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
 
   /// Testa a API na nuvem: comunicação + login real.
   Future<void> testarApiNuvem() async {
-    state = state.copyWith(testandoNuvem: true, mensagem: null);
+    state = state.copyWith(
+      testandoNuvem: true,
+      statusNuvem: StatusConexao.verificando,
+      mensagem: null,
+    );
+    final cronometro = Stopwatch()..start();
     final conexao = await _casoUsoTestarConexao.executarNuvem();
+    cronometro.stop();
     if (conexao case Erro(:final falha)) {
       return _falhou(falha, origem: 'API Nuvem', local: false);
     }
@@ -167,7 +214,11 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
     state = login.quando(
       sucesso: (sessao) => state.copyWith(
         testandoNuvem: false,
+        statusNuvem: StatusConexao.conectado,
+        latenciaNuvemMs: cronometro.elapsedMilliseconds,
+        ultimaVerificacao: DateTime.now(),
         nomeEstabelecimento: sessao.estabelecimento.nome,
+        usuarioNuvem: sessao.usuario.nome,
         mensagem: 'API Nuvem OK · ${sessao.usuario.nome}'
             ' · ${sessao.estabelecimento.nome}',
         mensagemErro: false,
@@ -176,6 +227,8 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
         registrador.w('Teste da API Nuvem: ${falha.mensagem}');
         return state.copyWith(
           testandoNuvem: false,
+          statusNuvem: StatusConexao.erro,
+          ultimaVerificacao: DateTime.now(),
           mensagem: 'API Nuvem: ${falha.mensagem}',
           mensagemErro: true,
         );
@@ -183,11 +236,20 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
     );
   }
 
+  /// Testa as duas APIs em sequência, para o painel de status.
+  Future<void> verificarTodas() async {
+    await testarApiLocal();
+    await testarApiNuvem();
+  }
+
   void _falhou(Falha falha, {required String origem, required bool local}) {
     registrador.w('Teste da $origem: ${falha.mensagem}');
     state = state.copyWith(
       testandoLocal: local ? false : state.testandoLocal,
       testandoNuvem: local ? state.testandoNuvem : false,
+      statusLocal: local ? StatusConexao.erro : state.statusLocal,
+      statusNuvem: local ? state.statusNuvem : StatusConexao.erro,
+      ultimaVerificacao: DateTime.now(),
       mensagem: falha.mensagem,
       mensagemErro: true,
     );

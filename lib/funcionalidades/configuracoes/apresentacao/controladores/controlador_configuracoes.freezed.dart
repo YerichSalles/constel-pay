@@ -25,6 +25,14 @@ mixin _$EstadoConfiguracoes {
   bool get salvando => throw _privateConstructorUsedError;
   bool get testandoLocal => throw _privateConstructorUsedError;
   bool get testandoNuvem => throw _privateConstructorUsedError;
+  StatusConexao get statusLocal => throw _privateConstructorUsedError;
+  StatusConexao get statusNuvem =>
+      throw _privateConstructorUsedError; // Tempo de resposta do teste de comunicação, em milissegundos.
+  int? get latenciaLocalMs => throw _privateConstructorUsedError;
+  int? get latenciaNuvemMs =>
+      throw _privateConstructorUsedError; // Usuário autenticado no último teste da nuvem; vazio sem login.
+  String get usuarioNuvem => throw _privateConstructorUsedError;
+  DateTime? get ultimaVerificacao => throw _privateConstructorUsedError;
   String? get mensagem => throw _privateConstructorUsedError;
   bool get mensagemErro => throw _privateConstructorUsedError;
 
@@ -50,6 +58,12 @@ abstract class $EstadoConfiguracoesCopyWith<$Res> {
       bool salvando,
       bool testandoLocal,
       bool testandoNuvem,
+      StatusConexao statusLocal,
+      StatusConexao statusNuvem,
+      int? latenciaLocalMs,
+      int? latenciaNuvemMs,
+      String usuarioNuvem,
+      DateTime? ultimaVerificacao,
       String? mensagem,
       bool mensagemErro});
 
@@ -79,6 +93,12 @@ class _$EstadoConfiguracoesCopyWithImpl<$Res, $Val extends EstadoConfiguracoes>
     Object? salvando = null,
     Object? testandoLocal = null,
     Object? testandoNuvem = null,
+    Object? statusLocal = null,
+    Object? statusNuvem = null,
+    Object? latenciaLocalMs = freezed,
+    Object? latenciaNuvemMs = freezed,
+    Object? usuarioNuvem = null,
+    Object? ultimaVerificacao = freezed,
     Object? mensagem = freezed,
     Object? mensagemErro = null,
   }) {
@@ -115,6 +135,30 @@ class _$EstadoConfiguracoesCopyWithImpl<$Res, $Val extends EstadoConfiguracoes>
           ? _value.testandoNuvem
           : testandoNuvem // ignore: cast_nullable_to_non_nullable
               as bool,
+      statusLocal: null == statusLocal
+          ? _value.statusLocal
+          : statusLocal // ignore: cast_nullable_to_non_nullable
+              as StatusConexao,
+      statusNuvem: null == statusNuvem
+          ? _value.statusNuvem
+          : statusNuvem // ignore: cast_nullable_to_non_nullable
+              as StatusConexao,
+      latenciaLocalMs: freezed == latenciaLocalMs
+          ? _value.latenciaLocalMs
+          : latenciaLocalMs // ignore: cast_nullable_to_non_nullable
+              as int?,
+      latenciaNuvemMs: freezed == latenciaNuvemMs
+          ? _value.latenciaNuvemMs
+          : latenciaNuvemMs // ignore: cast_nullable_to_non_nullable
+              as int?,
+      usuarioNuvem: null == usuarioNuvem
+          ? _value.usuarioNuvem
+          : usuarioNuvem // ignore: cast_nullable_to_non_nullable
+              as String,
+      ultimaVerificacao: freezed == ultimaVerificacao
+          ? _value.ultimaVerificacao
+          : ultimaVerificacao // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       mensagem: freezed == mensagem
           ? _value.mensagem
           : mensagem // ignore: cast_nullable_to_non_nullable
@@ -154,6 +198,12 @@ abstract class _$$EstadoConfiguracoesImplCopyWith<$Res>
       bool salvando,
       bool testandoLocal,
       bool testandoNuvem,
+      StatusConexao statusLocal,
+      StatusConexao statusNuvem,
+      int? latenciaLocalMs,
+      int? latenciaNuvemMs,
+      String usuarioNuvem,
+      DateTime? ultimaVerificacao,
       String? mensagem,
       bool mensagemErro});
 
@@ -182,6 +232,12 @@ class __$$EstadoConfiguracoesImplCopyWithImpl<$Res>
     Object? salvando = null,
     Object? testandoLocal = null,
     Object? testandoNuvem = null,
+    Object? statusLocal = null,
+    Object? statusNuvem = null,
+    Object? latenciaLocalMs = freezed,
+    Object? latenciaNuvemMs = freezed,
+    Object? usuarioNuvem = null,
+    Object? ultimaVerificacao = freezed,
     Object? mensagem = freezed,
     Object? mensagemErro = null,
   }) {
@@ -218,6 +274,30 @@ class __$$EstadoConfiguracoesImplCopyWithImpl<$Res>
           ? _value.testandoNuvem
           : testandoNuvem // ignore: cast_nullable_to_non_nullable
               as bool,
+      statusLocal: null == statusLocal
+          ? _value.statusLocal
+          : statusLocal // ignore: cast_nullable_to_non_nullable
+              as StatusConexao,
+      statusNuvem: null == statusNuvem
+          ? _value.statusNuvem
+          : statusNuvem // ignore: cast_nullable_to_non_nullable
+              as StatusConexao,
+      latenciaLocalMs: freezed == latenciaLocalMs
+          ? _value.latenciaLocalMs
+          : latenciaLocalMs // ignore: cast_nullable_to_non_nullable
+              as int?,
+      latenciaNuvemMs: freezed == latenciaNuvemMs
+          ? _value.latenciaNuvemMs
+          : latenciaNuvemMs // ignore: cast_nullable_to_non_nullable
+              as int?,
+      usuarioNuvem: null == usuarioNuvem
+          ? _value.usuarioNuvem
+          : usuarioNuvem // ignore: cast_nullable_to_non_nullable
+              as String,
+      ultimaVerificacao: freezed == ultimaVerificacao
+          ? _value.ultimaVerificacao
+          : ultimaVerificacao // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       mensagem: freezed == mensagem
           ? _value.mensagem
           : mensagem // ignore: cast_nullable_to_non_nullable
@@ -242,6 +322,12 @@ class _$EstadoConfiguracoesImpl implements _EstadoConfiguracoes {
       this.salvando = false,
       this.testandoLocal = false,
       this.testandoNuvem = false,
+      this.statusLocal = StatusConexao.desconhecido,
+      this.statusNuvem = StatusConexao.desconhecido,
+      this.latenciaLocalMs,
+      this.latenciaNuvemMs,
+      this.usuarioNuvem = '',
+      this.ultimaVerificacao,
       this.mensagem,
       this.mensagemErro = false});
 
@@ -271,6 +357,23 @@ class _$EstadoConfiguracoesImpl implements _EstadoConfiguracoes {
   @JsonKey()
   final bool testandoNuvem;
   @override
+  @JsonKey()
+  final StatusConexao statusLocal;
+  @override
+  @JsonKey()
+  final StatusConexao statusNuvem;
+// Tempo de resposta do teste de comunicação, em milissegundos.
+  @override
+  final int? latenciaLocalMs;
+  @override
+  final int? latenciaNuvemMs;
+// Usuário autenticado no último teste da nuvem; vazio sem login.
+  @override
+  @JsonKey()
+  final String usuarioNuvem;
+  @override
+  final DateTime? ultimaVerificacao;
+  @override
   final String? mensagem;
   @override
   @JsonKey()
@@ -278,7 +381,7 @@ class _$EstadoConfiguracoesImpl implements _EstadoConfiguracoes {
 
   @override
   String toString() {
-    return 'EstadoConfiguracoes(configuracao: $configuracao, usuario: $usuario, senha: $senha, nomeEstabelecimento: $nomeEstabelecimento, carregando: $carregando, salvando: $salvando, testandoLocal: $testandoLocal, testandoNuvem: $testandoNuvem, mensagem: $mensagem, mensagemErro: $mensagemErro)';
+    return 'EstadoConfiguracoes(configuracao: $configuracao, usuario: $usuario, senha: $senha, nomeEstabelecimento: $nomeEstabelecimento, carregando: $carregando, salvando: $salvando, testandoLocal: $testandoLocal, testandoNuvem: $testandoNuvem, statusLocal: $statusLocal, statusNuvem: $statusNuvem, latenciaLocalMs: $latenciaLocalMs, latenciaNuvemMs: $latenciaNuvemMs, usuarioNuvem: $usuarioNuvem, ultimaVerificacao: $ultimaVerificacao, mensagem: $mensagem, mensagemErro: $mensagemErro)';
   }
 
   @override
@@ -300,6 +403,18 @@ class _$EstadoConfiguracoesImpl implements _EstadoConfiguracoes {
                 other.testandoLocal == testandoLocal) &&
             (identical(other.testandoNuvem, testandoNuvem) ||
                 other.testandoNuvem == testandoNuvem) &&
+            (identical(other.statusLocal, statusLocal) ||
+                other.statusLocal == statusLocal) &&
+            (identical(other.statusNuvem, statusNuvem) ||
+                other.statusNuvem == statusNuvem) &&
+            (identical(other.latenciaLocalMs, latenciaLocalMs) ||
+                other.latenciaLocalMs == latenciaLocalMs) &&
+            (identical(other.latenciaNuvemMs, latenciaNuvemMs) ||
+                other.latenciaNuvemMs == latenciaNuvemMs) &&
+            (identical(other.usuarioNuvem, usuarioNuvem) ||
+                other.usuarioNuvem == usuarioNuvem) &&
+            (identical(other.ultimaVerificacao, ultimaVerificacao) ||
+                other.ultimaVerificacao == ultimaVerificacao) &&
             (identical(other.mensagem, mensagem) ||
                 other.mensagem == mensagem) &&
             (identical(other.mensagemErro, mensagemErro) ||
@@ -317,6 +432,12 @@ class _$EstadoConfiguracoesImpl implements _EstadoConfiguracoes {
       salvando,
       testandoLocal,
       testandoNuvem,
+      statusLocal,
+      statusNuvem,
+      latenciaLocalMs,
+      latenciaNuvemMs,
+      usuarioNuvem,
+      ultimaVerificacao,
       mensagem,
       mensagemErro);
 
@@ -340,6 +461,12 @@ abstract class _EstadoConfiguracoes implements EstadoConfiguracoes {
       final bool salvando,
       final bool testandoLocal,
       final bool testandoNuvem,
+      final StatusConexao statusLocal,
+      final StatusConexao statusNuvem,
+      final int? latenciaLocalMs,
+      final int? latenciaNuvemMs,
+      final String usuarioNuvem,
+      final DateTime? ultimaVerificacao,
       final String? mensagem,
       final bool mensagemErro}) = _$EstadoConfiguracoesImpl;
 
@@ -360,6 +487,20 @@ abstract class _EstadoConfiguracoes implements EstadoConfiguracoes {
   bool get testandoLocal;
   @override
   bool get testandoNuvem;
+  @override
+  StatusConexao get statusLocal;
+  @override
+  StatusConexao
+      get statusNuvem; // Tempo de resposta do teste de comunicação, em milissegundos.
+  @override
+  int? get latenciaLocalMs;
+  @override
+  int?
+      get latenciaNuvemMs; // Usuário autenticado no último teste da nuvem; vazio sem login.
+  @override
+  String get usuarioNuvem;
+  @override
+  DateTime? get ultimaVerificacao;
   @override
   String? get mensagem;
   @override

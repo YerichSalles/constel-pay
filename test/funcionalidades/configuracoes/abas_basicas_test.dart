@@ -38,9 +38,15 @@ void main() {
     expect(find.text('Propaganda'), findsOneWidget);
     expect(find.text('Diagnóstico'), findsOneWidget);
 
-    // Campos do dispositivo agora moram na aba Comunicação.
-    expect(find.widgetWithText(TextFormField, 'Identificador do dispositivo'),
-        findsOneWidget);
+    Future<void> rolarAte(Finder alvo) async {
+      await tester.dragUntilVisible(
+          alvo, find.byType(ListView), const Offset(0, -300));
+      await tester.pumpAndSettle();
+    }
+
+    // Campos do dispositivo moram na seção Terminal da aba Comunicação.
+    await rolarAte(
+        find.widgetWithText(TextFormField, 'Identificador do terminal'));
     expect(find.widgetWithText(TextFormField, 'ID do dispositivo (UUID)'),
         findsOneWidget);
 
@@ -49,28 +55,17 @@ void main() {
         findsNothing);
 
     // Só as URLs do ambiente selecionado aparecem (padrão: homologação).
-    expect(find.widgetWithText(TextFormField, 'URL Local Homologação'),
-        findsOneWidget);
-    expect(
-        find.widgetWithText(TextFormField, 'URL Local Produção'), findsNothing);
-
+    await rolarAte(find.text('Produção'));
     await tester.tap(find.text('Produção'));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(TextFormField, 'URL Local Produção'),
-        findsOneWidget);
-    expect(find.widgetWithText(TextFormField, 'URL Local Homologação'),
+    await rolarAte(find.widgetWithText(TextFormField, 'URL da API (Produção)'));
+    expect(find.widgetWithText(TextFormField, 'URL da API (Homologação)'),
         findsNothing);
 
-    // A seção da nuvem fica abaixo da dobra; rola a partir de ponto neutro.
-    await tester.dragFrom(
-        tester.getCenter(find.text('API local (consumo do cartão)')),
-        const Offset(0, -600));
-    await tester.pumpAndSettle();
-
-    expect(find.widgetWithText(TextFormField, 'URL Nuvem Produção'),
-        findsOneWidget);
-    expect(find.widgetWithText(TextFormField, 'URL Nuvem Homologação'),
+    await rolarAte(
+        find.widgetWithText(TextFormField, 'URL da API local (Produção)'));
+    expect(find.widgetWithText(TextFormField, 'URL da API local (Homologação)'),
         findsNothing);
   });
 }
