@@ -157,6 +157,16 @@ void main() {
       expect(find.text('Nenhum conteúdo configurado.'), findsOneWidget);
     });
 
+    testWidgets('titulo e descricao propria da secao sao exibidos',
+        (tester) async {
+      await tester.pumpWidget(montar());
+      expect(find.text('Carrossel de banners'), findsOneWidget);
+      expect(
+          find.text(
+              'Alterne automaticamente campanhas dentro da barra superior.'),
+          findsOneWidget);
+    });
+
     testWidgets('banner some/aparece conforme a lista recebida',
         (tester) async {
       await tester.pumpWidget(
@@ -238,6 +248,12 @@ void main() {
       expect(ajustado?.id, 'b1');
       await tester.tap(find.byIcon(Icons.delete_outline));
       expect(removido, 'b1');
+    });
+
+    testWidgets('acao Ajustar… possui Tooltip proprio', (tester) async {
+      await tester.pumpWidget(
+          montar(publicidade: const PublicidadeBarra(banners: [banner1])));
+      expect(find.byTooltip('Ajustar enquadramento'), findsOneWidget);
     });
   });
 

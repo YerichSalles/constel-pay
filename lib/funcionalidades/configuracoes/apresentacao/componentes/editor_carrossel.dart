@@ -8,6 +8,7 @@ import '../../../../compartilhado/widgets/botao_secundario.dart';
 import '../../../propaganda/dominio/entidades/midia_propaganda.dart';
 import '../../../propaganda/dominio/entidades/publicidade_barra.dart';
 import 'dialogo_ajuste_midia.dart';
+import 'secao_configuracoes.dart';
 
 /// Editor do formato "Carrossel de banners" (1A). Controlado: recebe o
 /// rascunho da publicidade + callbacks, sem estado próprio de domínio.
@@ -122,13 +123,16 @@ class EditorCarrossel extends StatelessWidget {
                           style: const TextStyle(
                               fontSize: 11.5, color: CoresApp.textoSecundario)),
                     ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                          visualDensity: VisualDensity.compact,
-                          padding: const EdgeInsets.symmetric(horizontal: 8)),
-                      onPressed: () => aoAjustarBanner(banner),
-                      child: const Text('Ajustar…',
-                          style: TextStyle(fontSize: 11.5)),
+                    Tooltip(
+                      message: 'Ajustar enquadramento',
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            padding: const EdgeInsets.symmetric(horizontal: 8)),
+                        onPressed: () => aoAjustarBanner(banner),
+                        child: const Text('Ajustar…',
+                            style: TextStyle(fontSize: 11.5)),
+                      ),
                     ),
                   ],
                 ),
@@ -169,50 +173,54 @@ class EditorCarrossel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final banners = publicidade.banners;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Wrap(
-          spacing: 20,
-          runSpacing: 12,
-          children: [
-            _dropdown<int>(
-              rotulo: 'Tempo entre banners',
-              valor: publicidade.intervaloSegundos,
-              opcoes: intervalosCarrossel,
-              rotuloDe: (v) => '$v segundos',
-              aoMudar: aoDefinirIntervalo,
-            ),
-            _dropdown<TransicaoCarrossel>(
-              rotulo: 'Transição',
-              valor: publicidade.transicao,
-              opcoes: TransicaoCarrossel.values,
-              rotuloDe: (v) => _rotulosTransicao[v]!,
-              aoMudar: aoDefinirTransicao,
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        const Text('Banners',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
-        const SizedBox(height: 8),
-        if (banners.isEmpty)
-          const EstadoVazio(
-              emoji: '🖼️', titulo: 'Nenhum conteúdo configurado.')
-        else
-          ...banners
-              .asMap()
-              .entries
-              .map((entrada) => _cardBanner(entrada.value, entrada.key + 1)),
-        const SizedBox(height: 8),
-        _rotulo('Recomendado: 384 × 192 px, proporção 2:1.'),
-        const SizedBox(height: 4),
-        _rotulo(
-            'Recomendamos até 5 banners ativos para manter uma rotação rápida.'),
-        const SizedBox(height: 12),
-        BotaoSecundario(
-            rotulo: '+ Adicionar banner', aoTocar: aoAdicionarBanners),
-      ],
+    return SecaoConfiguracoes(
+      titulo: 'Carrossel de banners',
+      descricao: 'Alterne automaticamente campanhas dentro da barra superior.',
+      filho: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 20,
+            runSpacing: 12,
+            children: [
+              _dropdown<int>(
+                rotulo: 'Tempo entre banners',
+                valor: publicidade.intervaloSegundos,
+                opcoes: intervalosCarrossel,
+                rotuloDe: (v) => '$v segundos',
+                aoMudar: aoDefinirIntervalo,
+              ),
+              _dropdown<TransicaoCarrossel>(
+                rotulo: 'Transição',
+                valor: publicidade.transicao,
+                opcoes: TransicaoCarrossel.values,
+                rotuloDe: (v) => _rotulosTransicao[v]!,
+                aoMudar: aoDefinirTransicao,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Text('Banners',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+          const SizedBox(height: 8),
+          if (banners.isEmpty)
+            const EstadoVazio(
+                emoji: '🖼️', titulo: 'Nenhum conteúdo configurado.')
+          else
+            ...banners
+                .asMap()
+                .entries
+                .map((entrada) => _cardBanner(entrada.value, entrada.key + 1)),
+          const SizedBox(height: 8),
+          _rotulo('Recomendado: 384 × 192 px, proporção 2:1.'),
+          const SizedBox(height: 4),
+          _rotulo(
+              'Recomendamos até 5 banners ativos para manter uma rotação rápida.'),
+          const SizedBox(height: 12),
+          BotaoSecundario(
+              rotulo: '+ Adicionar banner', aoTocar: aoAdicionarBanners),
+        ],
+      ),
     );
   }
 }
