@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../aplicativo/injecao.dart';
+import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../aplicativo/tema/tema_constel.dart';
 import '../../../../compartilhado/feedback/snackbar_padrao.dart';
 import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
@@ -173,11 +174,32 @@ class _SecaoBarraSuperiorState extends ConsumerState<SecaoBarraSuperior> {
       descricao:
           'Exiba campanhas, eventos, avisos, marcas ou parceiros durante o '
           'atendimento.',
-      filho: SwitchListTile(
-        contentPadding: EdgeInsets.zero,
-        title: const Text('Exibir publicidade na barra'),
-        value: publicidade.ativa,
-        onChanged: controlador.alternarAtiva,
+      // O interruptor mora no cabeçalho para o card não virar um bloco
+      // inteiro só para um switch.
+      acao: MergeSemantics(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => controlador.alternarAtiva(!publicidade.ativa),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Flexible(
+                child: Text(
+                  'Exibir publicidade na barra',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontSize: 11.5, color: CoresApp.textoSecundario),
+                ),
+              ),
+              Switch(
+                key: const Key('interruptor_publicidade'),
+                value: publicidade.ativa,
+                onChanged: controlador.alternarAtiva,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

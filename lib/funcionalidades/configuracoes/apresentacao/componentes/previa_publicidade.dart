@@ -88,8 +88,8 @@ class PreviaPublicidade extends StatelessWidget {
         nomeEstabelecimento.isEmpty ? 'Estabelecimento' : nomeEstabelecimento;
     return SecaoConfiguracoes(
       titulo: 'Pré-visualização',
-      descricao:
-          'Veja como a publicidade aparece na barra superior durante o atendimento.',
+      descricao: 'Veja como a publicidade será exibida na barra superior '
+          'durante o atendimento.',
       filho: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

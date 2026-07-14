@@ -46,8 +46,16 @@ void main() {
       'conteudo', (tester) async {
     await _montarSecao(tester);
 
-    final toggle = tester.widget<SwitchListTile>(find.byType(SwitchListTile));
+    final toggle =
+        tester.widget<Switch>(find.byKey(const Key('interruptor_publicidade')));
     expect(toggle.value, isFalse);
+    expect(find.byType(SwitchListTile), findsNothing,
+        reason: 'o interruptor mora no cabecalho do card, nao num bloco '
+            'proprio');
+    expect(
+        find.text('Veja como a publicidade será exibida na barra superior '
+            'durante o atendimento.'),
+        findsOneWidget);
 
     expect(find.byType(EditorCarrossel), findsOneWidget);
     expect(find.byType(EditorLetreiro), findsNothing);
