@@ -14,6 +14,12 @@ abstract final class RespostaFatura {
         situacao: JsonLeniente.inteiro(json['situacao']),
         pagoCentavos: ValoresFatura.centavos(json['pago']),
         saldoCentavos: ValoresFatura.centavos(json['saldo']),
+        atendimentoIds: [
+          for (final modalidade
+              in JsonLeniente.lista(json['faturaModalidades']))
+            if (JsonLeniente.texto(modalidade['referenciaId']).isNotEmpty)
+              JsonLeniente.texto(modalidade['referenciaId']),
+        ],
       );
 
   /// Lista de faturas devolvida pela consulta por sessão (reconciliação).

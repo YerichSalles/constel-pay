@@ -454,6 +454,10 @@ class CasoUsoEncerrarAtendimentos {
   /// Procura a fatura da pendência entre as faturas da sessão.
   /// `Sucesso(null)` = consulta ok e não existe; `Erro` = consulta
   /// falhou/ilegível/ambígua — nunca confundir com "não existe".
+  ///
+  /// Casa pelo `identificador` OU pelos ids dos atendimentos nas
+  /// modalidades — a consulta do retaguarda nem sempre ecoa o
+  /// identificador no corpo (observado em fatura real).
   Future<Resultado<FaturaReferencia?>> _procurarFaturaDaPendencia(
       TransacaoPendente pendente) async {
     final consulta = await _fonteFatura.consultarPorSessao(pendente.sessaoId);
@@ -463,11 +467,13 @@ class CasoUsoEncerrarAtendimentos {
       case Sucesso(:final valor):
         final correspondentes = [
           for (final f in valor)
-            if (f.identificador == pendente.identificador) f,
+            if (f.identificador == pendente.identificador ||
+                pendente.atendimentoIds.any(f.atendimentoIds.contains))
+              f,
         ];
         if (correspondentes.length > 1) {
           return const Erro(
-              FalhaServidor('Mais de uma fatura com o mesmo identificador. '
+              FalhaServidor('Mais de uma fatura corresponde a esta operação. '
                   'Verifique no retaguarda antes de continuar.'));
         }
         return Sucesso(correspondentes.isEmpty ? null : correspondentes.single);

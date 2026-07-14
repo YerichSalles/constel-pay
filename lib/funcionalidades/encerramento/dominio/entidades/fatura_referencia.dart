@@ -13,5 +13,11 @@ class FaturaReferencia with _$FaturaReferencia {
     required int situacao,
     required int pagoCentavos,
     required int saldoCentavos,
+
+    /// Ids dos atendimentos encerrados por esta fatura
+    /// (`faturaModalidades[].referenciaId`). A consulta de reconciliação do
+    /// retaguarda NEM SEMPRE devolve o `identificador` — este é o casamento
+    /// alternativo com a transação pendente.
+    @Default(<String>[]) List<String> atendimentoIds,
   }) = _FaturaReferencia;
 }

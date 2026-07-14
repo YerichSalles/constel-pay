@@ -204,6 +204,27 @@ void main() {
     expect(cenario.pendentes.registros, isEmpty);
   });
 
+  test(
+      'reconciliação casa pelo id do atendimento quando a consulta '
+      'não devolve o identificador', () async {
+    final cenario = _Cenario();
+    cenario.fonteFatura.respostas.add(const Erro(FalhaTimeout()));
+    await cenario.executar();
+    // Consulta devolve a fatura no formato real do retaguarda: sem
+    // `identificador`, com o atendimento em faturaModalidades[].referenciaId.
+    cenario.fonteFatura.consulta = Sucesso([
+      RespostaFatura.paraReferencia(
+          faturaDaConsultaSemIdentificador(idAtendimento512)),
+    ]);
+    final resultado = await cenario.executar();
+    expect(resultado, isA<Sucesso<ResultadoEncerramento>>());
+    expect(cenario.fonteFatura.criadas.length, 1,
+        reason: 'fatura existente reconhecida — nenhum segundo POST');
+    final confirmacao = cenario.fonteEncerramento.enviadas.last.paraJson();
+    expect((confirmacao['fatura'] as Map)['codigo'], 'VN0051634');
+    expect(cenario.pendentes.registros, isEmpty);
+  });
+
   test('timeout na fatura: reconciliação encontra e NÃO cria de novo',
       () async {
     final cenario = _Cenario();

@@ -237,3 +237,25 @@ Map<String, dynamic> respostaFaturaPaga(String identificador) => {
       'codigo': 'VN0051625',
       'id': 'e0c2eafc-493f-40a6-a3b9-eddfff7b1522',
     };
+
+/// Fatura como a CONSULTA do retaguarda devolve (fatura real VN0051634,
+/// resumida): SEM o campo `identificador`, mas com o id do atendimento em
+/// `faturaModalidades[].referenciaId`.
+Map<String, dynamic> faturaDaConsultaSemIdentificador(String atendimentoId) => {
+      'id': 'b11acb66-f4d0-4b21-9afa-577e88c1740e',
+      'codigo': 'VN0051634',
+      'situacao': 340,
+      'tipo': 110,
+      'natureza': 1,
+      'total': 6.49,
+      'pago': 6.49,
+      'saldo': 0,
+      'faturaModalidades': [
+        {
+          'sequencial': 1,
+          'referencia': '512',
+          'numero': 512,
+          'referenciaId': atendimentoId,
+        }
+      ],
+    };

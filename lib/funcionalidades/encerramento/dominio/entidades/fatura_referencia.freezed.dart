@@ -23,6 +23,12 @@ mixin _$FaturaReferencia {
   int get pagoCentavos => throw _privateConstructorUsedError;
   int get saldoCentavos => throw _privateConstructorUsedError;
 
+  /// Ids dos atendimentos encerrados por esta fatura
+  /// (`faturaModalidades[].referenciaId`). A consulta de reconciliação do
+  /// retaguarda NEM SEMPRE devolve o `identificador` — este é o casamento
+  /// alternativo com a transação pendente.
+  List<String> get atendimentoIds => throw _privateConstructorUsedError;
+
   /// Create a copy of FaturaReferencia
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -42,7 +48,8 @@ abstract class $FaturaReferenciaCopyWith<$Res> {
       String identificador,
       int situacao,
       int pagoCentavos,
-      int saldoCentavos});
+      int saldoCentavos,
+      List<String> atendimentoIds});
 }
 
 /// @nodoc
@@ -66,6 +73,7 @@ class _$FaturaReferenciaCopyWithImpl<$Res, $Val extends FaturaReferencia>
     Object? situacao = null,
     Object? pagoCentavos = null,
     Object? saldoCentavos = null,
+    Object? atendimentoIds = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -92,6 +100,10 @@ class _$FaturaReferenciaCopyWithImpl<$Res, $Val extends FaturaReferencia>
           ? _value.saldoCentavos
           : saldoCentavos // ignore: cast_nullable_to_non_nullable
               as int,
+      atendimentoIds: null == atendimentoIds
+          ? _value.atendimentoIds
+          : atendimentoIds // ignore: cast_nullable_to_non_nullable
+              as List<String>,
     ) as $Val);
   }
 }
@@ -110,7 +122,8 @@ abstract class _$$FaturaReferenciaImplCopyWith<$Res>
       String identificador,
       int situacao,
       int pagoCentavos,
-      int saldoCentavos});
+      int saldoCentavos,
+      List<String> atendimentoIds});
 }
 
 /// @nodoc
@@ -132,6 +145,7 @@ class __$$FaturaReferenciaImplCopyWithImpl<$Res>
     Object? situacao = null,
     Object? pagoCentavos = null,
     Object? saldoCentavos = null,
+    Object? atendimentoIds = null,
   }) {
     return _then(_$FaturaReferenciaImpl(
       id: null == id
@@ -158,6 +172,10 @@ class __$$FaturaReferenciaImplCopyWithImpl<$Res>
           ? _value.saldoCentavos
           : saldoCentavos // ignore: cast_nullable_to_non_nullable
               as int,
+      atendimentoIds: null == atendimentoIds
+          ? _value._atendimentoIds
+          : atendimentoIds // ignore: cast_nullable_to_non_nullable
+              as List<String>,
     ));
   }
 }
@@ -171,7 +189,9 @@ class _$FaturaReferenciaImpl implements _FaturaReferencia {
       required this.identificador,
       required this.situacao,
       required this.pagoCentavos,
-      required this.saldoCentavos});
+      required this.saldoCentavos,
+      final List<String> atendimentoIds = const <String>[]})
+      : _atendimentoIds = atendimentoIds;
 
   @override
   final String id;
@@ -186,9 +206,27 @@ class _$FaturaReferenciaImpl implements _FaturaReferencia {
   @override
   final int saldoCentavos;
 
+  /// Ids dos atendimentos encerrados por esta fatura
+  /// (`faturaModalidades[].referenciaId`). A consulta de reconciliação do
+  /// retaguarda NEM SEMPRE devolve o `identificador` — este é o casamento
+  /// alternativo com a transação pendente.
+  final List<String> _atendimentoIds;
+
+  /// Ids dos atendimentos encerrados por esta fatura
+  /// (`faturaModalidades[].referenciaId`). A consulta de reconciliação do
+  /// retaguarda NEM SEMPRE devolve o `identificador` — este é o casamento
+  /// alternativo com a transação pendente.
+  @override
+  @JsonKey()
+  List<String> get atendimentoIds {
+    if (_atendimentoIds is EqualUnmodifiableListView) return _atendimentoIds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_atendimentoIds);
+  }
+
   @override
   String toString() {
-    return 'FaturaReferencia(id: $id, codigo: $codigo, identificador: $identificador, situacao: $situacao, pagoCentavos: $pagoCentavos, saldoCentavos: $saldoCentavos)';
+    return 'FaturaReferencia(id: $id, codigo: $codigo, identificador: $identificador, situacao: $situacao, pagoCentavos: $pagoCentavos, saldoCentavos: $saldoCentavos, atendimentoIds: $atendimentoIds)';
   }
 
   @override
@@ -205,12 +243,21 @@ class _$FaturaReferenciaImpl implements _FaturaReferencia {
             (identical(other.pagoCentavos, pagoCentavos) ||
                 other.pagoCentavos == pagoCentavos) &&
             (identical(other.saldoCentavos, saldoCentavos) ||
-                other.saldoCentavos == saldoCentavos));
+                other.saldoCentavos == saldoCentavos) &&
+            const DeepCollectionEquality()
+                .equals(other._atendimentoIds, _atendimentoIds));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, id, codigo, identificador,
-      situacao, pagoCentavos, saldoCentavos);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      codigo,
+      identificador,
+      situacao,
+      pagoCentavos,
+      saldoCentavos,
+      const DeepCollectionEquality().hash(_atendimentoIds));
 
   /// Create a copy of FaturaReferencia
   /// with the given fields replaced by the non-null parameter values.
@@ -229,7 +276,8 @@ abstract class _FaturaReferencia implements FaturaReferencia {
       required final String identificador,
       required final int situacao,
       required final int pagoCentavos,
-      required final int saldoCentavos}) = _$FaturaReferenciaImpl;
+      required final int saldoCentavos,
+      final List<String> atendimentoIds}) = _$FaturaReferenciaImpl;
 
   @override
   String get id;
@@ -243,6 +291,13 @@ abstract class _FaturaReferencia implements FaturaReferencia {
   int get pagoCentavos;
   @override
   int get saldoCentavos;
+
+  /// Ids dos atendimentos encerrados por esta fatura
+  /// (`faturaModalidades[].referenciaId`). A consulta de reconciliação do
+  /// retaguarda NEM SEMPRE devolve o `identificador` — este é o casamento
+  /// alternativo com a transação pendente.
+  @override
+  List<String> get atendimentoIds;
 
   /// Create a copy of FaturaReferencia
   /// with the given fields replaced by the non-null parameter values.
