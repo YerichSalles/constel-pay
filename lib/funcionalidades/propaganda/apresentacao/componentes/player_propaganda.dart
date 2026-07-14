@@ -22,6 +22,8 @@ class PlayerPropaganda extends StatefulWidget {
     required this.corFundo,
     required this.aoTerminar,
     this.emLoop = false,
+    this.ativo = true,
+    this.aoPreparado,
   });
 
   final MidiaPropaganda midia;
@@ -30,6 +32,16 @@ class PlayerPropaganda extends StatefulWidget {
   /// proprio decoder: recriar o player a cada volta pisca a cor de fundo
   /// durante o initialize. Em loop, [aoTerminar] nao dispara no fim do video.
   final bool emLoop;
+
+  /// Falso enquanto o player e o "proximo" da fila: prepara a midia (decode,
+  /// initialize) sem tocar nem agendar avanco. O trocador vira a chave quando
+  /// chega a vez.
+  final bool ativo;
+
+  /// Dispara uma unica vez, quando a midia esta tao pronta quanto vai ficar:
+  /// video inicializado, imagem decodificada — ou falha que vai pintar a cor
+  /// de fundo. E o sinal de que a troca pode acontecer sem piscar.
+  final VoidCallback? aoPreparado;
 
   /// Pinta a sobra dos modos automatico e encaixar (quando o fundo e cor) e o
   /// intervalo em que a midia ainda esta carregando. Vem da cor primaria do
@@ -46,6 +58,10 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
   Timer? _temporizador;
   VideoPlayerController? _video;
   bool _terminado = false;
+  ImageStream? _fluxoImagem;
+  ImageStreamListener? _ouvinteImagem;
+  bool _preparado = false;
+  bool _falhou = false;
 
   @override
   void initState() {
@@ -59,7 +75,9 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
     if (anterior.midia.id != widget.midia.id) {
       _limpar();
       _preparar();
+      return;
     }
+    if (!anterior.ativo && widget.ativo) _comecar();
   }
 
   /// O listener do video dispara varias vezes no fim da reproducao; sem esta
@@ -74,12 +92,13 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
     _terminado = false;
     final arquivo = File(widget.midia.caminho);
     if (!arquivo.existsSync()) {
-      _temporizador = Timer(const Duration(seconds: 1), _terminar);
+      if (widget.ativo) _agendarAvancoDeErro();
+      _sinalizarPreparado();
       return;
     }
     if (widget.midia.tipo == TipoMidia.imagem) {
-      _temporizador =
-          Timer(Duration(seconds: widget.midia.duracaoSegundos), _terminar);
+      if (widget.ativo) _agendarTimerDaImagem();
+      _decodificarImagem(arquivo);
       return;
     }
     final controlador = VideoPlayerController.file(arquivo);
@@ -91,12 +110,68 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
       // troca o SizedBox vazio pela textura.
       setState(() {});
       controlador.setLooping(widget.emLoop);
-      controlador.play();
+      if (widget.ativo) controlador.play();
+      _sinalizarPreparado();
     }).catchError((Object _) {
-      // Arquivo corrompido ou codec nao suportado: segue para a proxima midia
-      // em vez de deixar a tela parada.
-      if (mounted) _temporizador = Timer(const Duration(seconds: 1), _terminar);
+      // Arquivo corrompido ou codec nao suportado: descarta o controller e
+      // avanca como erro — na vez deste player, nao antes.
+      if (!mounted) return;
+      _video?.removeListener(_aoAtualizarVideo);
+      _video?.dispose();
+      _video = null;
+      _falhou = true;
+      if (widget.ativo) _agendarAvancoDeErro();
+      _sinalizarPreparado();
     });
+  }
+
+  void _agendarAvancoDeErro() {
+    _temporizador = Timer(const Duration(seconds: 1), _terminar);
+  }
+
+  void _agendarTimerDaImagem() {
+    _temporizador =
+        Timer(Duration(seconds: widget.midia.duracaoSegundos), _terminar);
+  }
+
+  /// O decode do primeiro frame e o "pronto" da imagem (e povoa o cache: na
+  /// vez dela, pinta sem atraso). Erro tambem sinaliza — a cor de fundo cobre.
+  void _decodificarImagem(File arquivo) {
+    final fluxo = FileImage(arquivo).resolve(ImageConfiguration.empty);
+    final ouvinte = ImageStreamListener(
+      (_, __) => _sinalizarPreparado(),
+      onError: (Object _, StackTrace? __) => _sinalizarPreparado(),
+    );
+    _fluxoImagem = fluxo;
+    _ouvinteImagem = ouvinte;
+    fluxo.addListener(ouvinte);
+  }
+
+  void _sinalizarPreparado() {
+    if (_preparado) return;
+    _preparado = true;
+    widget.aoPreparado?.call();
+  }
+
+  /// Chegou a vez deste player: o que estava so preparado passa a rodar.
+  void _comecar() {
+    final arquivo = File(widget.midia.caminho);
+    if (!arquivo.existsSync()) {
+      _agendarAvancoDeErro();
+      return;
+    }
+    if (widget.midia.tipo == TipoMidia.imagem) {
+      _agendarTimerDaImagem();
+      return;
+    }
+    final video = _video;
+    if (video != null && video.value.isInitialized) {
+      video.play();
+    } else if (_falhou) {
+      _agendarAvancoDeErro();
+    }
+    // Se o initialize ainda esta em andamento, o proprio then da o play:
+    // ele le widget.ativo na hora em que termina.
   }
 
   void _aoAtualizarVideo() {
@@ -119,6 +194,13 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
   void _limpar() {
     _temporizador?.cancel();
     _temporizador = null;
+    final fluxo = _fluxoImagem;
+    final ouvinte = _ouvinteImagem;
+    if (fluxo != null && ouvinte != null) fluxo.removeListener(ouvinte);
+    _fluxoImagem = null;
+    _ouvinteImagem = null;
+    _preparado = false;
+    _falhou = false;
     _video?.removeListener(_aoAtualizarVideo);
     _video?.dispose();
     _video = null;
