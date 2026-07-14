@@ -82,6 +82,7 @@ void main() {
     expect(midias.single.fundo, FundoMidia.borrado);
     expect(midias.single.ancora, AncoraMidia.centro);
     expect(midias.single.zoomPercentual, 100);
+    expect(midias.single.rotacaoGraus, 0);
   });
 
   test('o enquadramento escolhido sobrevive ao round-trip', () async {
@@ -104,11 +105,27 @@ void main() {
     expect(midia.zoomPercentual, 140);
   });
 
+  test('a rotacao escolhida sobrevive ao round-trip', () async {
+    SharedPreferences.setMockInitialValues({});
+    final repositorio =
+        RepositorioPropagandaImpl(await SharedPreferences.getInstance());
+    await repositorio.salvarTodas(const [
+      MidiaPropaganda(
+          id: 'a',
+          tipo: TipoMidia.imagem,
+          caminho: '/m/a.png',
+          ordem: 1,
+          rotacaoGraus: 90),
+    ]);
+    expect((await repositorio.obterTodas()).single.rotacaoGraus, 90);
+  });
+
   test('midia nova nasce com fundo borrado, ancora central e zoom 100', () {
     const midia = MidiaPropaganda(
         id: 'a', tipo: TipoMidia.imagem, caminho: '/m/a.png', ordem: 1);
     expect(midia.fundo, FundoMidia.borrado);
     expect(midia.ancora, AncoraMidia.centro);
     expect(midia.zoomPercentual, 100);
+    expect(midia.rotacaoGraus, 0);
   });
 }

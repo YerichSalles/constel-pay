@@ -24,6 +24,7 @@ mixin _$MidiaPropaganda {
   FundoMidia get fundo => throw _privateConstructorUsedError;
   AncoraMidia get ancora => throw _privateConstructorUsedError;
   int get zoomPercentual => throw _privateConstructorUsedError;
+  int get rotacaoGraus => throw _privateConstructorUsedError;
   int get ordem => throw _privateConstructorUsedError;
   bool get ativo => throw _privateConstructorUsedError;
 
@@ -49,6 +50,7 @@ abstract class $MidiaPropagandaCopyWith<$Res> {
       FundoMidia fundo,
       AncoraMidia ancora,
       int zoomPercentual,
+      int rotacaoGraus,
       int ordem,
       bool ativo});
 }
@@ -76,6 +78,7 @@ class _$MidiaPropagandaCopyWithImpl<$Res, $Val extends MidiaPropaganda>
     Object? fundo = null,
     Object? ancora = null,
     Object? zoomPercentual = null,
+    Object? rotacaoGraus = null,
     Object? ordem = null,
     Object? ativo = null,
   }) {
@@ -112,6 +115,10 @@ class _$MidiaPropagandaCopyWithImpl<$Res, $Val extends MidiaPropaganda>
           ? _value.zoomPercentual
           : zoomPercentual // ignore: cast_nullable_to_non_nullable
               as int,
+      rotacaoGraus: null == rotacaoGraus
+          ? _value.rotacaoGraus
+          : rotacaoGraus // ignore: cast_nullable_to_non_nullable
+              as int,
       ordem: null == ordem
           ? _value.ordem
           : ordem // ignore: cast_nullable_to_non_nullable
@@ -141,6 +148,7 @@ abstract class _$$MidiaPropagandaImplCopyWith<$Res>
       FundoMidia fundo,
       AncoraMidia ancora,
       int zoomPercentual,
+      int rotacaoGraus,
       int ordem,
       bool ativo});
 }
@@ -166,6 +174,7 @@ class __$$MidiaPropagandaImplCopyWithImpl<$Res>
     Object? fundo = null,
     Object? ancora = null,
     Object? zoomPercentual = null,
+    Object? rotacaoGraus = null,
     Object? ordem = null,
     Object? ativo = null,
   }) {
@@ -202,6 +211,10 @@ class __$$MidiaPropagandaImplCopyWithImpl<$Res>
           ? _value.zoomPercentual
           : zoomPercentual // ignore: cast_nullable_to_non_nullable
               as int,
+      rotacaoGraus: null == rotacaoGraus
+          ? _value.rotacaoGraus
+          : rotacaoGraus // ignore: cast_nullable_to_non_nullable
+              as int,
       ordem: null == ordem
           ? _value.ordem
           : ordem // ignore: cast_nullable_to_non_nullable
@@ -226,6 +239,7 @@ class _$MidiaPropagandaImpl implements _MidiaPropaganda {
       this.fundo = FundoMidia.borrado,
       this.ancora = AncoraMidia.centro,
       this.zoomPercentual = 100,
+      this.rotacaoGraus = 0,
       required this.ordem,
       this.ativo = true});
 
@@ -251,6 +265,9 @@ class _$MidiaPropagandaImpl implements _MidiaPropaganda {
   @JsonKey()
   final int zoomPercentual;
   @override
+  @JsonKey()
+  final int rotacaoGraus;
+  @override
   final int ordem;
   @override
   @JsonKey()
@@ -258,7 +275,7 @@ class _$MidiaPropagandaImpl implements _MidiaPropaganda {
 
   @override
   String toString() {
-    return 'MidiaPropaganda(id: $id, tipo: $tipo, caminho: $caminho, duracaoSegundos: $duracaoSegundos, ajuste: $ajuste, fundo: $fundo, ancora: $ancora, zoomPercentual: $zoomPercentual, ordem: $ordem, ativo: $ativo)';
+    return 'MidiaPropaganda(id: $id, tipo: $tipo, caminho: $caminho, duracaoSegundos: $duracaoSegundos, ajuste: $ajuste, fundo: $fundo, ancora: $ancora, zoomPercentual: $zoomPercentual, rotacaoGraus: $rotacaoGraus, ordem: $ordem, ativo: $ativo)';
   }
 
   @override
@@ -276,13 +293,26 @@ class _$MidiaPropagandaImpl implements _MidiaPropaganda {
             (identical(other.ancora, ancora) || other.ancora == ancora) &&
             (identical(other.zoomPercentual, zoomPercentual) ||
                 other.zoomPercentual == zoomPercentual) &&
+            (identical(other.rotacaoGraus, rotacaoGraus) ||
+                other.rotacaoGraus == rotacaoGraus) &&
             (identical(other.ordem, ordem) || other.ordem == ordem) &&
             (identical(other.ativo, ativo) || other.ativo == ativo));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, id, tipo, caminho,
-      duracaoSegundos, ajuste, fundo, ancora, zoomPercentual, ordem, ativo);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      tipo,
+      caminho,
+      duracaoSegundos,
+      ajuste,
+      fundo,
+      ancora,
+      zoomPercentual,
+      rotacaoGraus,
+      ordem,
+      ativo);
 
   /// Create a copy of MidiaPropaganda
   /// with the given fields replaced by the non-null parameter values.
@@ -304,6 +334,7 @@ abstract class _MidiaPropaganda implements MidiaPropaganda {
       final FundoMidia fundo,
       final AncoraMidia ancora,
       final int zoomPercentual,
+      final int rotacaoGraus,
       required final int ordem,
       final bool ativo}) = _$MidiaPropagandaImpl;
 
@@ -323,6 +354,8 @@ abstract class _MidiaPropaganda implements MidiaPropaganda {
   AncoraMidia get ancora;
   @override
   int get zoomPercentual;
+  @override
+  int get rotacaoGraus;
   @override
   int get ordem;
   @override

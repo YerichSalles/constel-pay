@@ -54,6 +54,12 @@ Alignment resolverAlinhamento(AncoraMidia ancora) {
 double resolverEscala(int zoomPercentual) =>
     zoomPercentual.clamp(zoomMinimo, zoomMaximo) / 100;
 
+/// Converte os graus da midia em quartos de volta para o RotatedBox. JSON
+/// adulterado (45, -90, 999) cai no quarto de volta valido abaixo; nunca
+/// estoura.
+int resolverQuartosDeVolta(int rotacaoGraus) =>
+    ((rotacaoGraus % 360) + 360) % 360 ~/ 90;
+
 /// So automatico e encaixar deixam sobra; preencher e esticar cobrem tudo.
 bool modoDeixaSobra(AjusteMidia ajuste) =>
     ajuste == AjusteMidia.automatico || ajuste == AjusteMidia.encaixar;

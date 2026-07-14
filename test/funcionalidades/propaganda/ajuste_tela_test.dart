@@ -66,4 +66,19 @@ void main() {
     expect(fundoEfetivo(tipo: TipoMidia.imagem, fundo: FundoMidia.borrado),
         FundoMidia.borrado);
   });
+
+  test('graus legitimos viram quartos de volta', () {
+    expect(resolverQuartosDeVolta(0), 0);
+    expect(resolverQuartosDeVolta(90), 1);
+    expect(resolverQuartosDeVolta(180), 2);
+    expect(resolverQuartosDeVolta(270), 3);
+  });
+
+  test('graus adulterados sao normalizados, nunca estouram', () {
+    expect(resolverQuartosDeVolta(45), 0);
+    expect(resolverQuartosDeVolta(100), 1);
+    expect(resolverQuartosDeVolta(-90), 3);
+    expect(resolverQuartosDeVolta(360), 0);
+    expect(resolverQuartosDeVolta(999), 3);
+  });
 }

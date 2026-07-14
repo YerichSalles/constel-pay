@@ -34,6 +34,7 @@ class MidiaPropaganda with _$MidiaPropaganda {
     @Default(FundoMidia.borrado) FundoMidia fundo,
     @Default(AncoraMidia.centro) AncoraMidia ancora,
     @Default(100) int zoomPercentual,
+    @Default(0) int rotacaoGraus,
     required int ordem,
     @Default(true) bool ativo,
   }) = _MidiaPropaganda;

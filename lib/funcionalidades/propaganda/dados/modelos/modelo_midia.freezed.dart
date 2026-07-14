@@ -31,6 +31,7 @@ mixin _$ModeloMidia {
   @JsonKey(unknownEnumValue: AncoraMidia.centro)
   AncoraMidia get ancora => throw _privateConstructorUsedError;
   int get zoomPercentual => throw _privateConstructorUsedError;
+  int get rotacaoGraus => throw _privateConstructorUsedError;
   int get ordem => throw _privateConstructorUsedError;
   bool get ativo => throw _privateConstructorUsedError;
 
@@ -59,6 +60,7 @@ abstract class $ModeloMidiaCopyWith<$Res> {
       @JsonKey(unknownEnumValue: FundoMidia.borrado) FundoMidia fundo,
       @JsonKey(unknownEnumValue: AncoraMidia.centro) AncoraMidia ancora,
       int zoomPercentual,
+      int rotacaoGraus,
       int ordem,
       bool ativo});
 }
@@ -86,6 +88,7 @@ class _$ModeloMidiaCopyWithImpl<$Res, $Val extends ModeloMidia>
     Object? fundo = null,
     Object? ancora = null,
     Object? zoomPercentual = null,
+    Object? rotacaoGraus = null,
     Object? ordem = null,
     Object? ativo = null,
   }) {
@@ -122,6 +125,10 @@ class _$ModeloMidiaCopyWithImpl<$Res, $Val extends ModeloMidia>
           ? _value.zoomPercentual
           : zoomPercentual // ignore: cast_nullable_to_non_nullable
               as int,
+      rotacaoGraus: null == rotacaoGraus
+          ? _value.rotacaoGraus
+          : rotacaoGraus // ignore: cast_nullable_to_non_nullable
+              as int,
       ordem: null == ordem
           ? _value.ordem
           : ordem // ignore: cast_nullable_to_non_nullable
@@ -151,6 +158,7 @@ abstract class _$$ModeloMidiaImplCopyWith<$Res>
       @JsonKey(unknownEnumValue: FundoMidia.borrado) FundoMidia fundo,
       @JsonKey(unknownEnumValue: AncoraMidia.centro) AncoraMidia ancora,
       int zoomPercentual,
+      int rotacaoGraus,
       int ordem,
       bool ativo});
 }
@@ -176,6 +184,7 @@ class __$$ModeloMidiaImplCopyWithImpl<$Res>
     Object? fundo = null,
     Object? ancora = null,
     Object? zoomPercentual = null,
+    Object? rotacaoGraus = null,
     Object? ordem = null,
     Object? ativo = null,
   }) {
@@ -212,6 +221,10 @@ class __$$ModeloMidiaImplCopyWithImpl<$Res>
           ? _value.zoomPercentual
           : zoomPercentual // ignore: cast_nullable_to_non_nullable
               as int,
+      rotacaoGraus: null == rotacaoGraus
+          ? _value.rotacaoGraus
+          : rotacaoGraus // ignore: cast_nullable_to_non_nullable
+              as int,
       ordem: null == ordem
           ? _value.ordem
           : ordem // ignore: cast_nullable_to_non_nullable
@@ -239,6 +252,7 @@ class _$ModeloMidiaImpl extends _ModeloMidia {
       @JsonKey(unknownEnumValue: AncoraMidia.centro)
       this.ancora = AncoraMidia.centro,
       this.zoomPercentual = 100,
+      this.rotacaoGraus = 0,
       required this.ordem,
       required this.ativo})
       : super._();
@@ -267,13 +281,16 @@ class _$ModeloMidiaImpl extends _ModeloMidia {
   @JsonKey()
   final int zoomPercentual;
   @override
+  @JsonKey()
+  final int rotacaoGraus;
+  @override
   final int ordem;
   @override
   final bool ativo;
 
   @override
   String toString() {
-    return 'ModeloMidia(id: $id, tipo: $tipo, caminho: $caminho, duracaoSegundos: $duracaoSegundos, ajuste: $ajuste, fundo: $fundo, ancora: $ancora, zoomPercentual: $zoomPercentual, ordem: $ordem, ativo: $ativo)';
+    return 'ModeloMidia(id: $id, tipo: $tipo, caminho: $caminho, duracaoSegundos: $duracaoSegundos, ajuste: $ajuste, fundo: $fundo, ancora: $ancora, zoomPercentual: $zoomPercentual, rotacaoGraus: $rotacaoGraus, ordem: $ordem, ativo: $ativo)';
   }
 
   @override
@@ -291,14 +308,27 @@ class _$ModeloMidiaImpl extends _ModeloMidia {
             (identical(other.ancora, ancora) || other.ancora == ancora) &&
             (identical(other.zoomPercentual, zoomPercentual) ||
                 other.zoomPercentual == zoomPercentual) &&
+            (identical(other.rotacaoGraus, rotacaoGraus) ||
+                other.rotacaoGraus == rotacaoGraus) &&
             (identical(other.ordem, ordem) || other.ordem == ordem) &&
             (identical(other.ativo, ativo) || other.ativo == ativo));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, tipo, caminho,
-      duracaoSegundos, ajuste, fundo, ancora, zoomPercentual, ordem, ativo);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      tipo,
+      caminho,
+      duracaoSegundos,
+      ajuste,
+      fundo,
+      ancora,
+      zoomPercentual,
+      rotacaoGraus,
+      ordem,
+      ativo);
 
   /// Create a copy of ModeloMidia
   /// with the given fields replaced by the non-null parameter values.
@@ -327,6 +357,7 @@ abstract class _ModeloMidia extends ModeloMidia {
       @JsonKey(unknownEnumValue: FundoMidia.borrado) final FundoMidia fundo,
       @JsonKey(unknownEnumValue: AncoraMidia.centro) final AncoraMidia ancora,
       final int zoomPercentual,
+      final int rotacaoGraus,
       required final int ordem,
       required final bool ativo}) = _$ModeloMidiaImpl;
   const _ModeloMidia._() : super._();
@@ -353,6 +384,8 @@ abstract class _ModeloMidia extends ModeloMidia {
   AncoraMidia get ancora;
   @override
   int get zoomPercentual;
+  @override
+  int get rotacaoGraus;
   @override
   int get ordem;
   @override

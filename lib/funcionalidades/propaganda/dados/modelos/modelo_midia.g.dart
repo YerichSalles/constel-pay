@@ -22,6 +22,7 @@ _$ModeloMidiaImpl _$$ModeloMidiaImplFromJson(Map<String, dynamic> json) =>
               unknownValue: AncoraMidia.centro) ??
           AncoraMidia.centro,
       zoomPercentual: (json['zoomPercentual'] as num?)?.toInt() ?? 100,
+      rotacaoGraus: (json['rotacaoGraus'] as num?)?.toInt() ?? 0,
       ordem: (json['ordem'] as num).toInt(),
       ativo: json['ativo'] as bool,
     );
@@ -36,6 +37,7 @@ Map<String, dynamic> _$$ModeloMidiaImplToJson(_$ModeloMidiaImpl instance) =>
       'fundo': _$FundoMidiaEnumMap[instance.fundo]!,
       'ancora': _$AncoraMidiaEnumMap[instance.ancora]!,
       'zoomPercentual': instance.zoomPercentual,
+      'rotacaoGraus': instance.rotacaoGraus,
       'ordem': instance.ordem,
       'ativo': instance.ativo,
     };

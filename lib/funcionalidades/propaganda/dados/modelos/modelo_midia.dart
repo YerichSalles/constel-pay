@@ -27,6 +27,7 @@ class ModeloMidia with _$ModeloMidia {
     @JsonKey(unknownEnumValue: AncoraMidia.centro)
     AncoraMidia ancora,
     @Default(100) int zoomPercentual,
+    @Default(0) int rotacaoGraus,
     required int ordem,
     required bool ativo,
   }) = _ModeloMidia;
@@ -43,6 +44,7 @@ class ModeloMidia with _$ModeloMidia {
         fundo: entidade.fundo,
         ancora: entidade.ancora,
         zoomPercentual: entidade.zoomPercentual,
+        rotacaoGraus: entidade.rotacaoGraus,
         ordem: entidade.ordem,
         ativo: entidade.ativo,
       );
@@ -56,6 +58,7 @@ class ModeloMidia with _$ModeloMidia {
         fundo: fundo,
         ancora: ancora,
         zoomPercentual: zoomPercentual,
+        rotacaoGraus: rotacaoGraus,
         ordem: ordem,
         ativo: ativo,
       );
