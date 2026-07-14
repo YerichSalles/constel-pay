@@ -37,22 +37,33 @@ void main() {
   });
 
   test('zoom converte percentual em escala', () {
+    expect(resolverEscala(50), 0.5);
     expect(resolverEscala(100), 1.0);
     expect(resolverEscala(150), 1.5);
     expect(resolverEscala(300), 3.0);
   });
 
   test('zoom fora da faixa e corrigido, nao estoura', () {
-    expect(resolverEscala(40), 1.0);
+    expect(resolverEscala(40), 0.5);
     expect(resolverEscala(999), 3.0);
-    expect(resolverEscala(-5), 1.0);
+    expect(resolverEscala(-5), 0.5);
   });
 
-  test('so automatico e encaixar deixam sobra', () {
-    expect(modoDeixaSobra(AjusteMidia.automatico), isTrue);
-    expect(modoDeixaSobra(AjusteMidia.encaixar), isTrue);
-    expect(modoDeixaSobra(AjusteMidia.preencher), isFalse);
-    expect(modoDeixaSobra(AjusteMidia.esticar), isFalse);
+  test('automatico e encaixar deixam sobra com qualquer zoom', () {
+    expect(modoDeixaSobra(AjusteMidia.automatico, 100), isTrue);
+    expect(modoDeixaSobra(AjusteMidia.encaixar, 300), isTrue);
+  });
+
+  test('preencher deixa sobra so quando o zoom encolhe', () {
+    expect(modoDeixaSobra(AjusteMidia.preencher, 80), isTrue);
+    expect(modoDeixaSobra(AjusteMidia.preencher, 100), isFalse);
+    expect(modoDeixaSobra(AjusteMidia.preencher, 300), isFalse);
+    expect(modoDeixaSobra(AjusteMidia.preencher, 30), isTrue,
+        reason: 'abaixo da faixa clampa em 50, que ainda e sobra');
+  });
+
+  test('esticar nunca deixa sobra', () {
+    expect(modoDeixaSobra(AjusteMidia.esticar, 80), isFalse);
   });
 
   test('video cai para cor enquanto o gate do fundo borrado nao libera', () {

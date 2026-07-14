@@ -121,7 +121,9 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
   }
 
   bool get _mostraFundoBorrado {
-    if (!modoDeixaSobra(widget.midia.ajuste)) return false;
+    if (!modoDeixaSobra(widget.midia.ajuste, widget.midia.zoomPercentual)) {
+      return false;
+    }
     final fundo =
         fundoEfetivo(tipo: widget.midia.tipo, fundo: widget.midia.fundo);
     if (fundo != FundoMidia.borrado) return false;

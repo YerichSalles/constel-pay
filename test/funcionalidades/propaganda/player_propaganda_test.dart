@@ -143,6 +143,22 @@ void main() {
     expect(find.byKey(const ValueKey('fundo-borrado')), findsNothing);
   });
 
+  testWidgets('preencher com zoom reduzido ganha sobra com fundo borrado',
+      (tester) async {
+    await montar(
+        tester,
+        midiaCom(AjusteMidia.preencher, caminhoImagem, zoomPercentual: 80),
+        const Size(90, 160));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('fundo-borrado')), findsOneWidget,
+        reason: 'zoom < 100 encolhe a midia: a moldura precisa de fundo');
+    final transformes = tester.widgetList<Transform>(find.descendant(
+        of: find.byType(PlayerPropaganda), matching: find.byType(Transform)));
+    expect(transformes, hasLength(1));
+    expect(
+        transformes.single.transform.getMaxScaleOnAxis(), closeTo(0.8, 0.001));
+  });
+
   testWidgets('preencher aplica ancora e zoom; demais modos nao escalam',
       (tester) async {
     await montar(

@@ -83,7 +83,7 @@ class _DialogoAjusteMidiaState extends State<DialogoAjusteMidia> {
   late int _rotacao = resolverQuartosDeVolta(widget.midia.rotacaoGraus) * 90;
 
   bool get _mostraFundo =>
-      modoDeixaSobra(_ajuste) &&
+      modoDeixaSobra(_ajuste, _zoom) &&
       (widget.midia.tipo != TipoMidia.video || fundoBorradoLiberadoParaVideo);
 
   bool get _mostraCorte => _ajuste == AjusteMidia.preencher;

@@ -3,7 +3,7 @@ import 'package:flutter/painting.dart';
 import '../dominio/entidades/midia_propaganda.dart';
 
 /// Faixa valida do zoom do modo preencher, em percentual.
-const int zoomMinimo = 100;
+const int zoomMinimo = 50;
 const int zoomMaximo = 300;
 
 /// Borrar video custa GPU a cada frame. So libera depois que a medicao em
@@ -60,9 +60,19 @@ double resolverEscala(int zoomPercentual) =>
 int resolverQuartosDeVolta(int rotacaoGraus) =>
     ((rotacaoGraus % 360) + 360) % 360 ~/ 90;
 
-/// So automatico e encaixar deixam sobra; preencher e esticar cobrem tudo.
-bool modoDeixaSobra(AjusteMidia ajuste) =>
-    ajuste == AjusteMidia.automatico || ajuste == AjusteMidia.encaixar;
+/// So ha o que pintar atras da midia quando ela nao cobre a tela: nos modos
+/// automatico e encaixar sempre, e no preencher quando o zoom encolhe.
+bool modoDeixaSobra(AjusteMidia ajuste, int zoomPercentual) {
+  switch (ajuste) {
+    case AjusteMidia.automatico:
+    case AjusteMidia.encaixar:
+      return true;
+    case AjusteMidia.preencher:
+      return zoomPercentual.clamp(zoomMinimo, zoomMaximo) < 100;
+    case AjusteMidia.esticar:
+      return false;
+  }
+}
 
 /// Fundo que o player realmente pinta, respeitando o gate do video.
 FundoMidia fundoEfetivo({required TipoMidia tipo, required FundoMidia fundo}) =>
