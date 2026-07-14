@@ -54,7 +54,8 @@ void main() {
   }
 
   PlayerPropaganda playerAtivo(WidgetTester tester) => tester
-      .widgetList<PlayerPropaganda>(find.byType(PlayerPropaganda))
+      .widgetList<PlayerPropaganda>(
+          find.byType(PlayerPropaganda, skipOffstage: false))
       .singleWhere((p) => p.ativo);
 
   testWidgets('mantem o atual visivel e o seguinte preparando offstage',
@@ -64,9 +65,11 @@ void main() {
     await montar(tester, indice: 0, atual: a, seguinte: b, aoAvancar: () {});
     await tester.pump();
 
-    final players =
-        tester.widgetList<PlayerPropaganda>(find.byType(PlayerPropaganda));
+    final players = tester.widgetList<PlayerPropaganda>(
+        find.byType(PlayerPropaganda, skipOffstage: false));
     expect(players, hasLength(2));
+    expect(find.byType(PlayerPropaganda), findsOneWidget,
+        reason: 'so o ativo esta em cena; o seguinte prepara offstage');
     expect(playerAtivo(tester).midia.id, 'a');
     final seguinte = players.singleWhere((p) => !p.ativo);
     expect(seguinte.midia.id, 'b');
@@ -106,7 +109,8 @@ void main() {
       await tester.pump();
     });
     final estadoSeguinteAntes = tester.state(find.byWidgetPredicate(
-        (w) => w is PlayerPropaganda && !w.ativo && w.midia.id == 'b'));
+        (w) => w is PlayerPropaganda && !w.ativo && w.midia.id == 'b',
+        skipOffstage: false));
 
     // Simula o controlador avancando: mesmo trocador, indice novo.
     await tester.runAsync(() async {
@@ -116,7 +120,8 @@ void main() {
       await tester.pump();
     });
     final estadoAtivoDepois = tester.state(find.byWidgetPredicate(
-        (w) => w is PlayerPropaganda && w.ativo && w.midia.id == 'b'));
+        (w) => w is PlayerPropaganda && w.ativo && w.midia.id == 'b',
+        skipOffstage: false));
 
     expect(identical(estadoSeguinteAntes, estadoAtivoDepois), isTrue,
         reason: 'recriar o player na troca e exatamente a piscada que o '
@@ -135,8 +140,8 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 100));
       await tester.pump();
     });
-    final players =
-        tester.widgetList<PlayerPropaganda>(find.byType(PlayerPropaganda));
+    final players = tester.widgetList<PlayerPropaganda>(
+        find.byType(PlayerPropaganda, skipOffstage: false));
     expect(players, hasLength(2),
         reason: 'duas exibicoes do mesmo arquivo, cada uma com seu player');
     await tester.pump(const Duration(seconds: 1));
