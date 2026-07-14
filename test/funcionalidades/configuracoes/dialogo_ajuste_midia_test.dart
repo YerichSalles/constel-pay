@@ -75,6 +75,21 @@ void main() {
     await drenar(tester);
   });
 
+  testWidgets('preview recebe a midia editada, nao a original', (tester) async {
+    await abrir(tester, midiaImagem);
+    await escolherModo(tester, 'Preencher (corta)');
+    await tester.tap(find.byKey(const ValueKey('ancora-topo')));
+    await tester.pump();
+    final player =
+        tester.widget<PlayerPropaganda>(find.byType(PlayerPropaganda));
+    expect(player.midia.ajuste, AjusteMidia.preencher,
+        reason: 'o preview precisa refletir o modo recem-escolhido');
+    expect(player.midia.ancora, AncoraMidia.topo);
+    expect(player.midia.id, midiaImagem.id,
+        reason: 'id estavel: o player nao reinicia a cada edicao');
+    await drenar(tester);
+  });
+
   testWidgets('cancelar fecha sem salvar', (tester) async {
     EnquadramentoSalvo? salvo;
     await abrir(tester, midiaImagem, aoSalvar: (s) => salvo = s);
