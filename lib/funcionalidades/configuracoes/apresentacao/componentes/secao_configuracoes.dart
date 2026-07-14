@@ -58,7 +58,15 @@ class SecaoConfiguracoes extends StatelessWidget {
               children: [
                 Expanded(child: cabecalho),
                 const SizedBox(width: 12),
-                Flexible(child: acao!),
+                // Align expande na fatia do Flexible e encosta a ação na
+                // borda direita; sem ele a sobra da Row fica DEPOIS da ação
+                // (Switch pararia no meio do card).
+                Flexible(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: acao!,
+                  ),
+                ),
               ],
             ),
           if (filho != null) ...[
