@@ -72,4 +72,24 @@ void main() {
     expect(controlador.state.midias.single.ajuste, AjusteMidia.esticar);
     expect((await repositorio.obterTodas()).single.ajuste, AjusteMidia.esticar);
   });
+
+  test('definirEnquadramento persiste modo, fundo, ancora e zoom', () async {
+    await controlador.adicionarArquivos(['/m/a.png']);
+    final id = controlador.state.midias.single.id;
+    await controlador.definirEnquadramento(id,
+        ajuste: AjusteMidia.preencher,
+        fundo: FundoMidia.cor,
+        ancora: AncoraMidia.baseDireita,
+        zoomPercentual: 180);
+    final midia = controlador.state.midias.single;
+    expect(midia.ajuste, AjusteMidia.preencher);
+    expect(midia.fundo, FundoMidia.cor);
+    expect(midia.ancora, AncoraMidia.baseDireita);
+    expect(midia.zoomPercentual, 180);
+    final salva = (await repositorio.obterTodas()).single;
+    expect(salva.ajuste, AjusteMidia.preencher);
+    expect(salva.fundo, FundoMidia.cor);
+    expect(salva.ancora, AncoraMidia.baseDireita);
+    expect(salva.zoomPercentual, 180);
+  });
 }
