@@ -102,6 +102,7 @@ class ControladorMidias extends StateNotifier<EstadoMidias> {
     required FundoMidia fundo,
     required AncoraMidia ancora,
     required int zoomPercentual,
+    required int rotacaoGraus,
   }) async {
     await _persistir([
       for (final midia in state.midias)
@@ -110,7 +111,8 @@ class ControladorMidias extends StateNotifier<EstadoMidias> {
                 ajuste: ajuste,
                 fundo: fundo,
                 ancora: ancora,
-                zoomPercentual: zoomPercentual)
+                zoomPercentual: zoomPercentual,
+                rotacaoGraus: rotacaoGraus)
             : midia,
     ]);
   }

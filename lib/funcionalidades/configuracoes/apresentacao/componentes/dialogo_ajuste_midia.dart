@@ -44,6 +44,7 @@ class DialogoAjusteMidia extends StatefulWidget {
     required FundoMidia fundo,
     required AncoraMidia ancora,
     required int zoomPercentual,
+    required int rotacaoGraus,
   }) aoSalvar;
 
   static const Map<AncoraMidia, String> rotulosAncora = {
@@ -67,6 +68,9 @@ class _DialogoAjusteMidiaState extends State<DialogoAjusteMidia> {
   late FundoMidia _fundo = widget.midia.fundo;
   late AncoraMidia _ancora = widget.midia.ancora;
   late int _zoom = widget.midia.zoomPercentual.clamp(zoomMinimo, zoomMaximo);
+  // Normalizado ja na entrada: estado local so conhece 0/90/180/270.
+  late final int _rotacao =
+      resolverQuartosDeVolta(widget.midia.rotacaoGraus) * 90;
 
   bool get _mostraFundo =>
       modoDeixaSobra(_ajuste) &&
@@ -77,7 +81,11 @@ class _DialogoAjusteMidiaState extends State<DialogoAjusteMidia> {
   /// O id nao muda, entao o player nao reinicia a midia a cada tecla: so
   /// re-renderiza com o enquadramento novo.
   MidiaPropaganda get _midiaPreview => widget.midia.copyWith(
-      ajuste: _ajuste, fundo: _fundo, ancora: _ancora, zoomPercentual: _zoom);
+      ajuste: _ajuste,
+      fundo: _fundo,
+      ancora: _ancora,
+      zoomPercentual: _zoom,
+      rotacaoGraus: _rotacao);
 
   Widget _rotulo(String texto) => Text(texto,
       style: const TextStyle(fontSize: 11.5, color: CoresApp.textoSecundario));
@@ -210,7 +218,8 @@ class _DialogoAjusteMidiaState extends State<DialogoAjusteMidia> {
                 ajuste: _ajuste,
                 fundo: _fundo,
                 ancora: _ancora,
-                zoomPercentual: _zoom);
+                zoomPercentual: _zoom,
+                rotacaoGraus: _rotacao);
             Navigator.of(context).pop();
           },
           child: const Text('Salvar'),

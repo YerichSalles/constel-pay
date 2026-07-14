@@ -10,6 +10,7 @@ typedef EnquadramentoSalvo = ({
   FundoMidia fundo,
   AncoraMidia ancora,
   int zoomPercentual,
+  int rotacaoGraus,
 });
 
 void main() {
@@ -38,12 +39,14 @@ void main() {
                     required FundoMidia fundo,
                     required AncoraMidia ancora,
                     required int zoomPercentual,
+                    required int rotacaoGraus,
                   }) =>
                       aoSalvar?.call((
                     ajuste: ajuste,
                     fundo: fundo,
                     ancora: ancora,
                     zoomPercentual: zoomPercentual,
+                    rotacaoGraus: rotacaoGraus,
                   )),
                 ),
               ),
@@ -126,6 +129,7 @@ void main() {
     expect(salvo!.ajuste, AjusteMidia.preencher);
     expect(salvo!.ancora, AncoraMidia.topo);
     expect(salvo!.zoomPercentual, zoomMaximo);
+    expect(salvo!.rotacaoGraus, 0);
     expect(find.byType(DialogoAjusteMidia), findsNothing);
     await drenar(tester);
   });

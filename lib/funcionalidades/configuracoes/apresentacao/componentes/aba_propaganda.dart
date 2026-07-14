@@ -93,12 +93,14 @@ class AbaPropaganda extends ConsumerWidget {
           required FundoMidia fundo,
           required AncoraMidia ancora,
           required int zoomPercentual,
+          required int rotacaoGraus,
         }) =>
             controlador.definirEnquadramento(midia.id,
                 ajuste: ajuste,
                 fundo: fundo,
                 ancora: ancora,
-                zoomPercentual: zoomPercentual),
+                zoomPercentual: zoomPercentual,
+                rotacaoGraus: rotacaoGraus),
       ),
     );
   }

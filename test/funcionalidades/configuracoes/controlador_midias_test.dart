@@ -72,16 +72,19 @@ void main() {
         ajuste: AjusteMidia.preencher,
         fundo: FundoMidia.cor,
         ancora: AncoraMidia.baseDireita,
-        zoomPercentual: 180);
+        zoomPercentual: 180,
+        rotacaoGraus: 90);
     final midia = controlador.state.midias.single;
     expect(midia.ajuste, AjusteMidia.preencher);
     expect(midia.fundo, FundoMidia.cor);
     expect(midia.ancora, AncoraMidia.baseDireita);
     expect(midia.zoomPercentual, 180);
+    expect(midia.rotacaoGraus, 90);
     final salva = (await repositorio.obterTodas()).single;
     expect(salva.ajuste, AjusteMidia.preencher);
     expect(salva.fundo, FundoMidia.cor);
     expect(salva.ancora, AncoraMidia.baseDireita);
     expect(salva.zoomPercentual, 180);
+    expect(salva.rotacaoGraus, 90);
   });
 }
