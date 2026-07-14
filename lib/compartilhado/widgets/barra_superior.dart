@@ -8,6 +8,7 @@ class BarraSuperior extends StatelessWidget implements PreferredSizeWidget {
     this.avatar,
     this.aoVoltar,
     this.acoes,
+    this.publicidade,
   });
 
   final String titulo;
@@ -15,6 +16,11 @@ class BarraSuperior extends StatelessWidget implements PreferredSizeWidget {
   final Widget? avatar;
   final VoidCallback? aoVoltar;
   final List<Widget>? acoes;
+
+  /// Slot opcional de publicidade, exibido à direita do título com o
+  /// espaço que sobrar depois de voltar/logo/nome. Sem publicidade, o
+  /// layout permanece exatamente igual ao de hoje.
+  final Widget? publicidade;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight + 8);
@@ -63,7 +69,8 @@ class BarraSuperior extends StatelessWidget implements PreferredSizeWidget {
       title: Row(
         children: [
           if (avatar != null) ...[avatar!, const SizedBox(width: 16)],
-          Expanded(
+          Flexible(
+            fit: publicidade != null ? FlexFit.loose : FlexFit.tight,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -88,6 +95,10 @@ class BarraSuperior extends StatelessWidget implements PreferredSizeWidget {
               ],
             ),
           ),
+          if (publicidade != null) ...[
+            const SizedBox(width: 12),
+            Expanded(child: publicidade!),
+          ],
         ],
       ),
       actions: acoes,

@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  Widget montar({VoidCallback? aoVoltar}) {
+  Widget montar({VoidCallback? aoVoltar, Widget? publicidade, String? titulo}) {
     return MaterialApp(
       home: Scaffold(
         appBar: BarraSuperior(
-          titulo: 'Dionísio Torres',
+          titulo: titulo ?? 'Dionísio Torres',
           avatar: const CircleAvatar(radius: 20),
           aoVoltar: aoVoltar,
+          publicidade: publicidade,
         ),
         body: const SizedBox(),
       ),
@@ -39,5 +40,43 @@ void main() {
     await tester.pumpWidget(montar());
 
     expect(find.byIcon(Icons.arrow_back_ios_new), findsNothing);
+  });
+
+  testWidgets('com publicidade o widget aparece na barra', (tester) async {
+    await tester.pumpWidget(montar(
+      publicidade: const ColoredBox(
+        key: Key('publicidade_teste'),
+        color: Colors.red,
+      ),
+    ));
+
+    expect(find.byKey(const Key('publicidade_teste')), findsOneWidget);
+  });
+
+  testWidgets('sem publicidade nao sobra espaco reservado para ela',
+      (tester) async {
+    await tester.pumpWidget(montar());
+
+    expect(find.byKey(const Key('publicidade_teste')), findsNothing);
+  });
+
+  testWidgets(
+      'titulo longo com publicidade em tela estreita (480px) nao estoura',
+      (tester) async {
+    await tester.binding.setSurfaceSize(const Size(480, 800));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await tester.pumpWidget(montar(
+      titulo: 'Restaurante e Choperia Dionísio Torres Nome Bem Comprido Ltda',
+      publicidade: Container(
+        key: const Key('publicidade_longa'),
+        color: Colors.green,
+        child: const Text('Promoção imperdível hoje, aproveite agora mesmo!'),
+      ),
+    ));
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const Key('publicidade_longa')), findsOneWidget);
   });
 }

@@ -13,6 +13,7 @@ import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
 import '../../../comprovante/apresentacao/componentes/card_comprovante.dart';
 import '../../../pagamento/dominio/entidades/metodo_pagamento.dart';
+import '../../../propaganda/apresentacao/componentes/publicidade_barra_superior.dart';
 import '../../dominio/entidades/mensagem.dart';
 import '../../dominio/entidades/tipo_mensagem.dart';
 import '../componentes/area_acoes.dart';
@@ -182,6 +183,7 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
         titulo: _nomeRestaurante,
         avatar: _avatarBarra(),
         aoVoltar: _confirmarSaida,
+        publicidade: const PublicidadeBarraSuperior(),
       ),
       body: Column(
         children: [
