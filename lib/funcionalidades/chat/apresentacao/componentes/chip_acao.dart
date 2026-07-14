@@ -35,8 +35,7 @@ class ChipAcao extends StatelessWidget {
             borderRadius: BorderRadius.circular(22),
             border: primario || discreto
                 ? null
-                : Border.all(
-                    color: primaria.withValues(alpha: .4), width: 1.5),
+                : Border.all(color: primaria.withValues(alpha: .4), width: 1.5),
             boxShadow: primario
                 ? [
                     BoxShadow(

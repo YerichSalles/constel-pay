@@ -184,8 +184,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
           _adicionar(_mensagem(TipoMensagem.texto,
               emoji: '🔎',
               texto: 'Nenhum consumo em aberto',
-              subtexto:
-                  'Não encontramos itens pendentes para o cartão $ref.'));
+              subtexto: 'Não encontramos itens pendentes para o cartão $ref.'));
           state = state.copyWith(etapa: EtapaFluxo.semConsumo);
           return;
         }

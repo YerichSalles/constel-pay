@@ -316,7 +316,8 @@ void main() {
     expect(fonteRecurso.consultados, ['item-burger']);
   });
 
-  test('lerComandaDigitada sem consumo vai para semConsumo com aviso', () async {
+  test('lerComandaDigitada sem consumo vai para semConsumo com aviso',
+      () async {
     fonteConsumo.resultado = const Sucesso([]);
     await controlador.iniciar();
     await controlador.lerComandaDigitada('505');
