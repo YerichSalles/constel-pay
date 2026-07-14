@@ -251,6 +251,44 @@ void main() {
         expect(span.style?.color, Colors.white);
       }
     });
+
+    testWidgets(
+        'recria o controller ao mudar velocidade durante a animacao sem '
+        'lancar "Multiple tickers" (regressao SingleTickerProviderStateMixin)',
+        (tester) async {
+      const mensagens = [
+        'Promoção imperdível hoje: peça já o seu combo especial com desconto',
+      ];
+      Widget montar(VelocidadeLetreiro velocidade) => _app(
+            LetreiroPublicidade(
+              mensagens: mensagens,
+              separador: '•',
+              velocidade: velocidade,
+              corFundo: const Color(0xFF202020),
+              corTexto: Colors.white,
+              corSeparador: Colors.amber,
+              fonte: 'Inter',
+              animar: true,
+            ),
+            largura: 120,
+          );
+
+      await tester.pumpWidget(montar(VelocidadeLetreiro.lenta));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump(const Duration(milliseconds: 50));
+
+      // Mesmo widget, velocidade diferente: forca _prepararControlador a
+      // descartar o controller atual e criar outro no mesmo State.
+      await tester.pumpWidget(montar(VelocidadeLetreiro.rapida));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(tester.takeException(), isNull);
+
+      // Encerra a animacao antes do fim do teste para nao vazar tickers.
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
   });
 
   group('CarrosselPublicidade', () {

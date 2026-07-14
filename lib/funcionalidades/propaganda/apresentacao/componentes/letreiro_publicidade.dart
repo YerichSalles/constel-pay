@@ -55,7 +55,7 @@ class LetreiroPublicidade extends StatefulWidget {
 }
 
 class _LetreiroPublicidadeState extends State<LetreiroPublicidade>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   AnimationController? _controlador;
   int? _duracaoMsAtual;
 

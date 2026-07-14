@@ -210,7 +210,7 @@ class _SecaoBarraSuperiorState extends ConsumerState<SecaoBarraSuperior> {
       CartaoFormatoPublicidade(
         codigo: '1C',
         nome: 'Espaço fixo de parceiro',
-        descricao: 'Exiba uma única imagem, GIF ou vídeo continuamente.',
+        descricao: 'Exiba uma única imagem ou GIF continuamente.',
         complemento:
             'Indicado para publicidade de parceiros ou campanhas prioritárias.',
         miniatura: CartaoFormatoPublicidade.miniaturaParceiro(),
