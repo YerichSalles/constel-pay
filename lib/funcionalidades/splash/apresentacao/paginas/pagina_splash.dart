@@ -51,6 +51,23 @@ class _PaginaSplashState extends ConsumerState<PaginaSplash>
     _autenticarEmSegundoPlano();
   }
 
+  /// Retoma encerramentos interrompidos (fatura criada sem a ação 30, ou
+  /// resposta perdida) sem bloquear a navegação. Roda DEPOIS do login para
+  /// não disputar a renovação de sessão com o interceptor (dois logins
+  /// simultâneos). Falha fica só no log — a pendência continua guardada.
+  Future<void> _confirmarTransacoesPendentes() async {
+    try {
+      final resolvidas = await ref
+          .read(provedorCasoUsoEncerrarAtendimentos)
+          .confirmarTransacoesPendentes();
+      if (resolvidas > 0) {
+        registrador.i('$resolvidas transação(ões) pendente(s) confirmada(s)');
+      }
+    } catch (erro) {
+      registrador.w('Confirmação de transações pendentes: $erro');
+    }
+  }
+
   /// Entrada escalonada em 650ms: logo (0-350), nome (200-550) e
   /// subtítulo (300-650). A barra de carregamento anima em loop a partir
   /// de ~500ms.
@@ -87,7 +104,10 @@ class _PaginaSplashState extends ConsumerState<PaginaSplash>
   /// imediatamente na tela.
   void _autenticarEmSegundoPlano() {
     unawaited(
-      ref.read(provedorCasoUsoGarantirSessao).executar().then(
+      ref
+          .read(provedorCasoUsoGarantirSessao)
+          .executar()
+          .then(
             (resultado) => resultado.quando(
               sucesso: (sessao) {
                 if (mounted && sessao.estabelecimento.nome.isNotEmpty) {
@@ -98,7 +118,8 @@ class _PaginaSplashState extends ConsumerState<PaginaSplash>
               erro: (falha) =>
                   registrador.w('Login automático: ${falha.mensagem}'),
             ),
-          ),
+          )
+          .whenComplete(_confirmarTransacoesPendentes),
     );
   }
 

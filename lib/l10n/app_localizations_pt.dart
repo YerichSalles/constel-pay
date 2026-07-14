@@ -358,4 +358,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String changeLanguageSemantics(String languageName) {
     return 'Alterar idioma. Idioma atual: $languageName.';
   }
+
+  @override
+  String get closingPreparing => 'Preparando encerramento…';
+
+  @override
+  String get closingGeneratingInvoice => 'Gerando fatura…';
+
+  @override
+  String get closingConfirming => 'Confirmando encerramento…';
+
+  @override
+  String get closingErrorTitle => 'Não foi possível encerrar a conta';
 }

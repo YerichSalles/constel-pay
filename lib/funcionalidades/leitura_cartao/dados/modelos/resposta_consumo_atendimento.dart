@@ -1,3 +1,4 @@
+import '../../../../nucleo/utils/json_leniente.dart';
 import '../../dominio/entidades/atendimento.dart';
 
 /// Converte o JSON cru do endpoint `venda/atendimento/colecao` nas entidades
@@ -30,6 +31,7 @@ abstract final class RespostaConsumoAtendimento {
       sessaoCodigo: _texto(sessao['codigo']),
       comandas: _lista(json['atendimentoComandas']).map(_comanda).toList(),
       itens: _lista(json['atendimentoItens']).map(_item).toList(),
+      bruto: json,
     );
   }
 
@@ -59,20 +61,18 @@ abstract final class RespostaConsumoAtendimento {
     );
   }
 
-  /// A API entrega dinheiro em reais como double; o `.round()` corrige
-  /// artefatos de ponto flutuante (ex.: 5.390000000000001 * 100 -> 539).
-  static int _centavos(dynamic v) => v is num ? (v * 100).round() : 0;
+  // Delegam ao utilitário central para a leniência (e o arredondamento de
+  // centavos) ser idêntica em toda leitura de JSON do app.
+  static int _centavos(dynamic v) => JsonLeniente.centavos(v);
 
-  static int _inteiro(dynamic v) => v is num ? v.toInt() : 0;
+  static int _inteiro(dynamic v) => JsonLeniente.inteiro(v);
 
-  static String _texto(dynamic v) => v is String ? v : '';
+  static String _texto(dynamic v) => JsonLeniente.texto(v);
 
   static DateTime? _data(dynamic v) =>
       v is String ? DateTime.tryParse(v) : null;
 
-  static Map<String, dynamic> _mapa(dynamic v) =>
-      v is Map<String, dynamic> ? v : const {};
+  static Map<String, dynamic> _mapa(dynamic v) => JsonLeniente.mapa(v);
 
-  static List<Map<String, dynamic>> _lista(dynamic v) =>
-      v is List ? v.whereType<Map<String, dynamic>>().toList() : const [];
+  static List<Map<String, dynamic>> _lista(dynamic v) => JsonLeniente.lista(v);
 }

@@ -26,4 +26,17 @@ abstract final class ConstantesApp {
   static const String caminhoRecursoItem = 'recurso/item/';
   static const int classeAtendimentoConsumo = 1600;
   static const int situacaoAtendimentoAberto = 20;
+
+  // Encerramento do atendimento na API da loja (ações 10 = iniciar e
+  // 30 = confirmar) e fatura na API da nuvem. Contrato observado no caixa
+  // (ConstelPDV): encerra vai ao APL local, a fatura vai à nuvem.
+  static const String caminhoEncerraAtendimento = 'venda/atendimento/encerra';
+  static const String caminhoFatura = 'movimento/fatura';
+
+  // Chaves de SharedPreferences que SOBREVIVEM ao "Limpar dados locais":
+  // registros transacionais cuja perda deixaria dado financeiro órfão no
+  // retaguarda. Toda feature com dado desse tipo registra a chave aqui.
+  static const List<String> chavesProtegidasNaLimpeza = [
+    'transacoes_pendentes',
+  ];
 }

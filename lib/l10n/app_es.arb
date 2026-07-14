@@ -110,5 +110,10 @@
   "languagePortuguese": "Português",
   "languageEnglish": "English",
   "languageSpanish": "Español",
-  "changeLanguageSemantics": "Cambiar idioma. Idioma actual: {languageName}."
+  "changeLanguageSemantics": "Cambiar idioma. Idioma actual: {languageName}.",
+
+  "closingPreparing": "Preparando el cierre…",
+  "closingGeneratingInvoice": "Generando la factura…",
+  "closingConfirming": "Confirmando el cierre…",
+  "closingErrorTitle": "No fue posible cerrar la cuenta"
 }

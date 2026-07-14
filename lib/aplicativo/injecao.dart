@@ -23,6 +23,13 @@ import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_gerar_pix.dart';
 import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_processar_pagamento.dart';
 import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_verificar_pagamento.dart';
 import '../funcionalidades/pagamento/dominio/repositorios/repositorio_pagamento.dart';
+import '../funcionalidades/encerramento/dados/fontes_dados/fonte_encerramento_atendimento.dart';
+import '../funcionalidades/encerramento/dados/fontes_dados/fonte_fatura.dart';
+import '../funcionalidades/encerramento/dados/repositorios/repositorio_configuracao_faturamento_impl.dart';
+import '../funcionalidades/encerramento/dados/repositorios/repositorio_transacoes_pendentes_impl.dart';
+import '../funcionalidades/encerramento/dominio/casos_uso/caso_uso_encerrar_atendimentos.dart';
+import '../funcionalidades/encerramento/dominio/repositorios/repositorio_configuracao_faturamento.dart';
+import '../funcionalidades/encerramento/dominio/repositorios/repositorio_transacoes_pendentes.dart';
 import '../funcionalidades/configuracoes/dados/repositorios/repositorio_configuracao_impl.dart';
 import '../funcionalidades/configuracoes/dados/repositorios/repositorio_credencial_impl.dart';
 import '../funcionalidades/configuracoes/dados/repositorios/repositorio_tema_impl.dart';
@@ -261,4 +268,45 @@ final provedorCasoUsoProcessarPagamento = Provider<CasoUsoProcessarPagamento>(
 
 final provedorCasoUsoVerificarPagamento = Provider<CasoUsoVerificarPagamento>(
   (ref) => CasoUsoVerificarPagamento(ref.watch(provedorRepositorioPagamento)),
+);
+
+// ---------------------------------------------------------------------------
+// Encerramento financeiro da comanda: ação 10 e 30 na API da LOJA, fatura na
+// API da NUVEM. O caso de uso é ÚNICO no app (Provider raiz) — a trava contra
+// encerramentos simultâneos depende dessa instância compartilhada.
+// ---------------------------------------------------------------------------
+
+final provedorRepositorioTransacoesPendentes =
+    Provider<RepositorioTransacoesPendentes>(
+  (ref) =>
+      RepositorioTransacoesPendentesImpl(ref.watch(provedorSharedPreferences)),
+);
+
+final provedorRepositorioConfiguracaoFaturamento =
+    Provider<RepositorioConfiguracaoFaturamento>(
+  (ref) => RepositorioConfiguracaoFaturamentoImpl(
+      ref.watch(provedorSharedPreferences)),
+);
+
+final provedorFonteEncerramentoAtendimento =
+    Provider<FonteEncerramentoAtendimento>(
+  (ref) => FonteEncerramentoAtendimento(ref.watch(provedorClienteApiLoja)),
+);
+
+// Fatura sempre na nuvem (contrato observado no caixa: movimento/fatura em
+// sirius), pelo cliente autenticado com re-login no 401.
+final provedorFonteFatura = Provider<FonteFatura>(
+  (ref) => FonteFatura(ref.watch(provedorClienteApiNuvem)),
+);
+
+final provedorCasoUsoEncerrarAtendimentos =
+    Provider<CasoUsoEncerrarAtendimentos>(
+  (ref) => CasoUsoEncerrarAtendimentos(
+    fonteEncerramento: ref.watch(provedorFonteEncerramentoAtendimento),
+    fonteFatura: ref.watch(provedorFonteFatura),
+    repositorioPendentes: ref.watch(provedorRepositorioTransacoesPendentes),
+    repositorioConfiguracao:
+        ref.watch(provedorRepositorioConfiguracaoFaturamento),
+    fonteConsumo: ref.watch(provedorFonteConsumoAtendimento),
+  ),
 );

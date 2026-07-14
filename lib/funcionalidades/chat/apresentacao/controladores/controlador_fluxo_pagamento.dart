@@ -4,9 +4,13 @@ import 'package:uuid/uuid.dart';
 import '../../../../aplicativo/injecao.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../nucleo/erros/falha.dart';
+import '../../../../nucleo/erros/resultado.dart';
 import '../../../../nucleo/formatadores/formatador_moeda.dart';
 import '../../../comprovante/dominio/entidades/comprovante.dart';
 import '../../../configuracoes/dominio/repositorios/repositorio_configuracao.dart';
+import '../../../encerramento/dominio/casos_uso/caso_uso_encerrar_atendimentos.dart';
+import '../../../encerramento/dominio/entidades/fase_encerramento.dart';
+import '../../../encerramento/dominio/entidades/resultado_encerramento.dart';
 import '../../../leitura_cartao/dados/adaptadores/adaptador_atendimento.dart';
 import '../../../leitura_cartao/dados/fontes_dados/fonte_consumo_atendimento.dart';
 import '../../../leitura_cartao/dados/fontes_dados/fonte_recurso_item.dart';
@@ -19,6 +23,7 @@ import '../../../pagamento/dominio/entidades/pagamento.dart';
 import '../../../pagamento/dominio/entidades/status_pagamento.dart';
 import '../../dominio/entidades/mensagem.dart';
 import '../../dominio/entidades/tipo_mensagem.dart';
+import 'apoio_encerramento_chat.dart';
 import 'estado_fluxo_pagamento.dart';
 
 class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
@@ -31,6 +36,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     required AppLocalizations Function() obterTraducoes,
     FonteConsumoAtendimento? fonteConsumoAtendimento,
     FonteRecursoItem? fonteRecursoItem,
+    CasoUsoEncerrarAtendimentos? casoUsoEncerrar,
     this.atrasoBot = const Duration(milliseconds: 650),
   })  : _casoUsoLerCartao = casoUsoLerCartao,
         _repositorioLeitura = repositorioLeitura,
@@ -40,6 +46,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
         _obterTraducoes = obterTraducoes,
         _fonteConsumoAtendimento = fonteConsumoAtendimento,
         _fonteRecursoItem = fonteRecursoItem,
+        _encerramento = ApoioEncerramentoChat(casoUso: casoUsoEncerrar),
         super(const EstadoFluxoPagamento());
 
   final CasoUsoLerCartao _casoUsoLerCartao;
@@ -50,6 +57,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
   final CasoUsoProcessarPagamento _casoUsoProcessarPagamento;
   final RepositorioConfiguracao _repositorioConfiguracao;
   final AppLocalizations Function() _obterTraducoes;
+  final ApoioEncerramentoChat _encerramento;
   final Duration atrasoBot;
 
   static const Uuid _uuid = Uuid();
@@ -226,6 +234,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     state = state.copyWith(digitando: false);
     resultado.quando(
       sucesso: (atendimentos) {
+        _encerramento.registrar(atendimentos);
         final t = _obterTraducoes();
         if (atendimentos.isEmpty) {
           _adicionar(_mensagem(TipoMensagem.texto,
@@ -387,8 +396,25 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
 
   Future<void> confirmarPagamentoPix() async {
     if (state.etapa != EtapaFluxo.pixAguardando || state.digitando) return;
-    state = state.copyWith(etapa: EtapaFluxo.processando, digitando: true);
+    state = state.copyWith(digitando: true);
     final selecionados = state.selecionados;
+
+    // Impedimento conhecido do encerramento (config incompleta, pendência
+    // conflitante, mistura com demonstração) precisa barrar ANTES da
+    // cobrança — não depois do dinheiro debitado.
+    final impedimento = await _encerramento.validarAntesDoPagamento(
+        selecionados: selecionados, metodo: MetodoPagamento.pix);
+    if (!mounted) return;
+    if (impedimento != null) {
+      state = state.copyWith(digitando: false);
+      _adicionar(_mensagem(TipoMensagem.texto,
+          emoji: '⚠️',
+          texto: _obterTraducoes().closingErrorTitle,
+          subtexto: _mensagemFalha(impedimento)));
+      return;
+    }
+
+    state = state.copyWith(etapa: EtapaFluxo.processando);
     final agora = DateTime.now();
     final pagamento = Pagamento(
       id: _chaveIdempotencia!,
@@ -404,13 +430,18 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     );
     final resultado = await _casoUsoProcessarPagamento.executar(pagamento);
     if (!mounted) return;
-    state = state.copyWith(digitando: false);
     final configuracao = await _repositorioConfiguracao.obter();
     if (!mounted) return;
-    resultado.quando(
-      sucesso: (aprovado) {
+    switch (resultado) {
+      case Erro(:final falha):
+        state = state.copyWith(digitando: false);
+        _adicionar(_mensagem(TipoMensagem.texto,
+            emoji: '⚠️', texto: _mensagemFalha(falha)));
+        state = state.copyWith(etapa: EtapaFluxo.pixAguardando);
+      case Sucesso(valor: final aprovado):
         final t = _obterTraducoes();
         if (aprovado.status != StatusPagamento.aprovado) {
+          state = state.copyWith(digitando: false);
           _adicionar(_mensagem(TipoMensagem.texto,
               emoji: '❌',
               texto: t.paymentNotApproved(
@@ -418,6 +449,27 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
           state = state.copyWith(etapa: EtapaFluxo.pixAguardando);
           return;
         }
+
+        // Encerramento financeiro real (ação 10 → fatura → ação 30) quando
+        // as comandas vieram da API. Só depois da ação 30 confirmada os
+        // cartões são dados como pagos; erro mantém a comanda aberta e
+        // permite tentar de novo — a pendência preserva o identificador.
+        final encerramento = await _encerramento.encerrar(
+          selecionados: selecionados,
+          metodo: MetodoPagamento.pix,
+          aoMudarFase: _mensagemDeFase,
+        );
+        if (!mounted) return;
+        state = state.copyWith(digitando: false);
+        if (encerramento is Erro<ResultadoEncerramento>) {
+          _adicionar(_mensagem(TipoMensagem.texto,
+              emoji: '⚠️',
+              texto: t.closingErrorTitle,
+              subtexto: _mensagemFalha(encerramento.falha)));
+          state = state.copyWith(etapa: EtapaFluxo.pixAguardando);
+          return;
+        }
+
         final nomes = selecionados.map((c) => c.nome).toList();
         final cartoesAtualizados = state.cartoes
             .map((c) => c.selecionado && !c.pago
@@ -449,13 +501,22 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
               emoji: '🥳', texto: t.allCardsSettled));
           state = state.copyWith(etapa: EtapaFluxo.sucessoCompleto);
         }
-      },
-      erro: (falha) {
-        _adicionar(_mensagem(TipoMensagem.texto,
-            emoji: '⚠️', texto: _mensagemFalha(falha)));
-        state = state.copyWith(etapa: EtapaFluxo.pixAguardando);
-      },
-    );
+    }
+  }
+
+  /// Mensagem de progresso de cada fase do encerramento financeiro.
+  void _mensagemDeFase(FaseEncerramento fase) {
+    if (!mounted) return;
+    final t = _obterTraducoes();
+    final texto = switch (fase) {
+      FaseEncerramento.preparandoEncerramento => t.closingPreparing,
+      FaseEncerramento.gerandoFatura => t.closingGeneratingInvoice,
+      FaseEncerramento.confirmandoEncerramento => t.closingConfirming,
+      _ => null,
+    };
+    if (texto != null) {
+      _adicionar(_mensagem(TipoMensagem.texto, emoji: '🧾', texto: texto));
+    }
   }
 
   Future<void> pagarRestante() async {
@@ -501,6 +562,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     _proximoIdMensagem = 1;
     _chaveIdempotencia = null;
     _ultimoComprovante = null;
+    _encerramento.limpar();
     state = const EstadoFluxoPagamento();
   }
 }
@@ -517,6 +579,7 @@ final provedorFluxoPagamento =
     obterTraducoes: () => lookupAppLocalizations(ref.read(provedorIdioma)),
     fonteConsumoAtendimento: ref.watch(provedorFonteConsumoAtendimento),
     fonteRecursoItem: ref.watch(provedorFonteRecursoItem),
+    casoUsoEncerrar: ref.watch(provedorCasoUsoEncerrarAtendimentos),
     atrasoBot: ref.watch(provedorAtrasoBot),
   );
 });

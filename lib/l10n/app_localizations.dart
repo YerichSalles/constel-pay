@@ -675,6 +675,30 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Alterar idioma. Idioma atual: {languageName}.'**
   String changeLanguageSemantics(String languageName);
+
+  /// Progresso do encerramento: ação 10 em andamento.
+  ///
+  /// In pt, this message translates to:
+  /// **'Preparando encerramento…'**
+  String get closingPreparing;
+
+  /// Progresso do encerramento: fatura sendo criada.
+  ///
+  /// In pt, this message translates to:
+  /// **'Gerando fatura…'**
+  String get closingGeneratingInvoice;
+
+  /// Progresso do encerramento: ação 30 em andamento.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confirmando encerramento…'**
+  String get closingConfirming;
+
+  /// Título da mensagem quando o encerramento financeiro falha; o detalhe vem da falha.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível encerrar a conta'**
+  String get closingErrorTitle;
 }
 
 class _AppLocalizationsDelegate

@@ -11,6 +11,7 @@ import '../../../../nucleo/utils/validadores.dart';
 import '../controladores/controlador_configuracoes.dart';
 import 'painel_status_comunicacao.dart';
 import 'secao_configuracoes.dart';
+import 'secao_faturamento.dart';
 
 /// Largura mínima para o layout em duas colunas (formulário + painel de
 /// status fixo ao lado).
@@ -256,6 +257,8 @@ class _AbaComunicacaoState extends ConsumerState<AbaComunicacao> {
       _secaoNuvem(estado),
       const SizedBox(height: 16),
       _secaoLocal(estado),
+      const SizedBox(height: 16),
+      const SecaoFaturamento(),
       const SizedBox(height: 20),
       BotaoPrimario(
         rotulo: 'Salvar',

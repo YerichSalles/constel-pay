@@ -110,5 +110,10 @@
   "languagePortuguese": "Português",
   "languageEnglish": "English",
   "languageSpanish": "Español",
-  "changeLanguageSemantics": "Change language. Current language: {languageName}."
+  "changeLanguageSemantics": "Change language. Current language: {languageName}.",
+
+  "closingPreparing": "Preparing closure…",
+  "closingGeneratingInvoice": "Generating invoice…",
+  "closingConfirming": "Confirming closure…",
+  "closingErrorTitle": "We couldn't close your bill"
 }

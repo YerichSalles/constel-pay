@@ -113,8 +113,20 @@ class ControladorDiagnostico extends StateNotifier<EstadoDiagnostico> {
     );
   }
 
+  /// Limpa tudo, EXCETO as chaves protegidas (registros transacionais):
+  /// apagar uma transação pendente entre a criação da fatura e a ação 30
+  /// deixaria fatura órfã no retaguarda sem recuperação local.
   Future<void> limparDadosLocais(FlutterSecureStorage armazenamento) async {
+    final protegidos = {
+      for (final chave in ConstantesApp.chavesProtegidasNaLimpeza)
+        if (_preferencias.getString(chave) case final String valor
+            when valor.isNotEmpty)
+          chave: valor,
+    };
     await _preferencias.clear();
+    for (final entrada in protegidos.entries) {
+      await _preferencias.setString(entrada.key, entrada.value);
+    }
     await armazenamento.deleteAll();
     registrador.i('Dados locais limpos pelo operador');
   }
