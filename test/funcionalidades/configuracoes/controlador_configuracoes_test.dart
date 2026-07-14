@@ -252,4 +252,77 @@ void main() {
     expect(controlador.state.mensagem, contains('API Local'));
     expect(controlador.state.mensagem, contains('não autorizado'));
   });
+
+  test('testes com sucesso atualizam status, latência e usuário do painel',
+      () async {
+    expect(controlador.state.statusLocal, StatusConexao.desconhecido);
+    await controlador.testarApiLocal();
+    expect(controlador.state.statusLocal, StatusConexao.conectado);
+    expect(controlador.state.latenciaLocalMs, isNotNull);
+    expect(controlador.state.ultimaVerificacao, isNotNull);
+
+    when(() => casoUsoLoginNuvem.executar())
+        .thenAnswer((_) async => Sucesso(_sessao()));
+    await controlador.testarApiNuvem();
+    expect(controlador.state.statusNuvem, StatusConexao.conectado);
+    expect(controlador.state.usuarioNuvem, isNotEmpty);
+  });
+
+  test('falha no teste marca status de erro e salvar reseta os status',
+      () async {
+    when(() => casoUsoLoginNuvem.executar())
+        .thenAnswer((_) async => const Erro(FalhaNaoAutorizado()));
+    await controlador.testarApiNuvem();
+    expect(controlador.state.statusNuvem, StatusConexao.erro);
+
+    await controlador.salvarComunicacao(
+      usuario: 'outro',
+      senha: 'nova',
+      ambiente: Ambiente.homologacao,
+      urlProducao: '',
+      urlHomologacao: '',
+    );
+    expect(controlador.state.statusNuvem, StatusConexao.desconhecido);
+    expect(controlador.state.statusLocal, StatusConexao.desconhecido);
+    expect(controlador.state.usuarioNuvem, isEmpty);
+  });
+
+  test(
+      'salvar sem mudar credencial, URLs ou ambiente preserva o status '
+      'verificado', () async {
+    // Normaliza as URLs (barra final) para a comparação do segundo salvar.
+    await controlador.salvarComunicacao(
+      usuario: 'operador',
+      senha: 's3nh4',
+      ambiente: Ambiente.homologacao,
+      urlProducao: '',
+      urlHomologacao: 'https://localhost:3001/api',
+      urlNuvemProducao: '',
+      urlNuvemHomologacao: 'https://nuvem.constel.dev/api',
+    );
+    await controlador.testarApiLocal();
+    expect(controlador.state.statusLocal, StatusConexao.conectado);
+
+    // Só o identificador do terminal muda: a verificação continua valendo.
+    await controlador.salvarComunicacao(
+      usuario: 'operador',
+      senha: 's3nh4',
+      ambiente: Ambiente.homologacao,
+      urlProducao: '',
+      urlHomologacao: 'https://localhost:3001/api',
+      urlNuvemProducao: '',
+      urlNuvemHomologacao: 'https://nuvem.constel.dev/api',
+      identificadorDispositivo: 'TOTEM-99',
+    );
+    expect(controlador.state.statusLocal, StatusConexao.conectado);
+    expect(controlador.state.nomeEstabelecimento, 'Loja');
+    expect(controlador.state.configuracao.identificadorDispositivo, 'TOTEM-99');
+  });
+
+  test('testarApiNuvem mede a latência da nuvem', () async {
+    when(() => casoUsoLoginNuvem.executar())
+        .thenAnswer((_) async => Sucesso(_sessao()));
+    await controlador.testarApiNuvem();
+    expect(controlador.state.latenciaNuvemMs, isNotNull);
+  });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../aplicativo/tema/estilos_texto.dart';
 
 class SeletorFonte extends StatelessWidget {
@@ -7,10 +8,15 @@ class SeletorFonte extends StatelessWidget {
     super.key,
     required this.valor,
     required this.aoMudar,
+    this.textoPrevia,
   });
 
   final String valor;
   final void Function(String fonte) aoMudar;
+
+  /// Frase mostrada como prévia na fonte selecionada. Nada aparece quando
+  /// nulo.
+  final String? textoPrevia;
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +55,17 @@ class SeletorFonte extends StatelessWidget {
             ),
           ),
         ),
+        if (textoPrevia != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            textoPrevia!,
+            overflow: TextOverflow.ellipsis,
+            style: EstilosTexto.estilo(
+              atual,
+              const TextStyle(fontSize: 13, color: CoresApp.textoSecundario),
+            ),
+          ),
+        ],
       ],
     );
   }
