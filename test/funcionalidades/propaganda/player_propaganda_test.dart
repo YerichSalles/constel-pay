@@ -32,6 +32,7 @@ void main() {
     FundoMidia fundo = FundoMidia.borrado,
     AncoraMidia ancora = AncoraMidia.centro,
     int zoomPercentual = 100,
+    int rotacaoGraus = 0,
   }) =>
       MidiaPropaganda(
           id: 'a',
@@ -41,7 +42,8 @@ void main() {
           ajuste: ajuste,
           fundo: fundo,
           ancora: ancora,
-          zoomPercentual: zoomPercentual);
+          zoomPercentual: zoomPercentual,
+          rotacaoGraus: rotacaoGraus);
 
   Future<void> montar(WidgetTester tester, MidiaPropaganda midia, Size tela) {
     return tester.pumpWidget(MaterialApp(
@@ -57,7 +59,7 @@ void main() {
   }
 
   BoxFit? fitAplicado(WidgetTester tester) =>
-      tester.widget<Image>(find.byKey(const ValueKey('midia-nitida'))).fit;
+      tester.widget<FittedBox>(find.byKey(const ValueKey('midia-nitida'))).fit;
 
   testWidgets('modos explicitos aplicam o BoxFit sem precisar medir a imagem',
       (tester) async {
@@ -149,9 +151,9 @@ void main() {
             ancora: AncoraMidia.topo, zoomPercentual: 140),
         const Size(90, 160));
     await tester.pump();
-    final imagem =
-        tester.widget<Image>(find.byKey(const ValueKey('midia-nitida')));
-    expect(imagem.alignment, Alignment.topCenter,
+    final nitida =
+        tester.widget<FittedBox>(find.byKey(const ValueKey('midia-nitida')));
+    expect(nitida.alignment, Alignment.topCenter,
         reason: 'a ancora diz qual parte da midia sobrevive ao corte');
     final transformes = tester.widgetList<Transform>(find.descendant(
         of: find.byType(PlayerPropaganda), matching: find.byType(Transform)));
@@ -170,5 +172,31 @@ void main() {
             matching: find.byType(Transform)),
         findsNothing,
         reason: 'zoom so existe no preencher');
+  });
+
+  testWidgets('rotacao gira a midia e o fundo borrado juntos', (tester) async {
+    await montar(
+        tester,
+        midiaCom(AjusteMidia.automatico, caminhoImagem, rotacaoGraus: 90),
+        const Size(90, 160));
+    await tester.pump();
+    final rotacoes = tester.widgetList<RotatedBox>(find.descendant(
+        of: find.byType(PlayerPropaganda), matching: find.byType(RotatedBox)));
+    expect(rotacoes, hasLength(2),
+        reason: 'camada nitida e fundo borrado giram juntos');
+    for (final rotacao in rotacoes) {
+      expect(rotacao.quarterTurns, 1);
+    }
+  });
+
+  testWidgets('sem rotacao, quarterTurns fica em zero', (tester) async {
+    await montar(
+        tester,
+        midiaCom(AjusteMidia.automatico, caminhoImagem, fundo: FundoMidia.cor),
+        const Size(90, 160));
+    await tester.pump();
+    final rotacao = tester.widget<RotatedBox>(find.descendant(
+        of: find.byType(PlayerPropaganda), matching: find.byType(RotatedBox)));
+    expect(rotacao.quarterTurns, 0);
   });
 }

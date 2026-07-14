@@ -142,10 +142,14 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
               sigmaX: _sigmaFundoBorrado,
               sigmaY: _sigmaFundoBorrado,
               tileMode: ui.TileMode.clamp),
-          child: Image.file(File(widget.midia.caminho),
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity),
+          child: FittedBox(
+            fit: BoxFit.cover,
+            clipBehavior: Clip.hardEdge,
+            child: RotatedBox(
+              quarterTurns: resolverQuartosDeVolta(widget.midia.rotacaoGraus),
+              child: Image.file(File(widget.midia.caminho)),
+            ),
+          ),
         ),
       );
     }
@@ -173,10 +177,14 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
                   child: FittedBox(
                     fit: BoxFit.cover,
                     clipBehavior: Clip.hardEdge,
-                    child: SizedBox(
-                      width: video.value.size.width,
-                      height: video.value.size.height,
-                      child: VideoPlayer(video),
+                    child: RotatedBox(
+                      quarterTurns:
+                          resolverQuartosDeVolta(widget.midia.rotacaoGraus),
+                      child: SizedBox(
+                        width: video.value.size.width,
+                        height: video.value.size.height,
+                        child: VideoPlayer(video),
+                      ),
                     ),
                   ),
                 ),
@@ -196,31 +204,32 @@ class _PlayerPropagandaState extends State<PlayerPropaganda> {
     final alinhamento = ajuste == AjusteMidia.preencher
         ? resolverAlinhamento(widget.midia.ancora)
         : Alignment.center;
-    final Widget conteudo;
+    final Widget midia;
     if (widget.midia.tipo == TipoMidia.imagem) {
-      conteudo = Image.file(arquivo,
-          key: const ValueKey('midia-nitida'),
-          fit: fit,
-          alignment: alinhamento,
-          width: double.infinity,
-          height: double.infinity);
+      midia = Image.file(arquivo);
     } else {
       final video = _video;
       if (video == null || !video.value.isInitialized) {
         return const SizedBox.expand();
       }
-      conteudo = FittedBox(
-        key: const ValueKey('midia-nitida'),
-        fit: fit,
-        alignment: alinhamento,
-        clipBehavior: Clip.hardEdge,
-        child: SizedBox(
-          width: video.value.size.width,
-          height: video.value.size.height,
-          child: VideoPlayer(video),
-        ),
+      midia = SizedBox(
+        width: video.value.size.width,
+        height: video.value.size.height,
+        child: VideoPlayer(video),
       );
     }
+    // A rotacao acontece antes do fit: o RotatedBox gira o layout e o
+    // FittedBox enquadra a midia ja girada com a razao certa.
+    final Widget conteudo = FittedBox(
+      key: const ValueKey('midia-nitida'),
+      fit: fit,
+      alignment: alinhamento,
+      clipBehavior: Clip.hardEdge,
+      child: RotatedBox(
+        quarterTurns: resolverQuartosDeVolta(widget.midia.rotacaoGraus),
+        child: midia,
+      ),
+    );
     if (ajuste != AjusteMidia.preencher) return conteudo;
     // Zoom so existe no preencher: amplia a partir da ancora e corta a sobra.
     return ClipRect(
