@@ -8,11 +8,17 @@ import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/chip_a
 import 'package:constel_pay/funcionalidades/chat/apresentacao/controladores/estado_fluxo_pagamento.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/entidades/dados_pix.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/entidades/metodo_pagamento.dart';
+import 'package:constel_pay/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Widget _app(Widget filho) =>
-    MaterialApp(home: Scaffold(body: SingleChildScrollView(child: filho)));
+Widget _app(Widget filho, {Locale locale = const Locale('pt', 'BR')}) =>
+    MaterialApp(
+      locale: locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(body: SingleChildScrollView(child: filho)),
+    );
 
 void main() {
   testWidgets('CardScanner dispara aoEscanear quando habilitado',

@@ -1,6 +1,7 @@
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/area_acoes.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/controladores/estado_fluxo_pagamento.dart';
 import 'package:constel_pay/funcionalidades/leitura_cartao/dominio/entidades/cartao_consumo.dart';
+import 'package:constel_pay/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -21,8 +22,13 @@ const _cartao = CartaoConsumo(
 );
 
 Widget _montar(EstadoFluxoPagamento estado,
-    {VoidCallback? aoTentarNovamente, VoidCallback? aoContinuarComCartoes}) {
+    {VoidCallback? aoTentarNovamente,
+    VoidCallback? aoContinuarComCartoes,
+    Locale locale = const Locale('pt', 'BR')}) {
   return MaterialApp(
+    locale: locale,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(
       body: AreaAcoes(
         estado: estado,
@@ -108,5 +114,14 @@ void main() {
     ])));
     expect(find.text('Tentar novamente'), findsOneWidget);
     expect(find.text('Continuar com 2 cartões adicionados'), findsOneWidget);
+  });
+
+  testWidgets('locale en mostra os rotulos em ingles', (tester) async {
+    await tester.pumpWidget(_montar(
+      const EstadoFluxoPagamento(
+          etapa: EtapaFluxo.aguardandoMaisCartoes, cartoes: [_cartao]),
+      locale: const Locale('en'),
+    ));
+    expect(find.text('Continue to payment'), findsOneWidget);
   });
 }

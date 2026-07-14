@@ -4,6 +4,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../compartilhado/widgets/botao_primario.dart';
 import '../../../../compartilhado/widgets/cartao.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../nucleo/formatadores/formatador_moeda.dart';
 import '../../../pagamento/dominio/entidades/dados_pix.dart';
 
@@ -26,12 +27,14 @@ class CardPix extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primaria = Theme.of(context).colorScheme.primary;
+    final t = AppLocalizations.of(context);
     return Cartao(
       preenchimento: const EdgeInsets.all(18),
       filho: Column(
         children: [
-          const Text('Pague com Pix',
-              style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800)),
+          Text(t.payWithPix,
+              style:
+                  const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800)),
           const SizedBox(height: 3),
           Text(
             FormatadorMoeda.formatar(dadosPix.valorCentavos),
@@ -48,8 +51,8 @@ class CardPix extends StatelessWidget {
             child: QrImageView(data: dadosPix.copiaCola, size: 172),
           ),
           const SizedBox(height: 6),
-          const Text('Válido por 5 minutos',
-              style: TextStyle(
+          Text(t.validFor5Minutes,
+              style: const TextStyle(
                   fontSize: 11.5,
                   color: CoresApp.textoSecundario,
                   fontWeight: FontWeight.w600)),
@@ -65,7 +68,7 @@ class CardPix extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 alignment: Alignment.center,
                 child: Text(
-                  copiado ? 'Código copiado ✓' : '📋 Copiar código Pix',
+                  copiado ? t.codeCopied : t.copyPixCode,
                   style: TextStyle(
                       fontSize: 13.5,
                       fontWeight: FontWeight.w800,
@@ -76,7 +79,7 @@ class CardPix extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           BotaoPrimario(
-            rotulo: 'Já fiz o pagamento',
+            rotulo: t.paymentDoneButton,
             aoTocar: habilitado ? aoConfirmar : null,
           ),
         ],

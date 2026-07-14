@@ -4,11 +4,17 @@ import 'package:constel_pay/funcionalidades/chat/dominio/entidades/mensagem.dart
 import 'package:constel_pay/funcionalidades/chat/dominio/entidades/tipo_mensagem.dart';
 import 'package:constel_pay/funcionalidades/leitura_cartao/dominio/entidades/cartao_consumo.dart';
 import 'package:constel_pay/funcionalidades/leitura_cartao/dominio/entidades/item_consumo.dart';
+import 'package:constel_pay/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Widget _app(Widget filho) =>
-    MaterialApp(home: Scaffold(body: SingleChildScrollView(child: filho)));
+Widget _app(Widget filho, {Locale locale = const Locale('pt', 'BR')}) =>
+    MaterialApp(
+      locale: locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(body: SingleChildScrollView(child: filho)),
+    );
 
 const _itens = [
   ItemConsumo(
@@ -135,5 +141,14 @@ void main() {
     final imagem = tester.widget<Image>(find.byType(Image));
     expect((imagem.image as NetworkImage).url,
         'https://s3.amazonaws.com/f/burger.png');
+  });
+
+  testWidgets('locale es mostra os rotulos de subtotal e servico em espanhol',
+      (tester) async {
+    await tester.pumpWidget(
+        _app(CardComanda(cartao: _cartao()), locale: const Locale('es')));
+    expect(find.text('Subtotal'), findsOneWidget);
+    expect(find.text('Tarifa de servicio (10%)'), findsOneWidget);
+    expect(find.text('Total de la tarjeta'), findsOneWidget);
   });
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../compartilhado/layout/layout_responsivo.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../controladores/estado_fluxo_pagamento.dart';
 import 'barra_total.dart';
 import 'chip_acao.dart';
@@ -28,7 +29,7 @@ class AreaAcoes extends StatelessWidget {
   final VoidCallback aoTentarNovamente;
   final VoidCallback aoContinuarComCartoes;
 
-  List<Widget> _chips() {
+  List<Widget> _chips(AppLocalizations t) {
     if (estado.digitando) return const [];
     final temCartoes = estado.selecionados.isNotEmpty;
     switch (estado.etapa) {
@@ -38,7 +39,7 @@ class AreaAcoes extends StatelessWidget {
         if (!temCartoes) return const [];
         return [
           ChipAcao(
-              rotulo: 'Continuar com os cartões já adicionados',
+              rotulo: t.continueWithAddedCards,
               aoTocar: aoContinuarComCartoes,
               discreto: true),
         ];
@@ -46,9 +47,9 @@ class AreaAcoes extends StatelessWidget {
         return [
           // Sempre disponível: com a API real o app não sabe quantas comandas
           // ainda estão abertas na mesa (`cartoesRestantes` só existe no mock).
-          ChipAcao(rotulo: 'Adicionar outro cartão', aoTocar: aoLerOutro),
+          ChipAcao(rotulo: t.addAnotherCard, aoTocar: aoLerOutro),
           ChipAcao(
-              rotulo: 'Continuar para pagamento',
+              rotulo: t.continueToPayment,
               aoTocar: aoIrPagamento,
               primario: true),
         ];
@@ -57,32 +58,31 @@ class AreaAcoes extends StatelessWidget {
         return [
           ChipAcao(
               rotulo: estado.etapa == EtapaFluxo.semConsumo
-                  ? 'Tentar outro cartão'
-                  : 'Tentar novamente',
+                  ? t.tryAnotherCard
+                  : t.tryAgain,
               aoTocar: aoTentarNovamente,
               primario: !temCartoes),
           if (temCartoes)
             ChipAcao(
-                rotulo: 'Continuar com ${estado.rotuloCartoesAdicionados}',
+                rotulo:
+                    t.continueWithAddedCardsCount(estado.selecionados.length),
                 aoTocar: aoContinuarComCartoes,
                 primario: true),
         ];
       case EtapaFluxo.sucessoComRestante:
         return [
           ChipAcao(
-              rotulo: 'Pagar restante',
-              aoTocar: aoPagarRestante,
-              primario: true),
-          ChipAcao(rotulo: 'Encerrar', aoTocar: aoEncerrar),
+              rotulo: t.payRemaining, aoTocar: aoPagarRestante, primario: true),
+          ChipAcao(rotulo: t.endService, aoTocar: aoEncerrar),
         ];
       case EtapaFluxo.sucessoCompleto:
         return [
-          ChipAcao(rotulo: 'Encerrar', aoTocar: aoEncerrar, primario: true)
+          ChipAcao(rotulo: t.endService, aoTocar: aoEncerrar, primario: true)
         ];
       case EtapaFluxo.encerramento:
         return [
           ChipAcao(
-              rotulo: 'Novo pagamento', aoTocar: aoNovaOperacao, primario: true)
+              rotulo: t.newPayment, aoTocar: aoNovaOperacao, primario: true)
         ];
       default:
         return const [];
@@ -110,11 +110,11 @@ class AreaAcoes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chips = _chips();
+    final t = AppLocalizations.of(context);
+    final chips = _chips(t);
     final selecionados = estado.selecionados.length;
-    final rotuloBarra =
-        '$selecionados ${selecionados > 1 ? 'cartões' : 'cartão'}'
-        '${estado.servicoCentavos > 0 ? ' · inclui serviço' : ''}';
+    final rotuloBarra = t.totalBarCards(selecionados) +
+        (estado.servicoCentavos > 0 ? t.totalBarServiceSuffix : '');
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -153,11 +153,11 @@ class AreaAcoes extends StatelessWidget {
                   ],
                 )
               else if (_mostraDica)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
                   child: Text(
-                    '👆 Toque em uma opção acima para continuar',
-                    style: TextStyle(
+                    t.tapOptionHint,
+                    style: const TextStyle(
                         fontSize: 12.5,
                         color: CoresApp.textoSecundario,
                         fontWeight: FontWeight.w600),

@@ -51,10 +51,4 @@ class EstadoFluxoPagamento with _$EstadoFluxoPagamento {
   /// Valor devido: soma do `saldo` de cada comanda (total menos o já pago).
   int get totalCentavos =>
       selecionados.fold(0, (acumulado, c) => acumulado + c.saldoCentavos);
-
-  /// Rótulo com plural correto para as ações "Continuar com X cartão(ões)".
-  String get rotuloCartoesAdicionados {
-    final quantidade = selecionados.length;
-    return '$quantidade ${quantidade > 1 ? 'cartões adicionados' : 'cartão adicionado'}';
-  }
 }

@@ -5,6 +5,7 @@ import 'package:constel_pay/funcionalidades/pagamento/dados/fontes_dados/fonte_p
 import 'package:constel_pay/funcionalidades/propaganda/apresentacao/componentes/publicidade_barra_superior.dart';
 import 'package:constel_pay/funcionalidades/propaganda/dados/repositorios/repositorio_publicidade_impl.dart';
 import 'package:constel_pay/funcionalidades/propaganda/dominio/entidades/publicidade_barra.dart';
+import 'package:constel_pay/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -44,7 +45,12 @@ void main() {
           provedorFontePagamentoMock
               .overrideWithValue(FontePagamentoMock(atraso: Duration.zero)),
         ],
-        child: MaterialApp.router(routerConfig: roteador),
+        child: MaterialApp.router(
+          routerConfig: roteador,
+          locale: const Locale('pt', 'BR'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+        ),
       ),
     );
     await tester.pump();
@@ -117,7 +123,12 @@ void main() {
           provedorFontePagamentoMock
               .overrideWithValue(FontePagamentoMock(atraso: Duration.zero)),
         ],
-        child: MaterialApp.router(routerConfig: roteador),
+        child: MaterialApp.router(
+          routerConfig: roteador,
+          locale: const Locale('pt', 'BR'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+        ),
       ),
     );
     await tester.pump();
@@ -177,7 +188,12 @@ void main() {
           provedorFontePagamentoMock
               .overrideWithValue(FontePagamentoMock(atraso: Duration.zero)),
         ],
-        child: MaterialApp.router(routerConfig: roteador),
+        child: MaterialApp.router(
+          routerConfig: roteador,
+          locale: const Locale('pt', 'BR'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+        ),
       ),
     );
     await tester.pump();
@@ -210,7 +226,12 @@ void main() {
           provedorFontePagamentoMock
               .overrideWithValue(FontePagamentoMock(atraso: Duration.zero)),
         ],
-        child: MaterialApp.router(routerConfig: roteador),
+        child: MaterialApp.router(
+          routerConfig: roteador,
+          locale: const Locale('pt', 'BR'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+        ),
       ),
     );
     await tester.pump();

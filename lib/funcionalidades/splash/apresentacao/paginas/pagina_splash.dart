@@ -9,6 +9,7 @@ import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/tema_constel.dart';
 import '../../../../compartilhado/widgets/detector_toque_longo.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../nucleo/constantes/constantes_app.dart';
 import '../../../../nucleo/utils/registrador.dart';
 
@@ -185,7 +186,7 @@ class _PaginaSplashState extends ConsumerState<PaginaSplash>
                 child: SlideTransition(
                   position: _deslocamentoSubtitulo,
                   child: Text(
-                    'Terminal de AutoPagamento',
+                    AppLocalizations.of(context).selfCheckoutTerminal,
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

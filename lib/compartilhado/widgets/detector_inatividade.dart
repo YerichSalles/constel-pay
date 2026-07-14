@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../aplicativo/injecao.dart';
 import '../../funcionalidades/chat/apresentacao/controladores/controlador_fluxo_pagamento.dart';
+import '../../l10n/app_localizations.dart';
 import '../../nucleo/constantes/constantes_app.dart';
 
 /// Após inatividade prolongada, avisa o usuário com contagem regressiva;
@@ -56,18 +57,17 @@ class _DetectorInatividadeState extends ConsumerState<DetectorInatividade> {
               atualizar(() {});
             }
           });
+          final t = AppLocalizations.of(contexto);
           return AlertDialog(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            title: const Text('Você ainda está aí?',
-                style: TextStyle(fontWeight: FontWeight.w800)),
-            content:
-                Text('Sem atividade há algum tempo. Voltaremos à tela inicial '
-                    'em $segundos segundo${segundos == 1 ? '' : 's'}.'),
+            title: Text(t.stillThereTitle,
+                style: const TextStyle(fontWeight: FontWeight.w800)),
+            content: Text(t.inactivityMessage(segundos)),
             actions: [
               FilledButton(
                 onPressed: () => Navigator.of(contexto).pop(true),
-                child: const Text('Continuar aqui'),
+                child: Text(t.continueHere),
               ),
             ],
           );

@@ -11,6 +11,7 @@ import '../../../../compartilhado/layout/layout_responsivo.dart';
 import '../../../../compartilhado/widgets/barra_superior.dart';
 import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../comprovante/apresentacao/componentes/card_comprovante.dart';
 import '../../../pagamento/dominio/entidades/metodo_pagamento.dart';
 import '../../../propaganda/apresentacao/componentes/publicidade_barra_superior.dart';
@@ -68,12 +69,13 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
   }
 
   Future<void> _confirmarSaida() async {
+    final t = AppLocalizations.of(context);
     final sair = await mostrarDialogoConfirmacao(
       context,
-      titulo: 'Cancelar operação?',
-      mensagem: 'O atendimento atual será encerrado e nada será cobrado.',
-      confirmar: 'Sim, cancelar',
-      cancelar: 'Continuar aqui',
+      titulo: t.cancelOperationTitle,
+      mensagem: t.cancelOperationMessage,
+      confirmar: t.confirmCancel,
+      cancelar: t.continueHere,
       destrutivo: true,
     );
     if (sair && mounted) {

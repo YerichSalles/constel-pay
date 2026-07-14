@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class BannerBoasVindas extends ConsumerWidget {
   const BannerBoasVindas({super.key, required this.nomeRestaurante});
@@ -16,6 +17,7 @@ class BannerBoasVindas extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final logoPath = ref.watch(provedorTema).logoPath;
     final temLogo = logoPath != null && File(logoPath).existsSync();
+    final t = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 6, bottom: 18),
       child: Column(
@@ -58,9 +60,10 @@ class BannerBoasVindas extends ConsumerWidget {
               style:
                   const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
           const SizedBox(height: 2),
-          const Text(
-            'AutoPagamento · Cartões de consumo',
-            style: TextStyle(fontSize: 12.5, color: CoresApp.textoSecundario),
+          Text(
+            t.selfCheckoutSubtitle,
+            style: const TextStyle(
+                fontSize: 12.5, color: CoresApp.textoSecundario),
           ),
         ],
       ),
