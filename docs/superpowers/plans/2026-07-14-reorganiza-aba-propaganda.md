@@ -83,6 +83,12 @@ void main() {
     final acao = tester.getCenter(find.byType(Switch));
     expect(acao.dx, greaterThan(titulo.dx),
         reason: 'a acao fica alinhada a direita do cabecalho');
+    // Encostada na borda, não no meio: a borda direita da ação precisa
+    // coincidir com a borda interna do card (padding 16).
+    final card = tester.getRect(find.byType(SecaoConfiguracoes));
+    final bordaAcao = tester.getRect(find.byType(Switch)).right;
+    expect(card.right - 16 - bordaAcao, lessThan(8),
+        reason: 'a acao encosta na borda direita do conteudo do card');
   });
 
   testWidgets('card so com cabecalho (sem filho) monta sem erro',
@@ -193,7 +199,15 @@ class SecaoConfiguracoes extends StatelessWidget {
               children: [
                 Expanded(child: cabecalho),
                 const SizedBox(width: 12),
-                Flexible(child: acao!),
+                // Align expande na fatia do Flexible e encosta a ação na
+                // borda direita; sem ele a sobra da Row fica DEPOIS da ação
+                // (Switch pararia no meio do card).
+                Flexible(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: acao!,
+                  ),
+                ),
               ],
             ),
           if (filho != null) ...[
