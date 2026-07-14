@@ -2,6 +2,8 @@ import 'package:constel_pay/aplicativo/injecao.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/aba_propaganda.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/dialogo_ajuste_midia.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/seletor_ajuste_midia.dart';
+import 'package:constel_pay/funcionalidades/configuracoes/dados/repositorios/repositorio_tema_impl.dart';
+import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/tema_personalizado.dart';
 import 'package:constel_pay/funcionalidades/propaganda/dados/repositorios/repositorio_propaganda_impl.dart';
 import 'package:constel_pay/funcionalidades/propaganda/dominio/entidades/midia_propaganda.dart';
 import 'package:flutter/material.dart';
@@ -120,5 +122,32 @@ void main() {
     await tester.tap(find.text('Cancelar'));
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 2));
+  });
+
+  testWidgets('seletor de orientacao persiste no tema e muda a ajuda',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: const MaterialApp(home: Scaffold(body: AbaPropaganda())),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.textContaining('1080 x 1920'), findsOneWidget,
+        reason: 'em pe por padrao');
+
+    await tester.tap(find.text('Deitada'));
+    await tester.pump();
+
+    expect(find.textContaining('1920 x 1080'), findsOneWidget,
+        reason: 'a ajuda acompanha a orientacao');
+    final salvo = await RepositorioTemaImpl(preferencias).obter();
+    expect(salvo.orientacaoTela, OrientacaoTela.horizontal,
+        reason: 'a escolha persiste no tema');
   });
 }
