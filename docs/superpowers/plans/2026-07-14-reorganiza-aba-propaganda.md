@@ -478,6 +478,17 @@ por:
           reason: 'o nome do formato ja aparece no card 1C; nao repete');
 ```
 
+d) Ainda no grupo `EditorCarrossel`, estender o teste `'dica de tamanho e aviso de 5 banners estao presentes'` com (pedido do usuário: dicas de tamanho visíveis na tela — ele gera as artes a partir delas):
+
+```dart
+      expect(
+          find.text(
+              'Formatos aceitos: JPG, PNG, WebP e GIF (o GIF anima em loop).'),
+          findsOneWidget);
+      expect(find.byKey(const Key('dicas_banners')), findsOneWidget,
+          reason: 'dicas moram num bloco informativo discreto');
+```
+
 Em `secao_barra_superior_test.dart`, no teste `'monta com defaults…'`, substituir:
 
 ```dart
@@ -558,10 +569,29 @@ Em **`editor_carrossel.dart`**, substituir o `return SecaoConfiguracoes(...)` do
               .entries
               .map((entrada) => _cardBanner(entrada.value, entrada.key + 1)),
         const SizedBox(height: 8),
-        _rotulo('Recomendado: 384 × 192 px, proporção 2:1.'),
-        const SizedBox(height: 4),
-        _rotulo(
-            'Recomendamos até 5 banners ativos para manter uma rotação rápida.'),
+        // Dicas de geração da arte num bloco informativo discreto (mesmo
+        // padrão do bloco de orientações do Conteúdo da tela).
+        Container(
+          key: const Key('dicas_banners'),
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: CoresApp.lilasClaro,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _rotulo('Recomendado: 384 × 192 px, proporção 2:1.'),
+              const SizedBox(height: 4),
+              _rotulo(
+                  'Formatos aceitos: JPG, PNG, WebP e GIF (o GIF anima em loop).'),
+              const SizedBox(height: 4),
+              _rotulo(
+                  'Recomendamos até 5 banners ativos para manter uma rotação rápida.'),
+            ],
+          ),
+        ),
         const SizedBox(height: 12),
         BotaoSecundario(
             rotulo: '+ Adicionar banner', aoTocar: aoAdicionarBanners),
@@ -774,6 +804,18 @@ No grupo `EditorParceiro` de `editores_publicidade_test.dart`, substituir o test
     });
 ```
 
+Além disso, estender o teste existente `'sem midia mostra Nenhum conteúdo configurado. e CTA Alterar mídia'` com (pedido do usuário: dicas visíveis antes de adicionar):
+
+```dart
+      expect(find.byKey(const Key('dicas_parceiro')), findsOneWidget,
+          reason: 'dicas de tamanho visiveis antes mesmo de adicionar');
+      expect(find.text('Recomendado: 1040 × 128 px.'), findsOneWidget);
+      expect(
+          find.text('Formatos aceitos: JPG, PNG, WebP e GIF '
+              '(o GIF anima em loop contínuo).'),
+          findsOneWidget);
+```
+
 - [ ] **Step 2: Rodar e ver falhar**
 
 ```bash
@@ -832,6 +874,27 @@ class EditorParceiro extends StatelessWidget {
           style: TextStyle(fontSize: 11.5, color: CoresApp.textoSecundario),
         ),
         const SizedBox(height: 12),
+        // Dicas de geração da arte sempre visíveis — inclusive antes de
+        // adicionar a mídia, que é quando o operador produz o arquivo.
+        Container(
+          key: const Key('dicas_parceiro'),
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: CoresApp.lilasClaro,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _rotulo('Recomendado: 1040 × 128 px.'),
+              const SizedBox(height: 4),
+              _rotulo('Formatos aceitos: JPG, PNG, WebP e GIF '
+                  '(o GIF anima em loop contínuo).'),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
         if (midia == null)
           EstadoVazio(
             emoji: '🎯',
@@ -859,8 +922,6 @@ class EditorParceiro extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _InfoMidiaParceiro(caminho: midia.caminho),
-          const SizedBox(height: 4),
-          _rotulo('Recomendado: 1040 × 128 px.'),
           const SizedBox(height: 12),
           Wrap(
             spacing: 12,
