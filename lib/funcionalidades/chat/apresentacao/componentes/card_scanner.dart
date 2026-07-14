@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../compartilhado/widgets/botao_primario.dart';
 import '../../../../compartilhado/widgets/cartao.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class CardScanner extends StatefulWidget {
   const CardScanner({
@@ -136,6 +137,7 @@ class _CardScannerState extends State<CardScanner>
   @override
   Widget build(BuildContext context) {
     final primaria = Theme.of(context).colorScheme.primary;
+    final t = AppLocalizations.of(context);
     return Cartao(
       preenchimento: const EdgeInsets.all(14),
       filho: Column(
@@ -167,7 +169,7 @@ class _CardScannerState extends State<CardScanner>
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: Text(
-                        'Posicione o código do cartão dentro da área',
+                        t.scanPositionHint,
                         style: TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w600,
@@ -182,7 +184,7 @@ class _CardScannerState extends State<CardScanner>
           ),
           const SizedBox(height: 12),
           BotaoPrimario(
-            rotulo: '📷 Simular leitura do código',
+            rotulo: t.simulateScanButton,
             aoTocar: widget.habilitado ? widget.aoEscanear : null,
           ),
           // TEMPORÁRIO (teste da API de consumo): digitação manual da comanda.
@@ -198,7 +200,7 @@ class _CardScannerState extends State<CardScanner>
                     onSubmitted:
                         widget.habilitado ? (_) => _enviarComanda() : null,
                     decoration: InputDecoration(
-                      hintText: 'Nº do cartão',
+                      hintText: t.cardNumberHint,
                       isDense: true,
                       filled: true,
                       fillColor: const Color(0xFFF4F3F8),
@@ -215,7 +217,7 @@ class _CardScannerState extends State<CardScanner>
                 const SizedBox(width: 8),
                 FilledButton.tonal(
                   onPressed: widget.habilitado ? _enviarComanda : null,
-                  child: const Text('Buscar'),
+                  child: Text(t.searchButton),
                 ),
               ],
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../aplicativo/tema/cores_app.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../nucleo/formatadores/formatador_moeda.dart';
 import '../../../../nucleo/formatadores/formatador_percentual.dart';
 import '../../../leitura_cartao/dominio/entidades/cartao_consumo.dart';
@@ -24,6 +25,7 @@ class CardComanda extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primaria = Theme.of(context).colorScheme.primary;
+    final t = AppLocalizations.of(context);
     final marcado = cartao.selecionado || cartao.pago;
     return Opacity(
       opacity: cartao.pago ? .6 : 1,
@@ -107,7 +109,7 @@ class CardComanda extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        cartao.pago ? 'Pago ✓' : cartao.resumo,
+                        cartao.pago ? t.paidLabel : cartao.resumo,
                         style: const TextStyle(
                             fontSize: 12,
                             color: CoresApp.textoSecundario,
@@ -123,22 +125,23 @@ class CardComanda extends StatelessWidget {
               ...cartao.itens.map((item) => _LinhaItem(item: item)),
             ],
             const SizedBox(height: 10),
-            _linhaValor(
-                'Subtotal', FormatadorMoeda.formatar(cartao.subtotalCentavos)),
+            _linhaValor(t.subtotalLabel,
+                FormatadorMoeda.formatar(cartao.subtotalCentavos)),
             if (cartao.servicoCentavos > 0)
               _linhaValor(
-                'Taxa de serviço (${FormatadorPercentual.formatar(cartao.servicoPercentual)})',
+                t.serviceFeeLabel(
+                    FormatadorPercentual.formatar(cartao.servicoPercentual)),
                 FormatadorMoeda.formatar(cartao.servicoCentavos),
               ),
             if (cartao.descontoCentavos > 0)
-              _linhaValor('Desconto',
+              _linhaValor(t.discountLabel,
                   '- ${FormatadorMoeda.formatar(cartao.descontoCentavos)}'),
             const SizedBox(height: 6),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Total da comanda',
-                    style: TextStyle(
+                Text(t.cardTotalLabel,
+                    style: const TextStyle(
                         fontSize: 13,
                         color: CoresApp.textoSecundario,
                         fontWeight: FontWeight.w700)),
@@ -181,38 +184,42 @@ class _LinhaItem extends StatelessWidget {
   final ItemConsumo item;
 
   @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: CoresApp.bordaCard)),
-        ),
-        child: Row(
-          children: [
-            _FotoItem(item: item),
-            const SizedBox(width: 11),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(item.nome,
-                      style: const TextStyle(
-                          fontSize: 13.5, fontWeight: FontWeight.w700)),
-                  Text(
-                    '${item.quantidade} un · ${FormatadorMoeda.formatar(item.valorCentavos)} cada',
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: CoresApp.bordaCard)),
+      ),
+      child: Row(
+        children: [
+          _FotoItem(item: item),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(item.nome,
                     style: const TextStyle(
-                        fontSize: 11.5,
-                        color: CoresApp.textoSecundario,
-                        fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
+                        fontSize: 13.5, fontWeight: FontWeight.w700)),
+                Text(
+                  t.itemQuantityLabel(item.quantidade,
+                      FormatadorMoeda.formatar(item.valorCentavos)),
+                  style: const TextStyle(
+                      fontSize: 11.5,
+                      color: CoresApp.textoSecundario,
+                      fontWeight: FontWeight.w600),
+                ),
+              ],
             ),
-            Text(FormatadorMoeda.formatar(item.totalCentavos),
-                style: const TextStyle(
-                    fontSize: 13.5, fontWeight: FontWeight.w700)),
-          ],
-        ),
-      );
+          ),
+          Text(FormatadorMoeda.formatar(item.totalCentavos),
+              style:
+                  const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700)),
+        ],
+      ),
+    );
+  }
 }
 
 /// Foto do item vinda do cadastro da loja. Sem foto, imagem quebrada ou offline

@@ -45,8 +45,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
   assets:
     - assets/marca/
+    - assets/bandeiras/
   # Fontes empacotadas: o terminal funciona sem internet.
   fonts:
     - family: Inter

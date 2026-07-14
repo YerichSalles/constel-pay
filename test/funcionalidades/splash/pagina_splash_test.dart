@@ -3,6 +3,7 @@ import 'package:constel_pay/aplicativo/tema/controlador_tema.dart';
 import 'package:constel_pay/compartilhado/widgets/detector_toque_longo.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/tema_personalizado.dart';
 import 'package:constel_pay/funcionalidades/splash/apresentacao/paginas/pagina_splash.dart';
+import 'package:constel_pay/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -44,7 +45,12 @@ Future<void> _montar(WidgetTester tester, {String? corPrimaria}) async {
             ),
           ),
       ],
-      child: MaterialApp.router(routerConfig: await _roteador()),
+      child: MaterialApp.router(
+        routerConfig: await _roteador(),
+        locale: const Locale('pt', 'BR'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+      ),
     ),
   );
   await tester.pump();

@@ -8,6 +8,10 @@ import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/tema_constel.dart';
 import '../../../../compartilhado/widgets/faixa_pagamento.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
+import '../../../../compartilhado/widgets/seletor_idioma.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../configuracoes/dominio/entidades/tema_personalizado.dart'
+    show textoFaixaPadrao;
 import '../componentes/trocador_propaganda.dart';
 import '../controladores/controlador_propaganda.dart';
 
@@ -122,12 +126,20 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
       );
     }
 
+    // Override do operador (textoFaixa customizado) sempre prevalece; sem
+    // override, o texto padrao vem traduzido no idioma atual do atendimento.
+    final textoFaixaPersonalizado = tema.textoFaixa.trim();
+    final textoFaixa = textoFaixaPersonalizado.isEmpty ||
+            textoFaixaPersonalizado == textoFaixaPadrao
+        ? AppLocalizations.of(context).tapToPay
+        : tema.textoFaixaEfetivo;
+
     final conteudo = Column(
       children: [
         Expanded(child: SizedBox(width: double.infinity, child: fundo)),
         if (!estado.carregando)
           FaixaPagamento(
-            texto: tema.textoFaixaEfetivo,
+            texto: textoFaixa,
             corFundo: TemaConstel.corDeHex(tema.corFaixaEfetiva, primaria),
             corTexto: TemaConstel.corDeHex(tema.corTextoFaixa, Colors.white),
             fonte: tema.fonte,
@@ -143,19 +155,26 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
             behavior: HitTestBehavior.opaque,
             child: conteudo,
           ),
-          // Botao temporario de acesso as configuracoes.
+          // Seletor de idioma + botao temporario de acesso as configuracoes.
           if (!widget.preview)
             Positioned(
               top: 12,
               right: 12,
               child: SafeArea(
-                child: IconButton(
-                  onPressed: _abrirConfiguracoes,
-                  tooltip: 'Configurações',
-                  icon: const Icon(Icons.settings, color: Colors.white),
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.black.withValues(alpha: .45),
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SeletorIdioma(),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: _abrirConfiguracoes,
+                      tooltip: 'Configurações',
+                      icon: const Icon(Icons.settings, color: Colors.white),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.black.withValues(alpha: .45),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

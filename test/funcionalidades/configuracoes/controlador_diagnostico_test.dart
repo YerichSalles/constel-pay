@@ -2,13 +2,25 @@ import 'dart:io';
 
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/controladores/controlador_diagnostico.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dados/repositorios/repositorio_configuracao_impl.dart';
-import 'package:constel_pay/funcionalidades/configuracoes/dominio/casos_uso/caso_uso_testar_conexao.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/configuracao_terminal.dart';
-import 'package:constel_pay/nucleo/configuracao/cliente_api.dart';
-import 'package:constel_pay/nucleo/utils/registrador.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Interface de rede falsa para exercitar a escolha do IP sem depender dos
+/// adaptadores reais da máquina de teste.
+class _InterfaceFake implements NetworkInterface {
+  _InterfaceFake(this.name, List<String> ips)
+      : addresses = [for (final ip in ips) InternetAddress(ip)];
+
+  @override
+  final String name;
+
+  @override
+  final List<InternetAddress> addresses;
+
+  @override
+  int get index => 0;
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -22,48 +34,66 @@ void main() {
         const ConfiguracaoTerminal(identificadorDispositivo: 'TOTEM-07'));
     final controlador = ControladorDiagnostico(
       repositorioConfiguracao: repositorio,
-      casoUsoTestarConexao: CasoUsoTestarConexao(
-        clienteLoja:
-            ClienteApi(repositorioConfiguracao: repositorio, dio: Dio()),
-        clienteNuvem:
-            ClienteApi(repositorioConfiguracao: repositorio, dio: Dio()),
-        repositorioConfiguracao: repositorio,
-        preferencias: preferencias,
-      ),
       preferencias: preferencias,
       obterVersaoApp: () async => '1.0.0+1',
       obterIp: () async => '192.168.1.50',
-      fluxoConectividade: Stream<bool>.value(true),
     );
     await controlador.carregar();
     return controlador;
   }
 
-  test('carregar preenche versao, ip, identificador, ambiente e sincronizacao',
-      () async {
+  test('carregar preenche versao, ambiente, ip e sincronizacao', () async {
     final controlador = await criar();
     final estado = controlador.state;
     expect(estado.versaoApp, '1.0.0+1');
-    expect(estado.ip, '192.168.1.50');
-    expect(estado.identificador, 'TOTEM-07');
     expect(estado.ambienteRotulo, 'Homologação');
+    expect(estado.ip, '192.168.1.50');
     expect(estado.ultimaSincronizacao, DateTime(2026, 7, 6, 10));
-    expect(estado.versaoApi, contains('mock'));
   });
 
-  test('testarApi sem URL valida marca mensagem de erro', () async {
-    final controlador = await criar();
-    await controlador.testarApi();
-    expect(controlador.state.mensagemErro, isTrue);
+  test('sem sincronizacao gravada o estado fica nulo (tela mostra "nunca")',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    final repositorio = RepositorioConfiguracaoImpl(preferencias);
+    final controlador = ControladorDiagnostico(
+      repositorioConfiguracao: repositorio,
+      preferencias: preferencias,
+      obterVersaoApp: () async => '1.0.0+1',
+      obterIp: () async => '192.168.1.50',
+    );
+    await controlador.carregar();
+    expect(controlador.state.ultimaSincronizacao, isNull);
   });
 
-  test('exportarLogs grava arquivo com as linhas do registrador', () async {
-    final controlador = await criar();
-    registrador.i('linha de teste do diagnostico');
-    final diretorio = Directory.systemTemp.createTempSync('constel_logs');
-    final caminho = await controlador.exportarLogs(() async => diretorio.path);
-    expect(caminho, isNotNull);
-    final conteudo = File(caminho!).readAsStringSync();
-    expect(conteudo, contains('linha de teste do diagnostico'));
+  group('escolherIpPreferido', () {
+    test('pula o vEthernet do Hyper-V mesmo vindo primeiro na lista', () {
+      // Cenário real da máquina da loja (print do ipconfig): o adaptador
+      // virtual do Default Switch aparece antes do Ethernet físico.
+      final interfaces = [
+        _InterfaceFake('vEthernet (Default Switch)', ['172.19.160.1']),
+        _InterfaceFake('Ethernet', ['192.168.0.4']),
+      ];
+      expect(escolherIpPreferido(interfaces), '192.168.0.4');
+    });
+
+    test('endereco real vence APIPA (169.254.x) de outro adaptador', () {
+      final interfaces = [
+        _InterfaceFake('Ethernet', ['169.254.10.7']),
+        _InterfaceFake('Wi-Fi', ['10.0.0.12']),
+      ];
+      expect(escolherIpPreferido(interfaces), '10.0.0.12');
+    });
+
+    test('so adaptador virtual disponivel: usa ele como ultimo recurso', () {
+      final interfaces = [
+        _InterfaceFake('vEthernet (WSL)', ['172.22.0.1']),
+      ];
+      expect(escolherIpPreferido(interfaces), '172.22.0.1');
+    });
+
+    test('sem interface utilizavel devolve null', () {
+      expect(escolherIpPreferido([]), isNull);
+    });
   });
 }

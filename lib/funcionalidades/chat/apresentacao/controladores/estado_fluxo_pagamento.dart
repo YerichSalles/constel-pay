@@ -10,6 +10,8 @@ enum EtapaFluxo {
   inicial,
   lendo,
   aguardandoMaisCartoes,
+  semConsumo,
+  erroLeitura,
   escolhaMetodo,
   pixAguardando,
   processando,

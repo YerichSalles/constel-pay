@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../aplicativo/injecao.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../nucleo/erros/falha.dart';
 import '../../../../nucleo/formatadores/formatador_moeda.dart';
 import '../../../comprovante/dominio/entidades/comprovante.dart';
 import '../../../configuracoes/dominio/repositorios/repositorio_configuracao.dart';
@@ -26,6 +28,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     required CasoUsoGerarPix casoUsoGerarPix,
     required CasoUsoProcessarPagamento casoUsoProcessarPagamento,
     required RepositorioConfiguracao repositorioConfiguracao,
+    required AppLocalizations Function() obterTraducoes,
     FonteConsumoAtendimento? fonteConsumoAtendimento,
     FonteRecursoItem? fonteRecursoItem,
     this.atrasoBot = const Duration(milliseconds: 650),
@@ -34,6 +37,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
         _casoUsoGerarPix = casoUsoGerarPix,
         _casoUsoProcessarPagamento = casoUsoProcessarPagamento,
         _repositorioConfiguracao = repositorioConfiguracao,
+        _obterTraducoes = obterTraducoes,
         _fonteConsumoAtendimento = fonteConsumoAtendimento,
         _fonteRecursoItem = fonteRecursoItem,
         super(const EstadoFluxoPagamento());
@@ -45,6 +49,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
   final CasoUsoGerarPix _casoUsoGerarPix;
   final CasoUsoProcessarPagamento _casoUsoProcessarPagamento;
   final RepositorioConfiguracao _repositorioConfiguracao;
+  final AppLocalizations Function() _obterTraducoes;
   final Duration atrasoBot;
 
   static const Uuid _uuid = Uuid();
@@ -75,6 +80,47 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
 
   void _adicionar(Mensagem mensagem) =>
       state = state.copyWith(mensagens: [...state.mensagens, mensagem]);
+
+  /// Traduz a mensagem de uma falha: os tipos com texto padrão usam a chave
+  /// correspondente no idioma atual; `FalhaValidacao` carrega texto próprio
+  /// (vindo da API/regra de negócio) e é exibida como veio.
+  String _mensagemFalha(Falha falha) {
+    final t = _obterTraducoes();
+    return switch (falha) {
+      FalhaRede() => t.errorNetwork,
+      FalhaTimeout() => t.errorTimeout,
+      FalhaServidor() => t.errorServer,
+      FalhaNaoAutorizado() => t.errorUnauthorized,
+      FalhaValidacao() => falha.mensagem,
+      FalhaDesconhecida() => t.errorUnknown,
+    };
+  }
+
+  String _rotuloMetodo(MetodoPagamento metodo) {
+    final t = _obterTraducoes();
+    return switch (metodo) {
+      MetodoPagamento.pix => t.paymentMethodPix,
+      MetodoPagamento.credito => t.paymentMethodCredit,
+      MetodoPagamento.debito => t.paymentMethodDebit,
+      MetodoPagamento.tef => t.paymentMethodTef,
+      MetodoPagamento.pos => t.paymentMethodPos,
+      MetodoPagamento.voucher => t.paymentMethodVoucher,
+      MetodoPagamento.dinheiro => t.paymentMethodCash,
+    };
+  }
+
+  String _rotuloStatus(StatusPagamento status) {
+    final t = _obterTraducoes();
+    return switch (status) {
+      StatusPagamento.aguardando => t.paymentStatusWaiting,
+      StatusPagamento.processando => t.paymentStatusProcessing,
+      StatusPagamento.aprovado => t.paymentStatusApproved,
+      StatusPagamento.recusado => t.paymentStatusDeclined,
+      StatusPagamento.cancelado => t.paymentStatusCancelled,
+      StatusPagamento.expirado => t.paymentStatusExpired,
+      StatusPagamento.erro => t.paymentStatusError,
+    };
+  }
 
   /// Busca a foto de cada item novo no cadastro da loja e atualiza os cartões.
   /// Enfeite: roda depois da comanda já estar na tela, em paralelo, e engole
@@ -125,11 +171,9 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     if (state.etapa != EtapaFluxo.inicial) return;
     state = state.copyWith(etapa: EtapaFluxo.lendo);
     await _bot(() {
-      _adicionar(_mensagem(TipoMensagem.texto,
-          texto: 'Olá! Bem-vindo(a). Vou fechar sua conta em segundos. 😊'));
-      _adicionar(_mensagem(TipoMensagem.texto,
-          texto:
-              'Para começar, aponte a câmera para o código do seu cartão de consumo 👇'));
+      final t = _obterTraducoes();
+      _adicionar(_mensagem(TipoMensagem.texto, texto: t.welcomeMessage));
+      _adicionar(_mensagem(TipoMensagem.texto, texto: t.scanInstruction));
       _adicionar(_mensagem(TipoMensagem.scanner));
     });
   }
@@ -142,6 +186,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     state = state.copyWith(digitando: false);
     resultado.quando(
       sucesso: (cartao) {
+        final t = _obterTraducoes();
         state = state.copyWith(
           cartoes: [...state.cartoes, cartao.copyWith(selecionado: true)],
           cartoesRestantes: _repositorioLeitura.cartoesRestantes,
@@ -150,14 +195,16 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
             dados: {'comandaId': cartao.id}));
         _adicionar(_mensagem(TipoMensagem.texto,
             texto: state.cartoesRestantes > 0
-                ? 'Deseja adicionar mais cartões?'
-                : 'Esse foi o último cartão em aberto.'));
+                ? t.addAnotherCardQuestion
+                : t.lastCardOpenMessage));
         state = state.copyWith(etapa: EtapaFluxo.aguardandoMaisCartoes);
       },
       erro: (falha) {
-        _adicionar(
-            _mensagem(TipoMensagem.texto, emoji: '⚠️', texto: falha.mensagem));
-        state = state.copyWith(etapa: EtapaFluxo.aguardandoMaisCartoes);
+        _adicionar(_mensagem(TipoMensagem.texto,
+            emoji: '⚠️',
+            texto: _obterTraducoes().cardReadErrorTitle,
+            subtexto: _mensagemFalha(falha)));
+        state = state.copyWith(etapa: EtapaFluxo.erroLeitura);
       },
     );
   }
@@ -171,19 +218,24 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     if (fonte == null || ref.isEmpty) return;
     if (state.etapa != EtapaFluxo.lendo || state.digitando) return;
     _adicionar(_mensagem(TipoMensagem.texto,
-        lado: LadoMensagem.cliente, texto: 'Comanda $ref'));
+        lado: LadoMensagem.cliente,
+        texto: _obterTraducoes().clientCardEcho(ref)));
     state = state.copyWith(digitando: true);
     final resultado = await fonte.consultar(referencia: ref);
     if (!mounted) return;
     state = state.copyWith(digitando: false);
     resultado.quando(
       sucesso: (atendimentos) {
+        final t = _obterTraducoes();
         if (atendimentos.isEmpty) {
           _adicionar(_mensagem(TipoMensagem.texto,
               emoji: '🔎',
-              texto: 'Nenhum consumo em aberto para a comanda $ref.'));
+              texto: t.noOpenItemsTitle,
+              subtexto: t.noOpenItemsMessage(ref)));
+          state = state.copyWith(etapa: EtapaFluxo.semConsumo);
           return;
         }
+        var adicionouNovo = false;
         for (final atendimento in atendimentos) {
           if (state.cartoes.any((c) => c.id == atendimento.id)) continue;
           final cartao = AdaptadorAtendimento.paraCartao(atendimento)
@@ -191,14 +243,26 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
           state = state.copyWith(cartoes: [...state.cartoes, cartao]);
           _adicionar(_mensagem(TipoMensagem.leituraCartao,
               dados: {'comandaId': cartao.id}));
+          adicionouNovo = true;
         }
-        _adicionar(_mensagem(TipoMensagem.texto,
-            texto: 'Deseja adicionar mais cartões?'));
+        if (!adicionouNovo) {
+          _adicionar(_mensagem(TipoMensagem.texto,
+              emoji: '🔁',
+              texto: t.cardAlreadyAddedTitle,
+              subtexto: t.cardAlreadyAddedMessage(ref)));
+          state = state.copyWith(etapa: EtapaFluxo.aguardandoMaisCartoes);
+          return;
+        }
+        _adicionar(
+            _mensagem(TipoMensagem.texto, texto: t.addAnotherCardQuestion));
         state = state.copyWith(etapa: EtapaFluxo.aguardandoMaisCartoes);
       },
       erro: (falha) {
-        _adicionar(
-            _mensagem(TipoMensagem.texto, emoji: '⚠️', texto: falha.mensagem));
+        _adicionar(_mensagem(TipoMensagem.texto,
+            emoji: '⚠️',
+            texto: _obterTraducoes().cardReadErrorTitle,
+            subtexto: _mensagemFalha(falha)));
+        state = state.copyWith(etapa: EtapaFluxo.erroLeitura);
       },
     );
     await _carregarFotosItens();
@@ -207,11 +271,32 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
   Future<void> lerOutroCartao() async {
     if (state.etapa != EtapaFluxo.aguardandoMaisCartoes) return;
     _adicionar(_mensagem(TipoMensagem.texto,
-        lado: LadoMensagem.cliente, texto: 'Ler outro cartão'));
+        lado: LadoMensagem.cliente, texto: _obterTraducoes().addAnotherCard));
     state = state.copyWith(etapa: EtapaFluxo.lendo);
     await _bot(() {
       _adicionar(_mensagem(TipoMensagem.texto,
-          texto: 'Beleza! Aponte para o próximo código 👇'));
+          texto: _obterTraducoes().nextCardInstruction));
+      _adicionar(_mensagem(TipoMensagem.scanner));
+    });
+  }
+
+  /// Sai de um aviso (sem consumo / erro de leitura) de volta ao leitor,
+  /// preservando todas as comandas já adicionadas.
+  Future<void> tentarNovamente() async {
+    if (state.etapa != EtapaFluxo.semConsumo &&
+        state.etapa != EtapaFluxo.erroLeitura) {
+      return;
+    }
+    final t = _obterTraducoes();
+    _adicionar(_mensagem(TipoMensagem.texto,
+        lado: LadoMensagem.cliente,
+        texto: state.etapa == EtapaFluxo.semConsumo
+            ? t.tryAnotherCard
+            : t.tryAgain));
+    state = state.copyWith(etapa: EtapaFluxo.lendo);
+    await _bot(() {
+      _adicionar(_mensagem(TipoMensagem.texto,
+          texto: _obterTraducoes().nextCardInstruction));
       _adicionar(_mensagem(TipoMensagem.scanner));
     });
   }
@@ -223,17 +308,43 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     }
     _adicionar(_mensagem(TipoMensagem.texto,
         lado: LadoMensagem.cliente,
-        texto:
-            'Ir para o pagamento · ${FormatadorMoeda.formatar(state.subtotalCentavos)}'));
+        texto: _obterTraducoes().continueToPaymentWithAmount(
+            FormatadorMoeda.formatar(state.subtotalCentavos))));
+    await _avancarParaEscolhaMetodo();
+  }
+
+  /// Desiste da inclusão em andamento e avança usando só as comandas
+  /// já adicionadas. Não remove nada e não altera totais.
+  Future<void> continuarComCartoes() async {
+    const etapasInclusao = [
+      EtapaFluxo.lendo,
+      EtapaFluxo.semConsumo,
+      EtapaFluxo.erroLeitura,
+    ];
+    if (!etapasInclusao.contains(state.etapa) ||
+        state.digitando ||
+        state.selecionados.isEmpty) {
+      return;
+    }
+    _adicionar(_mensagem(TipoMensagem.texto,
+        lado: LadoMensagem.cliente,
+        texto: _obterTraducoes()
+            .continueWithAddedCardsCount(state.selecionados.length)));
+    await _avancarParaEscolhaMetodo();
+  }
+
+  Future<void> _avancarParaEscolhaMetodo() async {
     _chaveIdempotencia = _uuid.v4();
     state = state.copyWith(etapa: EtapaFluxo.escolhaMetodo);
     await _bot(() {
+      final t = _obterTraducoes();
       _adicionar(_mensagem(TipoMensagem.texto,
           emoji: '💳',
-          texto:
-              'Como você quer pagar ${FormatadorMoeda.formatar(state.totalCentavos)}?',
+          texto: t.howWouldYouLikePay(
+              FormatadorMoeda.formatar(state.totalCentavos)),
           subtexto: state.servicoCentavos > 0
-              ? 'Inclui ${FormatadorMoeda.formatar(state.servicoCentavos)} de serviço.'
+              ? t.includesServiceFee(
+                  FormatadorMoeda.formatar(state.servicoCentavos))
               : null));
       _adicionar(_mensagem(TipoMensagem.metodos));
     });
@@ -242,13 +353,11 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
   Future<void> selecionarMetodo(MetodoPagamento metodo) async {
     if (state.etapa != EtapaFluxo.escolhaMetodo || state.digitando) return;
     _adicionar(_mensagem(TipoMensagem.texto,
-        lado: LadoMensagem.cliente, texto: metodo.rotulo));
+        lado: LadoMensagem.cliente, texto: _rotuloMetodo(metodo)));
     if (metodo != MetodoPagamento.pix) {
       await _bot(() {
         _adicionar(_mensagem(TipoMensagem.texto,
-            emoji: 'ℹ️',
-            texto:
-                'Este método ainda não está disponível neste terminal. Use o Pix por enquanto. 😉'));
+            emoji: 'ℹ️', texto: _obterTraducoes().methodNotAvailable));
       });
       return;
     }
@@ -264,13 +373,12 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
         state =
             state.copyWith(dadosPix: dados, etapa: EtapaFluxo.pixAguardando);
         _adicionar(_mensagem(TipoMensagem.texto,
-            emoji: '📲',
-            texto: 'Pronto! Escaneie o QR Code ou copie o código Pix 👇'));
+            emoji: '📲', texto: _obterTraducoes().pixReadyMessage));
         _adicionar(_mensagem(TipoMensagem.pix));
       },
       erro: (falha) {
-        _adicionar(
-            _mensagem(TipoMensagem.texto, emoji: '⚠️', texto: falha.mensagem));
+        _adicionar(_mensagem(TipoMensagem.texto,
+            emoji: '⚠️', texto: _mensagemFalha(falha)));
       },
     );
   }
@@ -301,11 +409,12 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     if (!mounted) return;
     resultado.quando(
       sucesso: (aprovado) {
+        final t = _obterTraducoes();
         if (aprovado.status != StatusPagamento.aprovado) {
           _adicionar(_mensagem(TipoMensagem.texto,
               emoji: '❌',
-              texto:
-                  'Pagamento ${aprovado.status.rotulo.toLowerCase()}. Tente novamente.'));
+              texto: t.paymentNotApproved(
+                  _rotuloStatus(aprovado.status).toLowerCase())));
           state = state.copyWith(etapa: EtapaFluxo.pixAguardando);
           return;
         }
@@ -333,20 +442,17 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
         final restantes = state.cartoesRestantes;
         if (restantes > 0) {
           _adicionar(_mensagem(TipoMensagem.texto,
-              emoji: '🧾',
-              texto:
-                  'Ainda há $restantes ${restantes > 1 ? 'cartões' : 'cartão'} em aberto. Quer pagar agora?'));
+              emoji: '🧾', texto: t.remainingCardsQuestion(restantes)));
           state = state.copyWith(etapa: EtapaFluxo.sucessoComRestante);
         } else {
           _adicionar(_mensagem(TipoMensagem.texto,
-              emoji: '🥳',
-              texto: 'Tudo certo! Todos os cartões foram quitados.'));
+              emoji: '🥳', texto: t.allCardsSettled));
           state = state.copyWith(etapa: EtapaFluxo.sucessoCompleto);
         }
       },
       erro: (falha) {
-        _adicionar(
-            _mensagem(TipoMensagem.texto, emoji: '⚠️', texto: falha.mensagem));
+        _adicionar(_mensagem(TipoMensagem.texto,
+            emoji: '⚠️', texto: _mensagemFalha(falha)));
         state = state.copyWith(etapa: EtapaFluxo.pixAguardando);
       },
     );
@@ -355,11 +461,11 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
   Future<void> pagarRestante() async {
     if (state.etapa != EtapaFluxo.sucessoComRestante) return;
     _adicionar(_mensagem(TipoMensagem.texto,
-        lado: LadoMensagem.cliente, texto: 'Pagar restante'));
+        lado: LadoMensagem.cliente, texto: _obterTraducoes().payRemaining));
     state = state.copyWith(etapa: EtapaFluxo.lendo);
     await _bot(() {
       _adicionar(_mensagem(TipoMensagem.texto,
-          texto: 'Beleza! Aponte para o próximo código 👇'));
+          texto: _obterTraducoes().nextCardInstruction));
       _adicionar(_mensagem(TipoMensagem.scanner));
     });
   }
@@ -370,13 +476,12 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
       return;
     }
     _adicionar(_mensagem(TipoMensagem.texto,
-        lado: LadoMensagem.cliente, texto: 'Encerrar'));
+        lado: LadoMensagem.cliente, texto: _obterTraducoes().endService));
     state = state.copyWith(etapa: EtapaFluxo.encerramento);
     await _bot(() {
+      final t = _obterTraducoes();
       _adicionar(_mensagem(TipoMensagem.texto,
-          emoji: '🙏',
-          texto: 'Obrigado pela visita! Volte sempre 💜',
-          subtexto: 'Aqui está o seu comprovante.'));
+          emoji: '🙏', texto: t.thankYouMessage, subtexto: t.receiptMessage));
       final comprovante = _ultimoComprovante;
       if (comprovante != null) {
         _adicionar(_mensagem(TipoMensagem.comprovante, dados: {
@@ -409,6 +514,7 @@ final provedorFluxoPagamento =
     casoUsoGerarPix: ref.watch(provedorCasoUsoGerarPix),
     casoUsoProcessarPagamento: ref.watch(provedorCasoUsoProcessarPagamento),
     repositorioConfiguracao: ref.watch(provedorRepositorioConfiguracao),
+    obterTraducoes: () => lookupAppLocalizations(ref.read(provedorIdioma)),
     fonteConsumoAtendimento: ref.watch(provedorFonteConsumoAtendimento),
     fonteRecursoItem: ref.watch(provedorFonteRecursoItem),
     atrasoBot: ref.watch(provedorAtrasoBot),

@@ -54,7 +54,7 @@ void main() {
     await tester.tap(find.textContaining('Simular leitura'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.textContaining('Ir para o pagamento'));
+    await tester.tap(find.textContaining('Continuar para pagamento'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump();

@@ -14,8 +14,10 @@ import 'package:constel_pay/funcionalidades/pagamento/dados/repositorios/reposit
 import 'package:constel_pay/funcionalidades/pagamento/dominio/casos_uso/caso_uso_gerar_pix.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/casos_uso/caso_uso_processar_pagamento.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/entidades/metodo_pagamento.dart';
+import 'package:constel_pay/l10n/app_localizations.dart';
 import 'package:constel_pay/nucleo/erros/falha.dart';
 import 'package:constel_pay/nucleo/erros/resultado.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
 
 class _RepositorioConfiguracaoFake implements RepositorioConfiguracao {
@@ -85,6 +87,28 @@ const _atendimento502 = Atendimento(
   ],
 );
 
+/// Monta um controlador novo e isolado (fakes próprios) para o idioma dado.
+/// Usado pelos testes de tradução, que precisam de um idioma diferente do
+/// padrão pt-BR usado no `setUp` principal.
+ControladorFluxoPagamento _criarControlador(Locale locale) {
+  final fonteLeitura = FonteLeituraMock(atraso: Duration.zero);
+  final fontePagamento = FontePagamentoMock(atraso: Duration.zero);
+  final repositorioLeitura = RepositorioLeituraImpl(fonteLeitura);
+  final repositorioPagamento = RepositorioPagamentoImpl(fontePagamento);
+  return ControladorFluxoPagamento(
+    casoUsoLerCartao: CasoUsoLerCartao(repositorioLeitura),
+    repositorioLeitura: repositorioLeitura,
+    casoUsoGerarPix: CasoUsoGerarPix(repositorioPagamento),
+    casoUsoProcessarPagamento: CasoUsoProcessarPagamento(repositorioPagamento),
+    repositorioConfiguracao: _RepositorioConfiguracaoFake(),
+    obterTraducoes: () => lookupAppLocalizations(locale),
+    fonteConsumoAtendimento:
+        _FonteConsumoFake(const Sucesso([_atendimento502])),
+    fonteRecursoItem: _FonteRecursoFake(const {}),
+    atrasoBot: Duration.zero,
+  );
+}
+
 void main() {
   late FontePagamentoMock fontePagamento;
   late RepositorioLeituraImpl repositorioLeitura;
@@ -107,6 +131,7 @@ void main() {
       casoUsoProcessarPagamento:
           CasoUsoProcessarPagamento(repositorioPagamento),
       repositorioConfiguracao: _RepositorioConfiguracaoFake(),
+      obterTraducoes: () => lookupAppLocalizations(const Locale('pt', 'BR')),
       fonteConsumoAtendimento: fonteConsumo,
       fonteRecursoItem: fonteRecurso,
       atrasoBot: Duration.zero,
@@ -316,24 +341,28 @@ void main() {
     expect(fonteRecurso.consultados, ['item-burger']);
   });
 
-  test('lerComandaDigitada sem consumo mostra aviso e segue lendo', () async {
+  test('lerComandaDigitada sem consumo vai para semConsumo com aviso',
+      () async {
     fonteConsumo.resultado = const Sucesso([]);
     await controlador.iniciar();
     await controlador.lerComandaDigitada('505');
     final estado = controlador.state;
-    expect(estado.etapa, EtapaFluxo.lendo);
+    expect(estado.etapa, EtapaFluxo.semConsumo);
     expect(estado.cartoes, isEmpty);
-    expect(estado.mensagens.last.texto, contains('505'));
+    expect(estado.mensagens.last.texto, 'Nenhum consumo em aberto');
+    expect(estado.mensagens.last.subtexto, contains('505'));
   });
 
-  test('lerComandaDigitada com falha mostra a mensagem de erro', () async {
+  test('lerComandaDigitada com falha vai para erroLeitura com a mensagem',
+      () async {
     fonteConsumo.resultado = const Erro(FalhaNaoAutorizado());
     await controlador.iniciar();
     await controlador.lerComandaDigitada('502');
     final estado = controlador.state;
-    expect(estado.etapa, EtapaFluxo.lendo);
+    expect(estado.etapa, EtapaFluxo.erroLeitura);
     expect(estado.cartoes, isEmpty);
-    expect(estado.mensagens.last.texto, contains('não autorizado'));
+    expect(estado.mensagens.last.texto, 'Não foi possível ler o cartão');
+    expect(estado.mensagens.last.subtexto, contains('não autorizado'));
   });
 
   test('lerComandaDigitada não duplica cartão já adicionado', () async {
@@ -349,5 +378,120 @@ void main() {
     await controlador.iniciar();
     await controlador.lerCartao();
     expect(controlador.state.cartoes.single.itens, isNotEmpty);
+  });
+
+  test('continuarComCartoes durante leitura adicional avanca para metodo',
+      () async {
+    await controlador.iniciar();
+    await controlador.lerCartao();
+    await controlador.lerOutroCartao();
+    expect(controlador.state.etapa, EtapaFluxo.lendo);
+    await controlador.continuarComCartoes();
+    final estado = controlador.state;
+    expect(estado.etapa, EtapaFluxo.escolhaMetodo);
+    expect(estado.selecionados, hasLength(1));
+    expect(estado.subtotalCentavos, 13600);
+    expect(estado.mensagens.any((m) => m.tipo == TipoMensagem.metodos), isTrue);
+  });
+
+  test('continuarComCartoes na primeira leitura e ignorado', () async {
+    await controlador.iniciar();
+    final quantidade = controlador.state.mensagens.length;
+    await controlador.continuarComCartoes();
+    expect(controlador.state.etapa, EtapaFluxo.lendo);
+    expect(controlador.state.mensagens.length, quantidade);
+  });
+
+  test('tentarNovamente apos sem consumo volta ao scanner preservando cartoes',
+      () async {
+    await controlador.iniciar();
+    await controlador.lerComandaDigitada('502');
+    await controlador.lerOutroCartao();
+    fonteConsumo.resultado = const Sucesso([]);
+    await controlador.lerComandaDigitada('411');
+    expect(controlador.state.etapa, EtapaFluxo.semConsumo);
+    expect(controlador.state.cartoes, hasLength(1));
+    await controlador.tentarNovamente();
+    final estado = controlador.state;
+    expect(estado.etapa, EtapaFluxo.lendo);
+    expect(estado.mensagens.last.tipo, TipoMensagem.scanner);
+    expect(estado.selecionados, hasLength(1));
+    expect(estado.subtotalCentavos, 4530);
+  });
+
+  test('tentarNovamente fora de semConsumo/erroLeitura e ignorado', () async {
+    await controlador.iniciar();
+    final quantidade = controlador.state.mensagens.length;
+    await controlador.tentarNovamente();
+    expect(controlador.state.mensagens.length, quantidade);
+    expect(controlador.state.etapa, EtapaFluxo.lendo);
+  });
+
+  test('continuarComCartoes apos erro preserva comandas e avanca', () async {
+    await controlador.iniciar();
+    await controlador.lerComandaDigitada('502');
+    await controlador.lerOutroCartao();
+    fonteConsumo.resultado = const Erro(FalhaNaoAutorizado());
+    await controlador.lerComandaDigitada('999');
+    expect(controlador.state.etapa, EtapaFluxo.erroLeitura);
+    expect(controlador.state.cartoes, hasLength(1));
+    await controlador.continuarComCartoes();
+    expect(controlador.state.etapa, EtapaFluxo.escolhaMetodo);
+    expect(controlador.state.subtotalCentavos, 4530);
+  });
+
+  test('duplicado avisa, nao duplica e mantem os totais', () async {
+    await controlador.iniciar();
+    await controlador.lerComandaDigitada('502');
+    final subtotal = controlador.state.subtotalCentavos;
+    await controlador.lerOutroCartao();
+    await controlador.lerComandaDigitada('502');
+    final estado = controlador.state;
+    expect(estado.etapa, EtapaFluxo.aguardandoMaisCartoes);
+    expect(estado.cartoes, hasLength(1));
+    expect(estado.subtotalCentavos, subtotal);
+    expect(estado.mensagens.last.texto, 'Cartão já adicionado');
+    expect(estado.mensagens.last.subtexto, contains('502'));
+  });
+
+  test('erro do leitor simulado esgotado vai para erroLeitura com saida',
+      () async {
+    await controlador.iniciar();
+    await controlador.lerCartao();
+    await controlador.lerOutroCartao();
+    await controlador.lerCartao();
+    await controlador.lerOutroCartao();
+    await controlador.lerCartao();
+    await controlador.lerOutroCartao();
+    await controlador.lerCartao(); // mock esgotado -> falha
+    expect(controlador.state.etapa, EtapaFluxo.erroLeitura);
+    expect(controlador.state.selecionados, hasLength(3));
+    await controlador.continuarComCartoes();
+    expect(controlador.state.etapa, EtapaFluxo.escolhaMetodo);
+  });
+
+  test('idioma en traduz a mensagem de boas-vindas e a pergunta de cartao',
+      () async {
+    final controladorEn = _criarControlador(const Locale('en'));
+    await controladorEn.iniciar();
+    expect(controladorEn.state.mensagens.first.texto, contains('Welcome'));
+    await controladorEn.lerCartao();
+    expect(controladorEn.state.mensagens.last.texto, contains('another card'));
+  });
+
+  test('idioma es traduz a mensagem de boas-vindas', () async {
+    final controladorEs = _criarControlador(const Locale('es'));
+    await controladorEs.iniciar();
+    expect(controladorEs.state.mensagens.first.texto, contains('bienvenida'));
+  });
+
+  test('eco do cliente ao adicionar outro cartao e traduzido em en', () async {
+    final controladorEn = _criarControlador(const Locale('en'));
+    await controladorEn.iniciar();
+    await controladorEn.lerCartao();
+    await controladorEn.lerOutroCartao();
+    final eco = controladorEn.state.mensagens
+        .firstWhere((m) => m.lado == LadoMensagem.cliente);
+    expect(eco.texto, 'Add another card');
   });
 }

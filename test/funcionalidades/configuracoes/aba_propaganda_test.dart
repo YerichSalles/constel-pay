@@ -1,6 +1,8 @@
 import 'package:constel_pay/aplicativo/injecao.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/aba_propaganda.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/dialogo_ajuste_midia.dart';
+import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/secao_barra_superior.dart';
+import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/secao_conteudo_tela.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/seletor_ajuste_midia.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dados/repositorios/repositorio_tema_impl.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/tema_personalizado.dart';
@@ -110,6 +112,11 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
+    // Nome amigável (posição 1-based) e nome do arquivo como linha
+    // secundária, no lugar do nome do arquivo isolado.
+    expect(find.text('Imagem 1'), findsOneWidget);
+    expect(find.text('oferta.png'), findsOneWidget);
+
     expect(find.text('Automático · fundo borrado'), findsOneWidget);
     expect(find.byType(DropdownButton<AjusteMidia>), findsNothing,
         reason: 'o dropdown saiu do card e mora no dialogo');
@@ -138,16 +145,246 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
+    expect(
+        find.text('Formato indicado para terminais verticais.'), findsOneWidget,
+        reason: 'em pe por padrao');
     expect(find.textContaining('1080 x 1920'), findsOneWidget,
         reason: 'em pe por padrao');
 
     await tester.tap(find.text('Deitada'));
     await tester.pump();
 
+    expect(find.text('Formato indicado para terminais horizontais.'),
+        findsOneWidget,
+        reason: 'a descricao dinamica acompanha a orientacao');
+    expect(
+        find.text('Formato indicado para terminais verticais.'), findsNothing);
     expect(find.textContaining('1920 x 1080'), findsOneWidget,
         reason: 'a ajuda acompanha a orientacao');
     final salvo = await RepositorioTemaImpl(preferencias).obter();
     expect(salvo.orientacaoTela, OrientacaoTela.horizontal,
         reason: 'a escolha persiste no tema');
+  });
+
+  testWidgets('botoes de acao usam os rotulos novos', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: const MaterialApp(home: Scaffold(body: SecaoConteudoTela())),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('+ Adicionar mídia'), findsOneWidget);
+    expect(find.text('Visualizar sequência'), findsOneWidget);
+  });
+
+  testWidgets('nomes amigaveis dos cards seguem o tipo e a posicao na lista',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    final repositorio = RepositorioPropagandaImpl(preferencias);
+    await repositorio.salvarTodas(const [
+      MidiaPropaganda(
+          id: 'a',
+          tipo: TipoMidia.imagem,
+          caminho: '/midias/oferta.png',
+          ordem: 1),
+      MidiaPropaganda(
+          id: 'b',
+          tipo: TipoMidia.video,
+          caminho: '/midias/promocao.mp4',
+          ordem: 2),
+      MidiaPropaganda(
+          id: 'c',
+          tipo: TipoMidia.imagem,
+          caminho: '/midias/banner-animado.gif',
+          ordem: 3),
+    ]);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: const MaterialApp(home: Scaffold(body: SecaoConteudoTela())),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Imagem 1'), findsOneWidget);
+    expect(find.text('oferta.png'), findsOneWidget);
+    expect(find.text('Vídeo 2'), findsOneWidget);
+    expect(find.text('promocao.mp4'), findsOneWidget);
+    expect(find.text('GIF 3'), findsOneWidget,
+        reason: 'gif e detectado pela extensao do arquivo, nao pelo tipo');
+    expect(find.text('banner-animado.gif'), findsOneWidget);
+  });
+
+  testWidgets('acoes do card tem tooltip', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    final repositorio = RepositorioPropagandaImpl(preferencias);
+    await repositorio.salvarTodas(const [
+      MidiaPropaganda(
+          id: 'a',
+          tipo: TipoMidia.imagem,
+          caminho: '/midias/oferta.png',
+          ordem: 1),
+    ]);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: const MaterialApp(home: Scaffold(body: SecaoConteudoTela())),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.byTooltip('Mover para cima'), findsOneWidget);
+    expect(find.byTooltip('Mover para baixo'), findsOneWidget);
+    expect(find.byTooltip('Ativar ou desativar'), findsOneWidget);
+    expect(find.byTooltip('Remover'), findsOneWidget);
+  });
+
+  testWidgets('confirmacao de remocao usa os textos definidos', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    final repositorio = RepositorioPropagandaImpl(preferencias);
+    await repositorio.salvarTodas(const [
+      MidiaPropaganda(
+          id: 'a',
+          tipo: TipoMidia.imagem,
+          caminho: '/midias/oferta.png',
+          ordem: 1),
+    ]);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: const MaterialApp(home: Scaffold(body: SecaoConteudoTela())),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    await tester.tap(find.byTooltip('Remover'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Remover mídia?'), findsOneWidget);
+    expect(find.text('Esta mídia deixará de ser exibida no terminal.'),
+        findsOneWidget);
+
+    await tester.tap(find.text('Cancelar'));
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets(
+      'navegacao interna mostra os 2 segmentos e inicia em Conteudo da tela',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: const MaterialApp(home: Scaffold(body: AbaPropaganda())),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // "Conteúdo da tela" aparece duas vezes: no rótulo da navegação interna
+    // e no título do cabeçalho (SecaoConfiguracoes) da seção ativa.
+    expect(find.text('Conteúdo da tela'), findsNWidgets(2));
+    expect(find.text('Barra superior'), findsOneWidget);
+    expect(find.byType(SecaoConteudoTela), findsOneWidget);
+    expect(tester.widget<IndexedStack>(find.byType(IndexedStack)).index, 0,
+        reason: 'Conteudo da tela e a secao inicial');
+  });
+
+  testWidgets(
+      'alternar para Barra superior e voltar preserva o estado da secao '
+      '(IndexedStack)', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    final repositorio = RepositorioPropagandaImpl(preferencias);
+    await repositorio.salvarTodas(const [
+      MidiaPropaganda(
+          id: 'a',
+          tipo: TipoMidia.imagem,
+          caminho: '/midias/oferta.png',
+          ordem: 1),
+    ]);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: const MaterialApp(home: Scaffold(body: AbaPropaganda())),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // Edita o campo de duracao sem confirmar: o valor so muda de fato no
+    // estado local do TextFormField (a persistencia so ocorre em
+    // onFieldSubmitted). Se a navegacao interna desmontar a secao ao
+    // trocar de segmento, esse valor nao confirmado se perde.
+    await tester.enterText(find.byType(TextFormField), '15');
+    await tester.pump();
+
+    await tester.tap(find.text('Barra superior'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    // find.byType(IndexedStack).first: com o editor do formato selecionado
+    // agora dentro do card "Formato de exibição", os DropdownButtons
+    // (Tempo entre banners/Transição) passam a ser construídos nesta janela
+    // de teste e também usam IndexedStack internamente; o da AbaPropaganda é
+    // o ancestral, encontrado primeiro na travessia da árvore.
+    expect(
+        tester.widget<IndexedStack>(find.byType(IndexedStack).first).index, 1);
+    expect(find.byType(SecaoBarraSuperior), findsOneWidget);
+
+    await tester.tap(find.text('Conteúdo da tela'));
+    await tester.pump();
+    expect(
+        tester.widget<IndexedStack>(find.byType(IndexedStack).first).index, 0);
+
+    expect(find.text('15'), findsOneWidget,
+        reason: 'o IndexedStack mantem a secao montada; o campo nao pode '
+            'voltar ao valor persistido ao trocar de secao interna');
+  });
+
+  testWidgets(
+      'Conteudo da tela usa a nova hierarquia: orientacao, bloco informativo '
+      'e lista de midias', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: const MaterialApp(home: Scaffold(body: SecaoConteudoTela())),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(
+        find.text('Configure as imagens, GIFs e vídeos exibidos enquanto o '
+            'terminal aguarda um atendimento.'),
+        findsOneWidget,
+        reason: 'descricao do cabecalho segue o texto definido');
+    expect(find.text('Orientação da mídia'), findsOneWidget);
+    expect(find.text('Tela do totem:'), findsNothing,
+        reason: 'o rotulo antigo saiu; a orientacao virou subtitulo');
+    expect(find.byKey(const Key('bloco_orientacoes')), findsOneWidget,
+        reason: 'as recomendacoes moram num bloco informativo discreto');
+    expect(find.text('Mídias'), findsOneWidget,
+        reason: 'a lista de midias ganha subtitulo proprio');
   });
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../aplicativo/tema/cores_app.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../nucleo/formatadores/formatador_moeda.dart';
 
 class CardSucesso extends StatelessWidget {
@@ -13,6 +14,7 @@ class CardSucesso extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primaria = Theme.of(context).colorScheme.primary;
+    final t = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
       decoration: BoxDecoration(
@@ -61,8 +63,9 @@ class CardSucesso extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          const Text('Pagamento aprovado! 🎉',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          Text(t.paymentApprovedTitle,
+              style:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
           const SizedBox(height: 6),
           Text(
             FormatadorMoeda.formatar(valorCentavos),
@@ -70,8 +73,8 @@ class CardSucesso extends StatelessWidget {
                 fontSize: 28, fontWeight: FontWeight.w800, color: primaria),
           ),
           const SizedBox(height: 12),
-          const Text('COMANDAS QUITADAS',
-              style: TextStyle(
+          Text(t.settledOrdersLabel,
+              style: const TextStyle(
                   fontSize: 11,
                   color: CoresApp.textoSecundario,
                   fontWeight: FontWeight.w700,

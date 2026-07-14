@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,11 +32,14 @@ import '../funcionalidades/configuracoes/dominio/repositorios/repositorio_config
 import '../funcionalidades/configuracoes/dominio/repositorios/repositorio_credencial.dart';
 import '../funcionalidades/configuracoes/dominio/repositorios/repositorio_tema.dart';
 import '../funcionalidades/propaganda/dados/repositorios/repositorio_propaganda_impl.dart';
+import '../funcionalidades/propaganda/dados/repositorios/repositorio_publicidade_impl.dart';
 import '../funcionalidades/propaganda/dominio/repositorios/repositorio_propaganda.dart';
+import '../funcionalidades/propaganda/dominio/repositorios/repositorio_publicidade.dart';
 import '../nucleo/configuracao/cliente_api.dart';
 import '../nucleo/constantes/constantes_app.dart';
 import '../nucleo/dispositivo/info_aplicativo.dart';
 import '../nucleo/erros/resultado.dart';
+import 'idioma/controlador_idioma.dart';
 import 'tema/controlador_tema.dart';
 
 final provedorSharedPreferences = Provider<SharedPreferences>(
@@ -57,6 +61,12 @@ final provedorTema = StateNotifierProvider<ControladorTema, TemaPersonalizado>(
   (ref) => ControladorTema(ref.watch(provedorRepositorioTema)),
 );
 
+// Idioma do atendimento atual — sem persistência, volta a pt-BR a cada novo
+// atendimento (reset nos mesmos pontos que disparam `novaOperacao()`).
+final provedorIdioma = StateNotifierProvider<ControladorIdioma, Locale>(
+  (ref) => ControladorIdioma(),
+);
+
 final provedorArmazenamentoSeguro = Provider<FlutterSecureStorage>(
   (ref) => const FlutterSecureStorage(),
 );
@@ -67,6 +77,10 @@ final provedorRepositorioCredencial = Provider<RepositorioCredencial>(
 
 final provedorRepositorioPropaganda = Provider<RepositorioPropaganda>(
   (ref) => RepositorioPropagandaImpl(ref.watch(provedorSharedPreferences)),
+);
+
+final provedorRepositorioPublicidade = Provider<RepositorioPublicidade>(
+  (ref) => RepositorioPublicidadeImpl(ref.watch(provedorSharedPreferences)),
 );
 
 // Cliente da API local (consumo do cartão) — usa a URL base do ambiente ativo.
