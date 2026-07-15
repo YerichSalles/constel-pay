@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/configuracao_terminal.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/repositorios/repositorio_configuracao.dart';
+import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_atendimentos_sessao.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_encerramento_atendimento.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_fatura.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dados/repositorios/repositorio_configuracao_faturamento_impl.dart';
@@ -25,7 +26,10 @@ import '../funcionalidades/encerramento/fixtures_encerramento.dart';
 class _AdaptadorRotas implements HttpClientAdapter {
   final List<Map<String, dynamic>> encerramentos = [];
   final List<Map<String, dynamic>> faturas = [];
-  int consultasDeFatura = 0;
+  int consultasDeMapa = 0;
+  int detalhesDeFatura = 0;
+
+  static const String _idFaturaDoCaixa = '7ef09146-5631-4fa4-9e7f-a16d5f080c79';
 
   @override
   Future<ResponseBody> fetch(RequestOptions options,
@@ -34,12 +38,24 @@ class _AdaptadorRotas implements HttpClientAdapter {
     Object corpoResposta = const {};
     if (caminho.endsWith('venda/atendimento/encerra')) {
       encerramentos.add(_corpo(options));
-    } else if (caminho.endsWith('movimento/fatura') &&
+    } else if (caminho.endsWith('venda/atendimento/mapa')) {
+      // Derivação automática da configuração: o mapa da loja aponta um
+      // atendimento já encerrado pelo caixa na sessão, com a fatura ecoada.
+      consultasDeMapa++;
+      expect(options.uri.queryParameters['sessaoid'], idSessao);
+      corpoResposta = [
+        {
+          'id': 'atendimento-do-caixa',
+          'situacao': 30,
+          'conclusao': '2026-07-13T20:00:00.000Z',
+          'fatura': {'id': _idFaturaDoCaixa, 'codigo': 'VN0051636'},
+        },
+      ];
+    } else if (caminho.endsWith('movimento/fatura/$_idFaturaDoCaixa') &&
         options.method == 'GET') {
-      // Consulta usada pela derivação automática da configuração: devolve
-      // uma venda completa já feita pelo caixa na mesma sessão.
-      consultasDeFatura++;
-      corpoResposta = [faturaCompletaParaDerivacao()];
+      // Detalhe da fatura do caixa — base completa da derivação.
+      detalhesDeFatura++;
+      corpoResposta = faturaCompletaParaDerivacao();
     } else if (caminho.endsWith('movimento/fatura')) {
       final corpo = _corpo(options);
       faturas.add(corpo);
@@ -91,6 +107,7 @@ void main() {
     final casoUso = CasoUsoEncerrarAtendimentos(
       fonteEncerramento: FonteEncerramentoAtendimento(cliente),
       fonteFatura: FonteFatura(cliente),
+      fonteAtendimentosSessao: FonteAtendimentosSessao(cliente),
       repositorioPendentes: pendentes,
       repositorioConfiguracao: repositorioFaturamento,
       relogio: RelogioFixo(DateTime(2026, 7, 13, 21, 44, 25)),

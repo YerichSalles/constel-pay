@@ -33,6 +33,13 @@ abstract final class ConstantesApp {
   static const String caminhoEncerraAtendimento = 'venda/atendimento/encerra';
   static const String caminhoFatura = 'movimento/fatura';
 
+  // Mapa de atendimentos da loja (mesmo contrato usado pelo caixa mobile):
+  // com situacao=30 e sessaoid devolve os encerrados da sessão, cada um com
+  // a fatura vinculada — é como o terminal descobre as faturas da sessão,
+  // já que a nuvem não tem consulta de fatura por sessão.
+  static const String caminhoMapaAtendimento = 'venda/atendimento/mapa';
+  static const int situacaoAtendimentoEncerrado = 30;
+
   // Chaves de SharedPreferences que SOBREVIVEM ao "Limpar dados locais":
   // registros transacionais cuja perda deixaria dado financeiro órfão no
   // retaguarda. Toda feature com dado desse tipo registra a chave aqui.

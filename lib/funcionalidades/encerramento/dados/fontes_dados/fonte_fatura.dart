@@ -6,7 +6,7 @@ import '../../dominio/entidades/fatura_referencia.dart';
 import '../modelos/resposta_fatura.dart';
 
 /// Fatura na API da NUVEM (`movimento/fatura`): criação (POST) e consulta por
-/// sessão (GET, usada na reconciliação de timeouts). O identificador vai
+/// atendimento (GET, usada na reconciliação de timeouts). O identificador vai
 /// também no header `Idempotency-Key`.
 ///
 /// Corpo ilegível NUNCA vira `FalhaServidor`: um 2xx com formato inesperado
@@ -41,25 +41,16 @@ class FonteFatura {
     }
   }
 
-  /// Faturas da sessão — reconciliação: procura pela fatura de um
-  /// identificador quando a resposta da criação se perdeu.
-  Future<Resultado<List<FaturaReferencia>>> consultarPorSessao(
-      String sessaoId) async {
-    final brutas = await consultarBrutasPorSessao(sessaoId);
-    return switch (brutas) {
-      Sucesso(:final valor) =>
-        Sucesso([for (final f in valor) RespostaFatura.paraReferencia(f)]),
-      Erro(:final falha) => Erro(falha),
-    };
-  }
-
-  /// Faturas da sessão como vieram (mapas crus) — base da derivação
-  /// automática da configuração de faturamento.
-  Future<Resultado<List<Map<String, dynamic>>>> consultarBrutasPorSessao(
-      String sessaoId) async {
+  /// Faturas vinculadas a um atendimento — reconciliação quando a resposta
+  /// da criação se perdeu. O retaguarda filtra `texto=<uuid>` pela própria
+  /// fatura OU pela ocupação (`faturaModalidades[].referenciaId`); a
+  /// resposta é o envelope paginado com `lista`, em formato enxuto (sem
+  /// identificador nem quitação) — o detalhe vem depois por [obterBruta].
+  Future<Resultado<List<Map<String, dynamic>>>> consultarPorAtendimento(
+      String atendimentoId) async {
     final resposta = await _clienteApi.get(
       ConstantesApp.caminhoFatura,
-      parametros: {'sessao.id': sessaoId},
+      parametros: {'texto': atendimentoId},
     );
     try {
       return switch (resposta) {
@@ -92,10 +83,13 @@ class FonteFatura {
     }
   }
 
-  /// Lista crua ou envelope conhecido; formato desconhecido → `null`.
+  /// Lista crua ou envelope conhecido (o retaguarda pagina em `lista`);
+  /// formato desconhecido → `null`.
   static List<Map<String, dynamic>>? _listaBruta(dynamic corpo) =>
       switch (corpo) {
         final List lista => lista.whereType<Map<String, dynamic>>().toList(),
+        final Map<String, dynamic> mapa when mapa['lista'] is List =>
+          (mapa['lista'] as List).whereType<Map<String, dynamic>>().toList(),
         final Map<String, dynamic> mapa when mapa['itens'] is List =>
           (mapa['itens'] as List).whereType<Map<String, dynamic>>().toList(),
         final Map<String, dynamic> mapa when mapa['dados'] is List =>
