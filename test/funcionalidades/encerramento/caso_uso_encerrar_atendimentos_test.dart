@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_atendimentos_sessao.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_encerramento_atendimento.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_fatura.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dados/modelos/requisicao_encerramento.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dados/modelos/resposta_fatura.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dominio/casos_uso/caso_uso_encerrar_atendimentos.dart';
+import 'package:constel_pay/funcionalidades/encerramento/dominio/entidades/atendimento_encerrado.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dominio/entidades/configuracao_faturamento.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dominio/entidades/fase_encerramento.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dominio/entidades/fatura_referencia.dart';
@@ -48,15 +50,9 @@ class _FonteFaturaFake implements FonteFatura {
   final List<Map<String, dynamic>> criadas = [];
   final List<String> identificadores = [];
   final List<Resultado<FaturaReferencia>> respostas = [];
-  Resultado<List<FaturaReferencia>> consulta = const Sucesso([]);
-  Resultado<List<Map<String, dynamic>>> brutas = const Sucesso([]);
+  Resultado<List<Map<String, dynamic>>> consulta = const Sucesso([]);
   final Map<String, Map<String, dynamic>> detalhes = {};
   int consultas = 0;
-
-  @override
-  Future<Resultado<List<Map<String, dynamic>>>> consultarBrutasPorSessao(
-          String sessaoId) async =>
-      brutas;
 
   @override
   Future<Resultado<Map<String, dynamic>>> obterBruta(String id) async =>
@@ -75,11 +71,20 @@ class _FonteFaturaFake implements FonteFatura {
   }
 
   @override
-  Future<Resultado<List<FaturaReferencia>>> consultarPorSessao(
-      String sessaoId) async {
+  Future<Resultado<List<Map<String, dynamic>>>> consultarPorAtendimento(
+      String atendimentoId) async {
     consultas++;
     return consulta;
   }
+}
+
+class _FonteSessaoFake implements FonteAtendimentosSessao {
+  Resultado<List<AtendimentoEncerrado>> encerrados = const Sucesso([]);
+
+  @override
+  Future<Resultado<List<AtendimentoEncerrado>>> consultarEncerrados(
+          String sessaoId) async =>
+      encerrados;
 }
 
 class _PendentesMemoria implements RepositorioTransacoesPendentes {
@@ -118,12 +123,14 @@ class _Cenario {
   _Cenario({ConfiguracaoFaturamento? configuracao})
       : fonteEncerramento = _FonteEncerramentoFake(),
         fonteFatura = _FonteFaturaFake(),
+        fonteSessao = _FonteSessaoFake(),
         pendentes = _PendentesMemoria(),
         repositorioConfiguracao =
             _ConfiguracaoFake(configuracao ?? configuracaoFaturamento()) {
     casoUso = CasoUsoEncerrarAtendimentos(
       fonteEncerramento: fonteEncerramento,
       fonteFatura: fonteFatura,
+      fonteAtendimentosSessao: fonteSessao,
       repositorioPendentes: pendentes,
       repositorioConfiguracao: repositorioConfiguracao,
       relogio: RelogioFixo(DateTime(2026, 7, 13, 21, 44, 25)),
@@ -133,6 +140,7 @@ class _Cenario {
 
   final _FonteEncerramentoFake fonteEncerramento;
   final _FonteFaturaFake fonteFatura;
+  final _FonteSessaoFake fonteSessao;
   final _PendentesMemoria pendentes;
   final _ConfiguracaoFake repositorioConfiguracao;
   late final CasoUsoEncerrarAtendimentos casoUso;
@@ -226,12 +234,18 @@ void main() {
     final cenario = _Cenario();
     cenario.fonteFatura.respostas.add(const Erro(FalhaTimeout()));
     await cenario.executar();
-    // Consulta devolve a fatura no formato real do retaguarda: sem
-    // `identificador`, com o atendimento em faturaModalidades[].referenciaId.
-    cenario.fonteFatura.consulta = Sucesso([
-      RespostaFatura.paraReferencia(
-          faturaDaConsultaSemIdentificador(idAtendimento512)),
+    // A coleção vem enxuta (id/código/situação) e o detalhe vem no formato
+    // real do retaguarda: sem `identificador`, com o atendimento em
+    // faturaModalidades[].referenciaId.
+    cenario.fonteFatura.consulta = const Sucesso([
+      {
+        'id': 'b11acb66-f4d0-4b21-9afa-577e88c1740e',
+        'codigo': 'VN0051634',
+        'situacao': 340,
+      },
     ]);
+    cenario.fonteFatura.detalhes['b11acb66-f4d0-4b21-9afa-577e88c1740e'] =
+        faturaDaConsultaSemIdentificador(idAtendimento512);
     final resultado = await cenario.executar();
     expect(resultado, isA<Sucesso<ResultadoEncerramento>>());
     expect(cenario.fonteFatura.criadas.length, 1,
@@ -247,9 +261,15 @@ void main() {
     cenario.fonteFatura.respostas.add(const Erro(FalhaTimeout()));
     await cenario.executar();
     final identificador = cenario.fonteFatura.identificadores.single;
-    cenario.fonteFatura.consulta = Sucesso([
-      RespostaFatura.paraReferencia(respostaFaturaPaga(identificador)),
+    cenario.fonteFatura.consulta = const Sucesso([
+      {
+        'id': 'e0c2eafc-493f-40a6-a3b9-eddfff7b1522',
+        'codigo': 'VN0051625',
+        'situacao': 340,
+      },
     ]);
+    cenario.fonteFatura.detalhes['e0c2eafc-493f-40a6-a3b9-eddfff7b1522'] =
+        respostaFaturaPaga(identificador);
     final resultado = await cenario.executar();
     expect(resultado, isA<Sucesso<ResultadoEncerramento>>());
     expect(cenario.fonteFatura.criadas.length, 1,
@@ -370,7 +390,16 @@ void main() {
       () async {
     final cenario = _Cenario();
     cenario.repositorioConfiguracao.configuracao = null;
-    cenario.fonteFatura.brutas = Sucesso([faturaCompletaParaDerivacao()]);
+    cenario.fonteSessao.encerrados = const Sucesso([
+      AtendimentoEncerrado(
+        atendimentoId: 'atendimento-anterior',
+        faturaId: '7ef09146-5631-4fa4-9e7f-a16d5f080c79',
+        faturaCodigo: 'VN0051636',
+        conclusao: '2026-07-14T17:34:32.666Z',
+      ),
+    ]);
+    cenario.fonteFatura.detalhes['7ef09146-5631-4fa4-9e7f-a16d5f080c79'] =
+        faturaCompletaParaDerivacao();
     final resultado = await cenario.executar();
     expect(resultado, isA<Sucesso<ResultadoEncerramento>>());
     // Cache aprendido, com a sessão de origem carimbada.
@@ -384,13 +413,25 @@ void main() {
     expect((pagamento['forma'] as Map)['nome'], 'Dinheiro');
   });
 
-  test('coleção enxuta: busca o detalhe da fatura para derivar', () async {
+  test('encerrado sem fatura vinculada é ignorado na derivação', () async {
     final cenario = _Cenario();
     cenario.repositorioConfiguracao.configuracao = null;
-    cenario.fonteFatura.brutas = const Sucesso([
-      {'id': 'f-enxuta', 'tipo': 110, 'inclusao': '2026-07-14T16:00:00Z'},
+    cenario.fonteSessao.encerrados = const Sucesso([
+      AtendimentoEncerrado(
+        atendimentoId: 'estornado-sem-fatura',
+        faturaId: '',
+        faturaCodigo: '',
+        conclusao: '2026-07-14T18:00:00.000Z',
+      ),
+      AtendimentoEncerrado(
+        atendimentoId: 'atendimento-anterior',
+        faturaId: '7ef09146-5631-4fa4-9e7f-a16d5f080c79',
+        faturaCodigo: 'VN0051636',
+        conclusao: '2026-07-14T17:34:32.666Z',
+      ),
     ]);
-    cenario.fonteFatura.detalhes['f-enxuta'] = faturaCompletaParaDerivacao();
+    cenario.fonteFatura.detalhes['7ef09146-5631-4fa4-9e7f-a16d5f080c79'] =
+        faturaCompletaParaDerivacao();
     final resultado = await cenario.executar();
     expect(resultado, isA<Sucesso<ResultadoEncerramento>>());
   });
@@ -480,12 +521,52 @@ void main() {
     test('deriva na hora quando a sessão já tem fatura', () async {
       final cenario = _Cenario();
       cenario.repositorioConfiguracao.configuracao = null;
-      cenario.fonteFatura.brutas = Sucesso([faturaCompletaParaDerivacao()]);
+      cenario.fonteSessao.encerrados = const Sucesso([
+        AtendimentoEncerrado(
+          atendimentoId: 'atendimento-anterior',
+          faturaId: '7ef09146-5631-4fa4-9e7f-a16d5f080c79',
+          faturaCodigo: 'VN0051636',
+          conclusao: '2026-07-14T17:34:32.666Z',
+        ),
+      ]);
+      cenario.fonteFatura.detalhes['7ef09146-5631-4fa4-9e7f-a16d5f080c79'] =
+          faturaCompletaParaDerivacao();
       final falha = await cenario.casoUso.validarAntesDoPagamento(
         atendimentos: [atendimentoCartao512()],
         metodo: MetodoPagamento.dinheiro,
       );
       expect(falha, isNull);
+    });
+
+    test('cache da própria sessão sem a forma pedida re-deriva e aprende',
+        () async {
+      // Cache aprendido nesta sessão só com dinheiro; a primeira venda PIX
+      // do caixa precisa ser re-aprendida em vez de barrar o método.
+      final json = configuracaoFaturamentoJson();
+      (json['formasPagamento'] as Map).remove('pix');
+      json['sessaoOrigem'] = idSessao;
+      final cenario =
+          _Cenario(configuracao: ConfiguracaoFaturamento.deJson(json));
+      cenario.fonteSessao.encerrados = const Sucesso([
+        AtendimentoEncerrado(
+          atendimentoId: 'atendimento-anterior',
+          faturaId: '7ef09146-5631-4fa4-9e7f-a16d5f080c79',
+          faturaCodigo: 'VN0051636',
+          conclusao: '2026-07-14T17:34:32.666Z',
+        ),
+      ]);
+      cenario.fonteFatura.detalhes['7ef09146-5631-4fa4-9e7f-a16d5f080c79'] =
+          faturaCompletaParaDerivacao();
+      final falha = await cenario.casoUso.validarAntesDoPagamento(
+        atendimentos: [atendimentoCartao512()],
+        metodo: MetodoPagamento.pix,
+      );
+      expect(falha, isNull);
+      // A forma aprendida antes segue disponível depois da mesclagem.
+      expect(
+          cenario.repositorioConfiguracao.configuracao!
+              .completaPara(MetodoPagamento.dinheiro),
+          isTrue);
     });
 
     test('configuração sem a forma do método é barrada antes da cobrança',

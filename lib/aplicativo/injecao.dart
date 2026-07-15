@@ -23,6 +23,7 @@ import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_gerar_pix.dart';
 import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_processar_pagamento.dart';
 import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_verificar_pagamento.dart';
 import '../funcionalidades/pagamento/dominio/repositorios/repositorio_pagamento.dart';
+import '../funcionalidades/encerramento/dados/fontes_dados/fonte_atendimentos_sessao.dart';
 import '../funcionalidades/encerramento/dados/fontes_dados/fonte_encerramento_atendimento.dart';
 import '../funcionalidades/encerramento/dados/fontes_dados/fonte_fatura.dart';
 import '../funcionalidades/encerramento/dados/repositorios/repositorio_configuracao_faturamento_impl.dart';
@@ -299,11 +300,18 @@ final provedorFonteFatura = Provider<FonteFatura>(
   (ref) => FonteFatura(ref.watch(provedorClienteApiNuvem)),
 );
 
+// Encerrados da sessão: API da loja — é o mapa deles que aponta as faturas
+// da sessão para derivar a configuração e reconciliar pendências.
+final provedorFonteAtendimentosSessao = Provider<FonteAtendimentosSessao>(
+  (ref) => FonteAtendimentosSessao(ref.watch(provedorClienteApiLoja)),
+);
+
 final provedorCasoUsoEncerrarAtendimentos =
     Provider<CasoUsoEncerrarAtendimentos>(
   (ref) => CasoUsoEncerrarAtendimentos(
     fonteEncerramento: ref.watch(provedorFonteEncerramentoAtendimento),
     fonteFatura: ref.watch(provedorFonteFatura),
+    fonteAtendimentosSessao: ref.watch(provedorFonteAtendimentosSessao),
     repositorioPendentes: ref.watch(provedorRepositorioTransacoesPendentes),
     repositorioConfiguracao:
         ref.watch(provedorRepositorioConfiguracaoFaturamento),

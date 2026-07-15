@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/configuracao_terminal.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/repositorios/repositorio_configuracao.dart';
+import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_atendimentos_sessao.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_encerramento_atendimento.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_fatura.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dados/modelos/requisicao_encerramento.dart';
+import 'package:constel_pay/funcionalidades/encerramento/dominio/entidades/atendimento_encerrado.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dominio/entidades/fatura_referencia.dart';
 import 'package:constel_pay/nucleo/configuracao/cliente_api.dart';
 import 'package:constel_pay/nucleo/erros/falha.dart';
@@ -107,14 +109,22 @@ void main() {
       expect(requisicao.headers['Idempotency-Key'], 'IDX');
     });
 
-    test('consulta por sessão manda sessao.id e parseia a lista', () async {
-      final adaptador = _AdaptadorResposta([respostaFaturaPaga('IDY')], 200);
+    test('consulta por atendimento manda texto e abre o envelope paginado',
+        () async {
+      // Formato real do retaguarda: envelope com `lista` (paginação).
+      final adaptador = _AdaptadorResposta({
+        'registros': 1,
+        'linhas': 10,
+        'pagina': 1,
+        'paginas': 1,
+        'lista': [respostaFaturaPaga('IDY')],
+      }, 200);
       final fonte = FonteFatura(_cliente(adaptador));
-      final resultado = await fonte.consultarPorSessao('s1');
-      expect(resultado, isA<Sucesso<List<FaturaReferencia>>>());
-      final lista = (resultado as Sucesso<List<FaturaReferencia>>).valor;
-      expect(lista.single.identificador, 'IDY');
-      expect(adaptador.ultimaRequisicao!.queryParameters, {'sessao.id': 's1'});
+      final resultado = await fonte.consultarPorAtendimento('a1');
+      expect(resultado, isA<Sucesso<List<Map<String, dynamic>>>>());
+      final lista = (resultado as Sucesso<List<Map<String, dynamic>>>).valor;
+      expect(lista.single['codigo'], 'VN0051625');
+      expect(adaptador.ultimaRequisicao!.queryParameters, {'texto': 'a1'});
     });
 
     test(
@@ -136,11 +146,48 @@ void main() {
           {'id': 'x'}
         ]
       }, 200)));
-      final resultado = await fonte.consultarPorSessao('s1');
-      expect(resultado, isA<Erro<List<FaturaReferencia>>>());
-      expect((resultado as Erro<List<FaturaReferencia>>).falha,
+      final resultado = await fonte.consultarPorAtendimento('a1');
+      expect(resultado, isA<Erro<List<Map<String, dynamic>>>>());
+      expect((resultado as Erro<List<Map<String, dynamic>>>).falha,
           isA<FalhaDesconhecida>(),
           reason: '"não sei ler" não pode virar "a fatura não existe"');
+    });
+  });
+
+  group('FonteAtendimentosSessao', () {
+    test('consulta o mapa da sessão e devolve só encerrados com fatura',
+        () async {
+      final adaptador = _AdaptadorResposta([
+        {
+          'id': 'a-encerrado',
+          'situacao': 30,
+          'conclusao': '2026-07-14T17:34:32.666Z',
+          'fatura': {'id': 'f1', 'codigo': 'VN0051636'},
+        },
+        {
+          'id': 'a-estornado',
+          'situacao': 90,
+          'conclusao': '2026-07-14T18:00:00.000Z',
+          'fatura': {'id': 'f2', 'codigo': 'VN0051637'},
+        },
+      ], 200);
+      final fonte = FonteAtendimentosSessao(_cliente(adaptador));
+      final resultado = await fonte.consultarEncerrados('s1');
+      expect(resultado, isA<Sucesso<List<AtendimentoEncerrado>>>());
+      final lista = (resultado as Sucesso<List<AtendimentoEncerrado>>).valor;
+      expect(lista.single.atendimentoId, 'a-encerrado');
+      expect(lista.single.faturaId, 'f1');
+      expect(lista.single.faturaCodigo, 'VN0051636');
+      final requisicao = adaptador.ultimaRequisicao!;
+      expect(requisicao.uri.path, endsWith('venda/atendimento/mapa'));
+      expect(requisicao.queryParameters, {'situacao': 30, 'sessaoid': 's1'});
+    });
+
+    test('corpo que não é lista vira erro', () async {
+      final fonte = FonteAtendimentosSessao(
+          _cliente(_AdaptadorResposta(const {'x': 1}, 200)));
+      final resultado = await fonte.consultarEncerrados('s1');
+      expect(resultado, isA<Erro<List<AtendimentoEncerrado>>>());
     });
   });
 }

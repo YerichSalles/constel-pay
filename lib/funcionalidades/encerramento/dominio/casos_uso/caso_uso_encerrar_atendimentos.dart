@@ -12,10 +12,14 @@ import '../../../leitura_cartao/dominio/entidades/atendimento.dart';
 import '../../../pagamento/dominio/entidades/metodo_pagamento.dart';
 import '../../dados/adaptadores/derivador_configuracao_faturamento.dart';
 import '../../dados/adaptadores/mapeador_fatura.dart';
+import '../../dados/fontes_dados/fonte_atendimentos_sessao.dart';
 import '../../dados/fontes_dados/fonte_encerramento_atendimento.dart';
 import '../../dados/fontes_dados/fonte_fatura.dart';
 import '../../dados/modelos/requisicao_encerramento.dart';
+import '../../dados/modelos/resposta_fatura.dart';
+import '../entidades/atendimento_encerrado.dart';
 import '../entidades/configuracao_faturamento.dart';
+import '../entidades/fatura_enums.dart';
 import '../entidades/fase_encerramento.dart';
 import '../entidades/fatura_referencia.dart';
 import '../entidades/resultado_encerramento.dart';
@@ -32,13 +36,14 @@ import 'validacoes_encerramento.dart';
 ///   exatamente o que foi salvo;
 /// - a pendência só é removida depois da ação 30 confirmada;
 /// - timeout NUNCA assume que a fatura não foi criada — reconcilia primeiro
-///   consultando as faturas da sessão pelo identificador;
+///   consultando no retaguarda as faturas vinculadas a cada atendimento;
 /// - uma instância única (provider) trava operações simultâneas; a retomada
 ///   exige o MESMO conjunto de atendimentos da pendência.
 class CasoUsoEncerrarAtendimentos {
   CasoUsoEncerrarAtendimentos({
     required FonteEncerramentoAtendimento fonteEncerramento,
     required FonteFatura fonteFatura,
+    required FonteAtendimentosSessao fonteAtendimentosSessao,
     required RepositorioTransacoesPendentes repositorioPendentes,
     required RepositorioConfiguracaoFaturamento repositorioConfiguracao,
     FonteConsumoAtendimento? fonteConsumo,
@@ -46,6 +51,7 @@ class CasoUsoEncerrarAtendimentos {
     GeradorIdentificador? geradorIdentificador,
   })  : _fonteEncerramento = fonteEncerramento,
         _fonteFatura = fonteFatura,
+        _fonteAtendimentosSessao = fonteAtendimentosSessao,
         _pendentes = repositorioPendentes,
         _configuracoes = repositorioConfiguracao,
         _fonteConsumo = fonteConsumo,
@@ -54,6 +60,7 @@ class CasoUsoEncerrarAtendimentos {
 
   final FonteEncerramentoAtendimento _fonteEncerramento;
   final FonteFatura _fonteFatura;
+  final FonteAtendimentosSessao _fonteAtendimentosSessao;
   final RepositorioTransacoesPendentes _pendentes;
   final RepositorioConfiguracaoFaturamento _configuracoes;
   final FonteConsumoAtendimento? _fonteConsumo;
@@ -96,7 +103,7 @@ class CasoUsoEncerrarAtendimentos {
       }
     }
     final configuracao =
-        await _resolverConfiguracao(atendimentos.first.sessaoId);
+        await _resolverConfiguracao(atendimentos.first.sessaoId, metodo);
     return ValidacoesEncerramento.validarAtendimentos(
         atendimentos, metodo, configuracao);
   }
@@ -144,7 +151,7 @@ class CasoUsoEncerrarAtendimentos {
     required void Function(FaseEncerramento fase) aoMudarFase,
   }) async {
     final configuracao = await _resolverConfiguracao(
-        atendimentos.isEmpty ? '' : atendimentos.first.sessaoId);
+        atendimentos.isEmpty ? '' : atendimentos.first.sessaoId, metodo);
 
     // Pendência primeiro: retomada não passa pelas validações de frescor
     // (o atendimento relido pode já vir com a fatura vinculada — é
@@ -452,45 +459,64 @@ class CasoUsoEncerrarAtendimentos {
     }
   }
 
-  /// Procura a fatura da pendência entre as faturas da sessão.
-  /// `Sucesso(null)` = consulta ok e não existe; `Erro` = consulta
-  /// falhou/ilegível/ambígua — nunca confundir com "não existe".
-  ///
-  /// Casa pelo `identificador` OU pelos ids dos atendimentos nas
-  /// modalidades — a consulta do retaguarda nem sempre ecoa o
-  /// identificador no corpo (observado em fatura real).
+  /// Procura a fatura da pendência consultando o retaguarda POR ATENDIMENTO
+  /// (`texto=<id>` casa a fatura pela ocupação da modalidade — não existe
+  /// consulta por sessão nem por identificador). `Sucesso(null)` = consulta
+  /// ok e não existe; `Erro` = consulta falhou/ilegível/ambígua — nunca
+  /// confundir com "não existe". Fatura estornada é tentativa antiga já
+  /// desfeita e não conta.
   Future<Resultado<FaturaReferencia?>> _procurarFaturaDaPendencia(
       TransacaoPendente pendente) async {
-    final consulta = await _fonteFatura.consultarPorSessao(pendente.sessaoId);
-    switch (consulta) {
-      case Erro(:final falha):
-        return Erro(falha);
-      case Sucesso(:final valor):
-        final correspondentes = [
-          for (final f in valor)
-            if (f.identificador == pendente.identificador ||
-                pendente.atendimentoIds.any(f.atendimentoIds.contains))
-              f,
-        ];
-        if (correspondentes.length > 1) {
-          return const Erro(
-              FalhaServidor('Mais de uma fatura corresponde a esta operação. '
-                  'Verifique no retaguarda antes de continuar.'));
-        }
-        return Sucesso(correspondentes.isEmpty ? null : correspondentes.single);
+    final idsFatura = <String>{};
+    for (final atendimentoId in pendente.atendimentoIds) {
+      final consulta =
+          await _fonteFatura.consultarPorAtendimento(atendimentoId);
+      switch (consulta) {
+        case Erro(:final falha):
+          return Erro(falha);
+        case Sucesso(:final valor):
+          for (final fatura in valor) {
+            if (JsonLeniente.inteiro(fatura['situacao']) ==
+                FaturaSituacao.estornada.valor) {
+              continue;
+            }
+            final id = JsonLeniente.texto(fatura['id']);
+            if (id.isNotEmpty) idsFatura.add(id);
+          }
+      }
     }
+    if (idsFatura.length > 1) {
+      return const Erro(
+          FalhaServidor('Mais de uma fatura corresponde a esta operação. '
+              'Verifique no retaguarda antes de continuar.'));
+    }
+    if (idsFatura.isEmpty) return const Sucesso(null);
+
+    // A coleção vem enxuta (sem identificador nem quitação): o detalhe traz
+    // o que as validações da ação 30 exigem.
+    final detalhe = await _fonteFatura.obterBruta(idsFatura.single);
+    return switch (detalhe) {
+      Erro(:final falha) => Erro(falha),
+      Sucesso(:final valor) => Sucesso(RespostaFatura.paraReferencia(valor)),
+    };
   }
 
   // ---- auxiliares ----
 
   /// Configuração de faturamento SEM intervenção do técnico: cache da mesma
   /// sessão → derivação das faturas que o caixa já gerou → cache antigo como
-  /// reserva (nuvem fora do ar ou sessão ainda sem vendas).
+  /// reserva (nuvem fora do ar ou sessão ainda sem vendas). Cache da própria
+  /// sessão só encerra a busca se cobrir a forma pedida — a primeira venda
+  /// do dia numa forma nova (ex.: PIX no caixa) precisa ser re-aprendida.
   Future<ConfiguracaoFaturamento?> _resolverConfiguracao(
-      String sessaoId) async {
+      String sessaoId, MetodoPagamento metodo) async {
     final cache = await _configuracoes.obter();
     if (sessaoId.isEmpty) return cache;
-    if (cache != null && cache.sessaoOrigem == sessaoId) return cache;
+    if (cache != null &&
+        cache.sessaoOrigem == sessaoId &&
+        cache.completaPara(metodo)) {
+      return cache;
+    }
 
     final derivada = await _derivarConfiguracao(sessaoId);
     if (derivada == null) {
@@ -509,23 +535,25 @@ class CasoUsoEncerrarAtendimentos {
     return mesclada;
   }
 
+  /// As faturas da sessão vêm do mapa de atendimentos ENCERRADOS da própria
+  /// loja (cada um ecoa a fatura que o encerrou); o detalhe de cada fatura é
+  /// buscado na nuvem — limitado às mais recentes para não atrasar o fluxo
+  /// de pagamento.
   Future<ConfiguracaoFaturamento?> _derivarConfiguracao(String sessaoId) async {
-    final consulta = await _fonteFatura.consultarBrutasPorSessao(sessaoId);
-    if (consulta is! Sucesso<List<Map<String, dynamic>>>) return null;
-    final faturas = consulta.valor;
-    final direta =
-        DerivadorConfiguracaoFaturamento.derivar(faturas, sessaoId: sessaoId);
-    if (direta != null) return direta;
+    final consulta =
+        await _fonteAtendimentosSessao.consultarEncerrados(sessaoId);
+    if (consulta is! Sucesso<List<AtendimentoEncerrado>>) return null;
 
-    // Coleção enxuta (sem pagamentos embutidos): busca o detalhe das mais
-    // recentes — limitado para não atrasar o fluxo de pagamento.
-    final ordenadas = [...faturas]..sort((a, b) =>
-        JsonLeniente.texto(b['inclusao'])
-            .compareTo(JsonLeniente.texto(a['inclusao'])));
+    final encerrados = [...consulta.valor]
+      ..sort((a, b) => b.conclusao.compareTo(a.conclusao));
+    final idsFatura = <String>{};
+    for (final encerrado in encerrados) {
+      if (encerrado.faturaId.isEmpty) continue;
+      idsFatura.add(encerrado.faturaId);
+      if (idsFatura.length == 3) break;
+    }
     final detalhadas = <Map<String, dynamic>>[];
-    for (final fatura in ordenadas.take(3)) {
-      final id = JsonLeniente.texto(fatura['id']);
-      if (id.isEmpty) continue;
+    for (final id in idsFatura) {
       final detalhe = await _fonteFatura.obterBruta(id);
       if (detalhe is Sucesso<Map<String, dynamic>>) {
         detalhadas.add(detalhe.valor);
