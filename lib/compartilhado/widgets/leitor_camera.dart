@@ -32,19 +32,18 @@ class LeitorCamera extends StatefulWidget {
 
 class _LeitorCameraState extends State<LeitorCamera> {
   /// `noDuplicates` evita que a mesma comanda seja consultada dezenas de vezes
-  /// enquanto o cliente segura o código na frente da câmera. Só os formatos
-  /// usados em comanda são procurados, para o reconhecimento não gastar tempo
-  /// com QR e afins.
+  /// enquanto o cliente segura o código na frente da câmera.
+  ///
+  /// Só Code 39: e o formato do codigo de barras da comanda. Habilitar outras
+  /// simbologias junto faz o reconhecedor tentar encaixar as mesmas barras em
+  /// gramaticas diferentes e devolver lixo — com Code 128 ligado, a comanda
+  /// 200 vinha como "F02" ou "20F". Restrito ao formato real, leitura duvidosa
+  /// vira leitura nenhuma, que num pagamento e sempre preferivel a um valor
+  /// errado. O cartao tambem tem um QR (Instagram), de proposito fora da lista.
   late final MobileScannerController _controlador = MobileScannerController(
     autoStart: false,
     detectionSpeed: DetectionSpeed.noDuplicates,
-    formats: const [
-      BarcodeFormat.code128,
-      BarcodeFormat.code39,
-      BarcodeFormat.ean13,
-      BarcodeFormat.ean8,
-      BarcodeFormat.itf,
-    ],
+    formats: const [BarcodeFormat.code39],
   );
   bool _iniciado = false;
 

@@ -121,6 +121,10 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
     }
   }
 
+  int? _ultimoScannerId(EstadoFluxoPagamento estado) => estado.mensagens
+      .lastWhereOrNull((m) => m.tipo == TipoMensagem.scanner)
+      ?.id;
+
   Widget _porTipo(Mensagem mensagem, EstadoFluxoPagamento estado,
       ControladorFluxoPagamento controlador) {
     Widget recuado(Widget filho) => Padding(
@@ -135,11 +139,15 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
         if (cartao == null) return const SizedBox.shrink();
         return recuado(CardComanda(cartao: cartao));
       case TipoMensagem.scanner:
+        // Cada nova tentativa acrescenta um scanner e os anteriores continuam
+        // na conversa. Só o último abre a câmera: sem isso, voltar a ler
+        // acenderia a câmera de todas as tentativas passadas ao mesmo tempo.
+        final atual = mensagem.id == _ultimoScannerId(estado);
         final lendo = estado.etapa == EtapaFluxo.lendo && !estado.digitando;
         return recuado(CardScanner(
           aoLerPorCamera:
               _cameraDisponivel ? controlador.consultarPorCodigo : null,
-          cameraAtiva: lendo,
+          cameraAtiva: atual && lendo,
         ));
       case TipoMensagem.metodos:
         return recuado(CardMetodosPagamento(
