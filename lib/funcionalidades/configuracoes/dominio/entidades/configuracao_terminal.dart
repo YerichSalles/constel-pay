@@ -13,6 +13,12 @@ class ConfiguracaoTerminal with _$ConfiguracaoTerminal {
     @Default('Constel Pay') String nomeRestaurante,
     @Default('TERMINAL-01') String identificadorDispositivo,
     @Default('') String idDispositivo,
+
+    /// Liga a leitura por câmera no Android, para totens sem leitor de código
+    /// de barras. Não dá para detectar o leitor sozinho: ele se apresenta ao
+    /// sistema como teclado comum e só dá sinal quando digita — por isso a
+    /// escolha é do operador, por dispositivo.
+    @Default(false) bool leituraPorCamera,
     @Default(Ambiente.homologacao) Ambiente ambiente,
     // URLs da API local (consumo do cartão no estabelecimento).
     @Default('') String urlBaseProducao,

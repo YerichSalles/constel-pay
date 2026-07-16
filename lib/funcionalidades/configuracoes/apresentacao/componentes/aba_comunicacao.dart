@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -34,7 +35,12 @@ class _AbaComunicacaoState extends ConsumerState<AbaComunicacao> {
   final _urlNuvemProducao = TextEditingController();
   final _urlNuvemHomologacao = TextEditingController();
   Ambiente _ambiente = Ambiente.homologacao;
+  bool _leituraPorCamera = false;
   bool _preenchido = false;
+
+  /// A leitura por câmera só existe no Android; no totem Windows a leitura é
+  /// sempre pelo leitor físico, então o toggle nem aparece.
+  bool get _suportaCamera => defaultTargetPlatform == TargetPlatform.android;
 
   @override
   void initState() {
@@ -82,6 +88,7 @@ class _AbaComunicacaoState extends ConsumerState<AbaComunicacao> {
           urlNuvemHomologacao: _urlNuvemHomologacao.text,
           identificadorDispositivo: _identificador.text,
           idDispositivo: _idDispositivo.text,
+          leituraPorCamera: _leituraPorCamera,
         );
   }
 
@@ -112,6 +119,37 @@ class _AbaComunicacaoState extends ConsumerState<AbaComunicacao> {
               rotulo: 'ID do dispositivo (UUID)',
               controlador: _idDispositivo,
               validador: _validarUuid),
+          if (_suportaCamera) ...[
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Ler cartão pela câmera',
+                          style: TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w600)),
+                      SizedBox(height: 2),
+                      Text(
+                        'Para terminais sem leitor de código de barras. '
+                        'Com leitor conectado, mantenha desligado.',
+                        style: TextStyle(
+                            fontSize: 11.5, color: CoresApp.textoSecundario),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Switch(
+                  key: const Key('interruptor_leitura_camera'),
+                  value: _leituraPorCamera,
+                  onChanged: (valor) =>
+                      setState(() => _leituraPorCamera = valor),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -239,6 +277,7 @@ class _AbaComunicacaoState extends ConsumerState<AbaComunicacao> {
       _urlNuvemProducao.text = estado.configuracao.urlNuvemProducao;
       _urlNuvemHomologacao.text = estado.configuracao.urlNuvemHomologacao;
       _ambiente = estado.configuracao.ambiente;
+      _leituraPorCamera = estado.configuracao.leituraPorCamera;
       _preenchido = true;
     }
 

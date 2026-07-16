@@ -53,7 +53,7 @@ Future<ResultadoSelecaoMidia> escolherECopiarMidias({
   // pai, o diálogo nativo pode abrir ATRÁS do app (quase tela cheia no
   // totem) — o app parece congelado para sempre. Preso à janela pai, o
   // diálogo vem modal e na frente.
-  final resultado = await FilePicker.platform.pickFiles(
+  final resultado = await FilePicker.pickFiles(
     allowMultiple: multiplas,
     type: FileType.custom,
     allowedExtensions: extensoes,
