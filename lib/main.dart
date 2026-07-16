@@ -6,9 +6,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'aplicativo/constel_pay_app.dart';
 import 'aplicativo/injecao.dart';
 import 'aplicativo/rotas.dart';
+import 'nucleo/janela/servico_janela_totem.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Modo totem: janela em tela cheia sem controles no Windows; imersivo no
+  // Android. Aplicado antes de exibir a UI para nao piscar a janela normal.
+  await ServicoJanelaTotem.iniciar();
   // O terminal opera em pe: as telas e as midias sao pensadas em retrato.
   await SystemChrome.setPreferredOrientations(const [
     DeviceOrientation.portraitUp,
