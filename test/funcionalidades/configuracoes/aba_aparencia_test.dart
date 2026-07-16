@@ -3,6 +3,7 @@ import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/component
 import 'package:constel_pay/funcionalidades/configuracoes/apresentacao/componentes/campo_cor.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dados/repositorios/repositorio_tema_impl.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/tema_personalizado.dart';
+import 'package:constel_pay/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,7 +24,11 @@ Future<ProviderContainer> _montarAba(WidgetTester tester,
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,
-      child: const MaterialApp(home: Scaffold(body: AbaAparencia())),
+      child: const MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(body: AbaAparencia()),
+      ),
     ),
   );
   await tester.pump();

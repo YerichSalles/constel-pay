@@ -30,6 +30,8 @@ mixin _$ModeloTemaPersonalizado {
   String? get corFaixa => throw _privateConstructorUsedError;
   String get corTextoFaixa => throw _privateConstructorUsedError;
   String get textoFaixa => throw _privateConstructorUsedError;
+  String get textoFaixaEn => throw _privateConstructorUsedError;
+  String get textoFaixaEs => throw _privateConstructorUsedError;
   String get fonte => throw _privateConstructorUsedError;
   String? get logoPath => throw _privateConstructorUsedError;
   @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
@@ -60,6 +62,8 @@ abstract class $ModeloTemaPersonalizadoCopyWith<$Res> {
       String? corFaixa,
       String corTextoFaixa,
       String textoFaixa,
+      String textoFaixaEn,
+      String textoFaixaEs,
       String fonte,
       String? logoPath,
       @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
@@ -90,6 +94,8 @@ class _$ModeloTemaPersonalizadoCopyWithImpl<$Res,
     Object? corFaixa = freezed,
     Object? corTextoFaixa = null,
     Object? textoFaixa = null,
+    Object? textoFaixaEn = null,
+    Object? textoFaixaEs = null,
     Object? fonte = null,
     Object? logoPath = freezed,
     Object? orientacaoTela = null,
@@ -127,6 +133,14 @@ class _$ModeloTemaPersonalizadoCopyWithImpl<$Res,
           ? _value.textoFaixa
           : textoFaixa // ignore: cast_nullable_to_non_nullable
               as String,
+      textoFaixaEn: null == textoFaixaEn
+          ? _value.textoFaixaEn
+          : textoFaixaEn // ignore: cast_nullable_to_non_nullable
+              as String,
+      textoFaixaEs: null == textoFaixaEs
+          ? _value.textoFaixaEs
+          : textoFaixaEs // ignore: cast_nullable_to_non_nullable
+              as String,
       fonte: null == fonte
           ? _value.fonte
           : fonte // ignore: cast_nullable_to_non_nullable
@@ -161,6 +175,8 @@ abstract class _$$ModeloTemaPersonalizadoImplCopyWith<$Res>
       String? corFaixa,
       String corTextoFaixa,
       String textoFaixa,
+      String textoFaixaEn,
+      String textoFaixaEs,
       String fonte,
       String? logoPath,
       @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
@@ -190,6 +206,8 @@ class __$$ModeloTemaPersonalizadoImplCopyWithImpl<$Res>
     Object? corFaixa = freezed,
     Object? corTextoFaixa = null,
     Object? textoFaixa = null,
+    Object? textoFaixaEn = null,
+    Object? textoFaixaEs = null,
     Object? fonte = null,
     Object? logoPath = freezed,
     Object? orientacaoTela = null,
@@ -227,6 +245,14 @@ class __$$ModeloTemaPersonalizadoImplCopyWithImpl<$Res>
           ? _value.textoFaixa
           : textoFaixa // ignore: cast_nullable_to_non_nullable
               as String,
+      textoFaixaEn: null == textoFaixaEn
+          ? _value.textoFaixaEn
+          : textoFaixaEn // ignore: cast_nullable_to_non_nullable
+              as String,
+      textoFaixaEs: null == textoFaixaEs
+          ? _value.textoFaixaEs
+          : textoFaixaEs // ignore: cast_nullable_to_non_nullable
+              as String,
       fonte: null == fonte
           ? _value.fonte
           : fonte // ignore: cast_nullable_to_non_nullable
@@ -255,6 +281,8 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
       this.corFaixa,
       this.corTextoFaixa = '#FFFFFF',
       this.textoFaixa = textoFaixaPadrao,
+      this.textoFaixaEn = '',
+      this.textoFaixaEs = '',
       this.fonte = 'Inter',
       this.logoPath,
       @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
@@ -286,6 +314,12 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
   final String textoFaixa;
   @override
   @JsonKey()
+  final String textoFaixaEn;
+  @override
+  @JsonKey()
+  final String textoFaixaEs;
+  @override
+  @JsonKey()
   final String fonte;
   @override
   final String? logoPath;
@@ -295,7 +329,7 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
 
   @override
   String toString() {
-    return 'ModeloTemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, corTexto: $corTexto, corFaixa: $corFaixa, corTextoFaixa: $corTextoFaixa, textoFaixa: $textoFaixa, fonte: $fonte, logoPath: $logoPath, orientacaoTela: $orientacaoTela)';
+    return 'ModeloTemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, corTexto: $corTexto, corFaixa: $corFaixa, corTextoFaixa: $corTextoFaixa, textoFaixa: $textoFaixa, textoFaixaEn: $textoFaixaEn, textoFaixaEs: $textoFaixaEs, fonte: $fonte, logoPath: $logoPath, orientacaoTela: $orientacaoTela)';
   }
 
   @override
@@ -319,6 +353,10 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
                 other.corTextoFaixa == corTextoFaixa) &&
             (identical(other.textoFaixa, textoFaixa) ||
                 other.textoFaixa == textoFaixa) &&
+            (identical(other.textoFaixaEn, textoFaixaEn) ||
+                other.textoFaixaEn == textoFaixaEn) &&
+            (identical(other.textoFaixaEs, textoFaixaEs) ||
+                other.textoFaixaEs == textoFaixaEs) &&
             (identical(other.fonte, fonte) || other.fonte == fonte) &&
             (identical(other.logoPath, logoPath) ||
                 other.logoPath == logoPath) &&
@@ -338,6 +376,8 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
       corFaixa,
       corTextoFaixa,
       textoFaixa,
+      textoFaixaEn,
+      textoFaixaEs,
       fonte,
       logoPath,
       orientacaoTela);
@@ -369,6 +409,8 @@ abstract class _ModeloTemaPersonalizado extends ModeloTemaPersonalizado {
       final String? corFaixa,
       final String corTextoFaixa,
       final String textoFaixa,
+      final String textoFaixaEn,
+      final String textoFaixaEs,
       final String fonte,
       final String? logoPath,
       @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
@@ -395,6 +437,10 @@ abstract class _ModeloTemaPersonalizado extends ModeloTemaPersonalizado {
   String get corTextoFaixa;
   @override
   String get textoFaixa;
+  @override
+  String get textoFaixaEn;
+  @override
+  String get textoFaixaEs;
   @override
   String get fonte;
   @override

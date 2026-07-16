@@ -17,6 +17,8 @@ _$ModeloTemaPersonalizadoImpl _$$ModeloTemaPersonalizadoImplFromJson(
       corFaixa: json['corFaixa'] as String?,
       corTextoFaixa: json['corTextoFaixa'] as String? ?? '#FFFFFF',
       textoFaixa: json['textoFaixa'] as String? ?? textoFaixaPadrao,
+      textoFaixaEn: json['textoFaixaEn'] as String? ?? '',
+      textoFaixaEs: json['textoFaixaEs'] as String? ?? '',
       fonte: json['fonte'] as String? ?? 'Inter',
       logoPath: json['logoPath'] as String?,
       orientacaoTela: $enumDecodeNullable(
@@ -36,6 +38,8 @@ Map<String, dynamic> _$$ModeloTemaPersonalizadoImplToJson(
       'corFaixa': instance.corFaixa,
       'corTextoFaixa': instance.corTextoFaixa,
       'textoFaixa': instance.textoFaixa,
+      'textoFaixaEn': instance.textoFaixaEn,
+      'textoFaixaEs': instance.textoFaixaEs,
       'fonte': instance.fonte,
       'logoPath': instance.logoPath,
       'orientacaoTela': _$OrientacaoTelaEnumMap[instance.orientacaoTela]!,

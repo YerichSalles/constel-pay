@@ -7,6 +7,7 @@ import '../../../../aplicativo/tema/estilos_texto.dart';
 import '../../../../aplicativo/tema/tema_constel.dart';
 import '../../../../compartilhado/widgets/icone_emoji.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../dominio/entidades/tema_personalizado.dart';
 
 /// Miniatura compacta do terminal com o tema em edição aplicado: barra
@@ -176,7 +177,9 @@ class PreviaTema extends StatelessWidget {
                 color: faixaFundo,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 child: Text(
-                  tema.textoFaixaEfetivo,
+                  tema.textoFaixaParaIdioma(
+                      Localizations.localeOf(context).languageCode,
+                      AppLocalizations.of(context).tapToPay),
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

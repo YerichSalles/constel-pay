@@ -13,8 +13,6 @@ import '../../../../compartilhado/widgets/icone_emoji.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
 import '../../../../compartilhado/widgets/seletor_idioma.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../configuracoes/dominio/entidades/tema_personalizado.dart'
-    show textoFaixaPadrao;
 import '../componentes/trocador_propaganda.dart';
 import '../controladores/controlador_propaganda.dart';
 
@@ -128,13 +126,12 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
       );
     }
 
-    // Override do operador (textoFaixa customizado) sempre prevalece; sem
-    // override, o texto padrao vem traduzido no idioma atual do atendimento.
-    final textoFaixaPersonalizado = tema.textoFaixa.trim();
-    final textoFaixa = textoFaixaPersonalizado.isEmpty ||
-            textoFaixaPersonalizado == textoFaixaPadrao
-        ? AppLocalizations.of(context).tapToPay
-        : tema.textoFaixaEfetivo;
+    // Texto da faixa no idioma atual do atendimento: o operador pode
+    // personalizar por idioma; sem personalização (campo vazio), cai no texto
+    // padrão já traduzido pelo l10n.
+    final idioma = Localizations.localeOf(context).languageCode;
+    final textoFaixa = tema.textoFaixaParaIdioma(
+        idioma, AppLocalizations.of(context).tapToPay);
 
     // A barra de créditos sobrepõe a base da faixa sem empurrá-la para cima:
     // a mensagem fica centralizada na banda inteira do rodapé e os créditos,

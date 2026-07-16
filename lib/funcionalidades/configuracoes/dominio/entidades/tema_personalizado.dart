@@ -20,7 +20,12 @@ class TemaPersonalizado with _$TemaPersonalizado {
     @Default('#2F2B3D') String corTexto,
     String? corFaixa,
     @Default('#FFFFFF') String corTextoFaixa,
+    // Texto da faixa por idioma. `textoFaixa` é o português (mantém o nome
+    // antigo para não quebrar temas já salvos); en/es entram vazios e, quando
+    // vazios, caem no texto padrão traduzido pelo l10n do idioma atual.
     @Default(textoFaixaPadrao) String textoFaixa,
+    @Default('') String textoFaixaEn,
+    @Default('') String textoFaixaEs,
     @Default('Inter') String fonte,
     String? logoPath,
     @Default(OrientacaoTela.vertical) OrientacaoTela orientacaoTela,
@@ -39,4 +44,19 @@ class TemaPersonalizado with _$TemaPersonalizado {
   /// espacos que o operador deixou nas pontas para a faixa.
   String get textoFaixaEfetivo =>
       textoFaixa.trim().isEmpty ? textoFaixaPadrao : textoFaixa.trim();
+
+  /// Texto da faixa no [idioma] pedido ('pt', 'en' ou 'es'). Campo vazio — ou
+  /// igual ao sentinela padrao 'Toque para pagar' — cai no [padraoTraduzido]
+  /// (a chamada padrao ja traduzida pelo l10n do idioma atual), para cada
+  /// idioma cair no seu proprio padrao quando o operador nao personaliza.
+  String textoFaixaParaIdioma(String idioma, String padraoTraduzido) {
+    final bruto = switch (idioma) {
+      'en' => textoFaixaEn,
+      'es' => textoFaixaEs,
+      _ => textoFaixa,
+    }
+        .trim();
+    if (bruto.isEmpty || bruto == textoFaixaPadrao) return padraoTraduzido;
+    return bruto;
+  }
 }

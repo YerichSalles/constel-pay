@@ -30,8 +30,12 @@ class _AbaAparenciaState extends ConsumerState<AbaAparencia>
     with AutomaticKeepAliveClientMixin {
   TemaPersonalizado? _rascunho;
   String _nomeEstabelecimento = '';
-  late final TextEditingController _controladorTextoFaixa =
+  late final TextEditingController _textoFaixaPt =
       TextEditingController(text: ref.read(provedorTema).textoFaixa);
+  late final TextEditingController _textoFaixaEn =
+      TextEditingController(text: ref.read(provedorTema).textoFaixaEn);
+  late final TextEditingController _textoFaixaEs =
+      TextEditingController(text: ref.read(provedorTema).textoFaixaEs);
 
   // Mantém o rascunho vivo ao alternar de aba, para o operador não perder
   // alterações ainda não aplicadas.
@@ -52,7 +56,9 @@ class _AbaAparenciaState extends ConsumerState<AbaAparencia>
 
   @override
   void dispose() {
-    _controladorTextoFaixa.dispose();
+    _textoFaixaPt.dispose();
+    _textoFaixaEn.dispose();
+    _textoFaixaEs.dispose();
     super.dispose();
   }
 
@@ -82,7 +88,9 @@ class _AbaAparenciaState extends ConsumerState<AbaAparencia>
     if (!confirmado || !mounted) return;
     setState(() => _rascunho =
         TemaPersonalizado(logoPath: ref.read(provedorTema).logoPath));
-    _controladorTextoFaixa.text = textoFaixaPadrao;
+    _textoFaixaPt.text = textoFaixaPadrao;
+    _textoFaixaEn.clear();
+    _textoFaixaEs.clear();
   }
 
   Widget _secaoIdentidade(TemaPersonalizado tema) {
@@ -148,6 +156,36 @@ class _AbaAparenciaState extends ConsumerState<AbaAparencia>
     );
   }
 
+  Widget _campoTextoFaixa({
+    required String rotulo,
+    required TextEditingController controlador,
+    required ValueChanged<String> aoMudar,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: 78,
+          child: Text(rotulo,
+              style:
+                  const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
+        ),
+        Expanded(
+          child: TextFormField(
+            controller: controlador,
+            decoration: const InputDecoration(
+              isDense: true,
+              hintText: textoFaixaPadrao,
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
+            onChanged: aoMudar,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _secaoFaixa(TemaPersonalizado tema) {
     final primaria =
         TemaConstel.corDeHex(tema.corPrimaria, CoresApp.primariaPadrao);
@@ -160,18 +198,31 @@ class _AbaAparenciaState extends ConsumerState<AbaAparencia>
       filho: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Texto da faixa',
+          const Text('Texto da faixa por idioma',
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 6),
-          TextFormField(
-            controller: _controladorTextoFaixa,
-            decoration: const InputDecoration(
-              isDense: true,
-              hintText: textoFaixaPadrao,
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            ),
-            onChanged: (valor) => _editar(tema.copyWith(textoFaixa: valor)),
+          const SizedBox(height: 2),
+          const Text(
+            'A faixa mostra o texto do idioma escolhido pelo cliente. '
+            'Deixe em branco para usar a chamada padrão traduzida.',
+            style: TextStyle(fontSize: 11.5, color: CoresApp.textoSecundario),
+          ),
+          const SizedBox(height: 10),
+          _campoTextoFaixa(
+            rotulo: 'Português',
+            controlador: _textoFaixaPt,
+            aoMudar: (valor) => _editar(tema.copyWith(textoFaixa: valor)),
+          ),
+          const SizedBox(height: 10),
+          _campoTextoFaixa(
+            rotulo: 'English',
+            controlador: _textoFaixaEn,
+            aoMudar: (valor) => _editar(tema.copyWith(textoFaixaEn: valor)),
+          ),
+          const SizedBox(height: 10),
+          _campoTextoFaixa(
+            rotulo: 'Español',
+            controlador: _textoFaixaEs,
+            aoMudar: (valor) => _editar(tema.copyWith(textoFaixaEs: valor)),
           ),
           const SizedBox(height: 14),
           CampoCor(

@@ -293,8 +293,7 @@ void main() {
     expect(find.text('Toque para pagar'), findsNothing);
   });
 
-  testWidgets(
-      'faixa personalizada pelo operador aparece mesmo com o idioma em ingles',
+  testWidgets('a faixa mostra o texto personalizado do idioma atual do cliente',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     final preferencias = await SharedPreferences.getInstance();
@@ -302,6 +301,39 @@ void main() {
       overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
     );
     addTearDown(container.dispose);
+    await container.read(provedorTema.notifier).atualizar(
+          const TemaPersonalizado(
+            textoFaixa: 'Peça já pelo totem',
+            textoFaixaEn: 'Order at the kiosk',
+          ),
+        );
+    container.read(provedorIdioma.notifier).selecionar(const Locale('en'));
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: appPropaganda(roteadorPropagandaEChat()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // Em inglês mostra o texto em inglês, não o português nem o padrão.
+    expect(find.text('Order at the kiosk'), findsOneWidget);
+    expect(find.text('Peça já pelo totem'), findsNothing);
+    expect(find.text('Tap to pay'), findsNothing);
+  });
+
+  testWidgets(
+      'idioma sem texto personalizado cai no padrão traduzido do idioma',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    final container = ProviderContainer(
+      overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+    );
+    addTearDown(container.dispose);
+    // Só o português foi personalizado; inglês fica vazio.
     await container
         .read(provedorTema.notifier)
         .atualizar(const TemaPersonalizado(textoFaixa: 'Peça já pelo totem'));
@@ -316,7 +348,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Peça já pelo totem'), findsOneWidget);
-    expect(find.text('Tap to pay'), findsNothing);
+    expect(find.text('Tap to pay'), findsOneWidget);
+    expect(find.text('Peça já pelo totem'), findsNothing);
   });
 }
