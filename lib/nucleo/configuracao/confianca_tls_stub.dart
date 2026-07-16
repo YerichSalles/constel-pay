@@ -1,4 +1,2 @@
-import 'package:dio/dio.dart';
-
-/// No web quem valida TLS é o navegador; não há o que configurar no Dio.
-void aceitarQualquerCertificado(Dio dio) {}
+/// No web quem valida TLS é o navegador; não há `HttpOverrides` para instalar.
+void instalarConfiancaTlsGlobal() {}

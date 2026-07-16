@@ -5,7 +5,6 @@ import '../../funcionalidades/configuracoes/dominio/repositorios/repositorio_con
 import '../erros/falha.dart';
 import '../erros/resultado.dart';
 import '../utils/registrador.dart';
-import 'confianca_tls_stub.dart' if (dart.library.io) 'confianca_tls_io.dart';
 
 /// Seleciona qual base URL usar a partir da configuração do terminal.
 /// Permite reaproveitar o mesmo cliente para a API local e a API na nuvem.
@@ -19,7 +18,8 @@ class ClienteApi {
   })  : _repositorioConfiguracao = repositorioConfiguracao,
         _seletorBase = seletorBase ?? ((c) => c.urlBaseAtiva),
         _dio = dio ?? Dio() {
-    aceitarQualquerCertificado(_dio);
+    // A confiança em qualquer certificado é aplicada globalmente no início do
+    // app (instalarConfiancaTlsGlobal), cobrindo este Dio e o Image.network.
     _dio.options.connectTimeout = const Duration(seconds: 30);
     _dio.options.receiveTimeout = const Duration(seconds: 30);
     _dio.interceptors.add(

@@ -6,10 +6,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'aplicativo/constel_pay_app.dart';
 import 'aplicativo/injecao.dart';
 import 'aplicativo/rotas.dart';
+import 'nucleo/configuracao/confianca_tls_stub.dart'
+    if (dart.library.io) 'nucleo/configuracao/confianca_tls_io.dart';
 import 'nucleo/janela/servico_janela_totem.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Aceita qualquer certificado TLS em todo o app (API na nuvem e fotos dos
+  // itens no S3), para funcionar em PCs sem as raizes no repositorio.
+  instalarConfiancaTlsGlobal();
   // Modo totem: janela em tela cheia sem controles no Windows; imersivo no
   // Android. Aplicado antes de exibir a UI para nao piscar a janela normal.
   await ServicoJanelaTotem.iniciar();
