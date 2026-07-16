@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,6 +45,10 @@ class PaginaChat extends ConsumerStatefulWidget {
 class _PaginaChatState extends ConsumerState<PaginaChat> {
   final ScrollController _rolagem = ScrollController();
   String _nomeRestaurante = 'Constel Pay';
+
+  /// Leitura por câmera: só no Android e só se o operador tiver ligado nas
+  /// configurações. No totem Windows a leitura é sempre pelo leitor físico.
+  bool _cameraDisponivel = false;
   Timer? _retornoAutomatico;
 
   @override
@@ -53,7 +58,11 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
       final configuracao =
           await ref.read(provedorRepositorioConfiguracao).obter();
       if (mounted) {
-        setState(() => _nomeRestaurante = configuracao.nomeRestaurante);
+        setState(() {
+          _nomeRestaurante = configuracao.nomeRestaurante;
+          _cameraDisponivel = configuracao.leituraPorCamera &&
+              defaultTargetPlatform == TargetPlatform.android;
+        });
       }
       await ref.read(provedorFluxoPagamento.notifier).iniciar();
     });
@@ -112,6 +121,10 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
     }
   }
 
+  int? _ultimoScannerId(EstadoFluxoPagamento estado) => estado.mensagens
+      .lastWhereOrNull((m) => m.tipo == TipoMensagem.scanner)
+      ?.id;
+
   Widget _porTipo(Mensagem mensagem, EstadoFluxoPagamento estado,
       ControladorFluxoPagamento controlador) {
     Widget recuado(Widget filho) => Padding(
@@ -126,7 +139,16 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
         if (cartao == null) return const SizedBox.shrink();
         return recuado(CardComanda(cartao: cartao));
       case TipoMensagem.scanner:
-        return recuado(const CardScanner());
+        // Cada nova tentativa acrescenta um scanner e os anteriores continuam
+        // na conversa. Só o último abre a câmera: sem isso, voltar a ler
+        // acenderia a câmera de todas as tentativas passadas ao mesmo tempo.
+        final atual = mensagem.id == _ultimoScannerId(estado);
+        final lendo = estado.etapa == EtapaFluxo.lendo && !estado.digitando;
+        return recuado(CardScanner(
+          aoLerPorCamera:
+              _cameraDisponivel ? controlador.consultarPorCodigo : null,
+          cameraAtiva: atual && lendo,
+        ));
       case TipoMensagem.metodos:
         return recuado(CardMetodosPagamento(
           metodos: const [

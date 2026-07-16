@@ -19,6 +19,12 @@ mixin _$ConfiguracaoTerminal {
   String get nomeRestaurante => throw _privateConstructorUsedError;
   String get identificadorDispositivo => throw _privateConstructorUsedError;
   String get idDispositivo => throw _privateConstructorUsedError;
+
+  /// Liga a leitura por câmera no Android, para totens sem leitor de código
+  /// de barras. Não dá para detectar o leitor sozinho: ele se apresenta ao
+  /// sistema como teclado comum e só dá sinal quando digita — por isso a
+  /// escolha é do operador, por dispositivo.
+  bool get leituraPorCamera => throw _privateConstructorUsedError;
   Ambiente get ambiente =>
       throw _privateConstructorUsedError; // URLs da API local (consumo do cartão no estabelecimento).
   String get urlBaseProducao => throw _privateConstructorUsedError;
@@ -44,6 +50,7 @@ abstract class $ConfiguracaoTerminalCopyWith<$Res> {
       {String nomeRestaurante,
       String identificadorDispositivo,
       String idDispositivo,
+      bool leituraPorCamera,
       Ambiente ambiente,
       String urlBaseProducao,
       String urlBaseHomologacao,
@@ -70,6 +77,7 @@ class _$ConfiguracaoTerminalCopyWithImpl<$Res,
     Object? nomeRestaurante = null,
     Object? identificadorDispositivo = null,
     Object? idDispositivo = null,
+    Object? leituraPorCamera = null,
     Object? ambiente = null,
     Object? urlBaseProducao = null,
     Object? urlBaseHomologacao = null,
@@ -89,6 +97,10 @@ class _$ConfiguracaoTerminalCopyWithImpl<$Res,
           ? _value.idDispositivo
           : idDispositivo // ignore: cast_nullable_to_non_nullable
               as String,
+      leituraPorCamera: null == leituraPorCamera
+          ? _value.leituraPorCamera
+          : leituraPorCamera // ignore: cast_nullable_to_non_nullable
+              as bool,
       ambiente: null == ambiente
           ? _value.ambiente
           : ambiente // ignore: cast_nullable_to_non_nullable
@@ -125,6 +137,7 @@ abstract class _$$ConfiguracaoTerminalImplCopyWith<$Res>
       {String nomeRestaurante,
       String identificadorDispositivo,
       String idDispositivo,
+      bool leituraPorCamera,
       Ambiente ambiente,
       String urlBaseProducao,
       String urlBaseHomologacao,
@@ -148,6 +161,7 @@ class __$$ConfiguracaoTerminalImplCopyWithImpl<$Res>
     Object? nomeRestaurante = null,
     Object? identificadorDispositivo = null,
     Object? idDispositivo = null,
+    Object? leituraPorCamera = null,
     Object? ambiente = null,
     Object? urlBaseProducao = null,
     Object? urlBaseHomologacao = null,
@@ -167,6 +181,10 @@ class __$$ConfiguracaoTerminalImplCopyWithImpl<$Res>
           ? _value.idDispositivo
           : idDispositivo // ignore: cast_nullable_to_non_nullable
               as String,
+      leituraPorCamera: null == leituraPorCamera
+          ? _value.leituraPorCamera
+          : leituraPorCamera // ignore: cast_nullable_to_non_nullable
+              as bool,
       ambiente: null == ambiente
           ? _value.ambiente
           : ambiente // ignore: cast_nullable_to_non_nullable
@@ -198,6 +216,7 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
       {this.nomeRestaurante = 'Constel Pay',
       this.identificadorDispositivo = 'TERMINAL-01',
       this.idDispositivo = '',
+      this.leituraPorCamera = false,
       this.ambiente = Ambiente.homologacao,
       this.urlBaseProducao = '',
       this.urlBaseHomologacao = '',
@@ -214,6 +233,14 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
   @override
   @JsonKey()
   final String idDispositivo;
+
+  /// Liga a leitura por câmera no Android, para totens sem leitor de código
+  /// de barras. Não dá para detectar o leitor sozinho: ele se apresenta ao
+  /// sistema como teclado comum e só dá sinal quando digita — por isso a
+  /// escolha é do operador, por dispositivo.
+  @override
+  @JsonKey()
+  final bool leituraPorCamera;
   @override
   @JsonKey()
   final Ambiente ambiente;
@@ -234,7 +261,7 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
 
   @override
   String toString() {
-    return 'ConfiguracaoTerminal(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, idDispositivo: $idDispositivo, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, urlNuvemProducao: $urlNuvemProducao, urlNuvemHomologacao: $urlNuvemHomologacao)';
+    return 'ConfiguracaoTerminal(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, idDispositivo: $idDispositivo, leituraPorCamera: $leituraPorCamera, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, urlNuvemProducao: $urlNuvemProducao, urlNuvemHomologacao: $urlNuvemHomologacao)';
   }
 
   @override
@@ -249,6 +276,8 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
                 other.identificadorDispositivo == identificadorDispositivo) &&
             (identical(other.idDispositivo, idDispositivo) ||
                 other.idDispositivo == idDispositivo) &&
+            (identical(other.leituraPorCamera, leituraPorCamera) ||
+                other.leituraPorCamera == leituraPorCamera) &&
             (identical(other.ambiente, ambiente) ||
                 other.ambiente == ambiente) &&
             (identical(other.urlBaseProducao, urlBaseProducao) ||
@@ -267,6 +296,7 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
       nomeRestaurante,
       identificadorDispositivo,
       idDispositivo,
+      leituraPorCamera,
       ambiente,
       urlBaseProducao,
       urlBaseHomologacao,
@@ -289,6 +319,7 @@ abstract class _ConfiguracaoTerminal extends ConfiguracaoTerminal {
       {final String nomeRestaurante,
       final String identificadorDispositivo,
       final String idDispositivo,
+      final bool leituraPorCamera,
       final Ambiente ambiente,
       final String urlBaseProducao,
       final String urlBaseHomologacao,
@@ -302,6 +333,13 @@ abstract class _ConfiguracaoTerminal extends ConfiguracaoTerminal {
   String get identificadorDispositivo;
   @override
   String get idDispositivo;
+
+  /// Liga a leitura por câmera no Android, para totens sem leitor de código
+  /// de barras. Não dá para detectar o leitor sozinho: ele se apresenta ao
+  /// sistema como teclado comum e só dá sinal quando digita — por isso a
+  /// escolha é do operador, por dispositivo.
+  @override
+  bool get leituraPorCamera;
   @override
   Ambiente
       get ambiente; // URLs da API local (consumo do cartão no estabelecimento).

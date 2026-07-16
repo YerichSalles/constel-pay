@@ -1,4 +1,5 @@
 import 'package:constel_pay/compartilhado/widgets/botao_primario.dart';
+import 'package:constel_pay/compartilhado/widgets/leitor_camera.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/area_acoes.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/barra_total.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/card_metodos_pagamento.dart';
@@ -30,6 +31,14 @@ void main() {
         findsOneWidget);
     expect(find.byType(TextField), findsNothing);
     expect(find.byType(BotaoPrimario), findsNothing);
+  });
+
+  // Sem aoLerPorCamera (caso do totem Windows e do Android com leitor), o card
+  // não instancia a câmera: fica só o visor animado.
+  testWidgets('CardScanner sem camera nao monta o leitor', (tester) async {
+    await tester.pumpWidget(_app(const CardScanner()));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(LeitorCamera), findsNothing);
   });
 
   testWidgets(

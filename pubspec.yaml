@@ -22,18 +22,22 @@ dependencies:
   logger: ^2.5.0
   intl: any
   uuid: ^4.5.1
-  connectivity_plus: ^6.1.1
-  crypto: ^3.0.6
   collection: ^1.19.0
   qr_flutter: ^4.1.0
   video_player: ^2.9.2
-  file_picker: ^8.1.6
+  # 11.x e o minimo que compila no Android: o 8.x fixava compileSdk 34 no
+  # proprio modulo e o flutter_plugin_android_lifecycle exige 36.
+  file_picker: ^11.0.2
   flutter_svg: ^2.0.17
   package_info_plus: ^8.1.2
   path_provider: ^2.1.5
   video_player_win: ^3.2.2
   # Modo totem no Windows: tela cheia, sem barra/botões, sempre no topo.
   window_manager: ^0.4.3
+  # Leitura por câmera no Android (fallback do leitor de código de barras).
+  # Preso no 6.x de proposito: o 7.x exige Flutter >= 3.29 e a stack alvo do
+  # projeto e Flutter 3.22 / Dart 3.4.
+  mobile_scanner: ^6.0.11
 
 dev_dependencies:
   flutter_test:

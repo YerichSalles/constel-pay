@@ -106,6 +106,7 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
     String? urlNuvemHomologacao,
     String? identificadorDispositivo,
     String? idDispositivo,
+    bool? leituraPorCamera,
   }) async {
     state = state.copyWith(salvando: true, mensagem: null);
     if (usuario.isNotEmpty || senha.isNotEmpty) {
@@ -118,6 +119,7 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
       identificadorDispositivo:
           identificadorDispositivo?.trim() ?? anterior.identificadorDispositivo,
       idDispositivo: idDispositivo?.trim() ?? anterior.idDispositivo,
+      leituraPorCamera: leituraPorCamera ?? anterior.leituraPorCamera,
       urlBaseProducao: comBarraFinal(urlProducao.trim()),
       urlBaseHomologacao: comBarraFinal(urlHomologacao.trim()),
       urlNuvemProducao:

@@ -165,6 +165,33 @@ void main() {
     expect(configuracao.idDispositivo, 'b47ac10b-58cc-4372-a567-0e02b2c3d479');
   });
 
+  test('salvarComunicacao grava e persiste a leitura por câmera', () async {
+    await controlador.salvarComunicacao(
+      usuario: 'operador',
+      senha: 's3nh4',
+      ambiente: Ambiente.homologacao,
+      urlProducao: '',
+      urlHomologacao: '',
+      leituraPorCamera: true,
+    );
+    expect((await repositorioConfiguracao.obter()).leituraPorCamera, isTrue);
+
+    // Omitir o campo preserva o valor salvo: quem salva outra seção da aba não
+    // pode desligar a câmera sem querer.
+    await controlador.salvarComunicacao(
+      usuario: 'operador',
+      senha: 's3nh4',
+      ambiente: Ambiente.homologacao,
+      urlProducao: '',
+      urlHomologacao: '',
+    );
+    expect((await repositorioConfiguracao.obter()).leituraPorCamera, isTrue);
+  });
+
+  test('leitura por câmera vem desligada por padrão', () async {
+    expect(const ConfiguracaoTerminal().leituraPorCamera, isFalse);
+  });
+
   test('salvarComunicacao invalida a sessão de nuvem gravada', () async {
     repositorioSessao.salva = _sessao();
     await controlador.salvarComunicacao(

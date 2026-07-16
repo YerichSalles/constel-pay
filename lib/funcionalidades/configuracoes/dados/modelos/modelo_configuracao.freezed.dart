@@ -23,6 +23,7 @@ mixin _$ModeloConfiguracao {
   String get nomeRestaurante => throw _privateConstructorUsedError;
   String get identificadorDispositivo => throw _privateConstructorUsedError;
   String get idDispositivo => throw _privateConstructorUsedError;
+  bool get leituraPorCamera => throw _privateConstructorUsedError;
   Ambiente get ambiente => throw _privateConstructorUsedError;
   String get urlBaseProducao => throw _privateConstructorUsedError;
   String get urlBaseHomologacao => throw _privateConstructorUsedError;
@@ -49,6 +50,7 @@ abstract class $ModeloConfiguracaoCopyWith<$Res> {
       {String nomeRestaurante,
       String identificadorDispositivo,
       String idDispositivo,
+      bool leituraPorCamera,
       Ambiente ambiente,
       String urlBaseProducao,
       String urlBaseHomologacao,
@@ -74,6 +76,7 @@ class _$ModeloConfiguracaoCopyWithImpl<$Res, $Val extends ModeloConfiguracao>
     Object? nomeRestaurante = null,
     Object? identificadorDispositivo = null,
     Object? idDispositivo = null,
+    Object? leituraPorCamera = null,
     Object? ambiente = null,
     Object? urlBaseProducao = null,
     Object? urlBaseHomologacao = null,
@@ -93,6 +96,10 @@ class _$ModeloConfiguracaoCopyWithImpl<$Res, $Val extends ModeloConfiguracao>
           ? _value.idDispositivo
           : idDispositivo // ignore: cast_nullable_to_non_nullable
               as String,
+      leituraPorCamera: null == leituraPorCamera
+          ? _value.leituraPorCamera
+          : leituraPorCamera // ignore: cast_nullable_to_non_nullable
+              as bool,
       ambiente: null == ambiente
           ? _value.ambiente
           : ambiente // ignore: cast_nullable_to_non_nullable
@@ -129,6 +136,7 @@ abstract class _$$ModeloConfiguracaoImplCopyWith<$Res>
       {String nomeRestaurante,
       String identificadorDispositivo,
       String idDispositivo,
+      bool leituraPorCamera,
       Ambiente ambiente,
       String urlBaseProducao,
       String urlBaseHomologacao,
@@ -152,6 +160,7 @@ class __$$ModeloConfiguracaoImplCopyWithImpl<$Res>
     Object? nomeRestaurante = null,
     Object? identificadorDispositivo = null,
     Object? idDispositivo = null,
+    Object? leituraPorCamera = null,
     Object? ambiente = null,
     Object? urlBaseProducao = null,
     Object? urlBaseHomologacao = null,
@@ -171,6 +180,10 @@ class __$$ModeloConfiguracaoImplCopyWithImpl<$Res>
           ? _value.idDispositivo
           : idDispositivo // ignore: cast_nullable_to_non_nullable
               as String,
+      leituraPorCamera: null == leituraPorCamera
+          ? _value.leituraPorCamera
+          : leituraPorCamera // ignore: cast_nullable_to_non_nullable
+              as bool,
       ambiente: null == ambiente
           ? _value.ambiente
           : ambiente // ignore: cast_nullable_to_non_nullable
@@ -202,6 +215,7 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
       {required this.nomeRestaurante,
       required this.identificadorDispositivo,
       this.idDispositivo = '',
+      this.leituraPorCamera = false,
       required this.ambiente,
       required this.urlBaseProducao,
       required this.urlBaseHomologacao,
@@ -220,6 +234,9 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
   @JsonKey()
   final String idDispositivo;
   @override
+  @JsonKey()
+  final bool leituraPorCamera;
+  @override
   final Ambiente ambiente;
   @override
   final String urlBaseProducao;
@@ -234,7 +251,7 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
 
   @override
   String toString() {
-    return 'ModeloConfiguracao(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, idDispositivo: $idDispositivo, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, urlNuvemProducao: $urlNuvemProducao, urlNuvemHomologacao: $urlNuvemHomologacao)';
+    return 'ModeloConfiguracao(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, idDispositivo: $idDispositivo, leituraPorCamera: $leituraPorCamera, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, urlNuvemProducao: $urlNuvemProducao, urlNuvemHomologacao: $urlNuvemHomologacao)';
   }
 
   @override
@@ -249,6 +266,8 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
                 other.identificadorDispositivo == identificadorDispositivo) &&
             (identical(other.idDispositivo, idDispositivo) ||
                 other.idDispositivo == idDispositivo) &&
+            (identical(other.leituraPorCamera, leituraPorCamera) ||
+                other.leituraPorCamera == leituraPorCamera) &&
             (identical(other.ambiente, ambiente) ||
                 other.ambiente == ambiente) &&
             (identical(other.urlBaseProducao, urlBaseProducao) ||
@@ -268,6 +287,7 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
       nomeRestaurante,
       identificadorDispositivo,
       idDispositivo,
+      leituraPorCamera,
       ambiente,
       urlBaseProducao,
       urlBaseHomologacao,
@@ -296,6 +316,7 @@ abstract class _ModeloConfiguracao extends ModeloConfiguracao {
       {required final String nomeRestaurante,
       required final String identificadorDispositivo,
       final String idDispositivo,
+      final bool leituraPorCamera,
       required final Ambiente ambiente,
       required final String urlBaseProducao,
       required final String urlBaseHomologacao,
@@ -312,6 +333,8 @@ abstract class _ModeloConfiguracao extends ModeloConfiguracao {
   String get identificadorDispositivo;
   @override
   String get idDispositivo;
+  @override
+  bool get leituraPorCamera;
   @override
   Ambiente get ambiente;
   @override

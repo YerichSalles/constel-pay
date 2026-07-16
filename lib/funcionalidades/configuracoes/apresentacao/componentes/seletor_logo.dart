@@ -17,7 +17,7 @@ class SeletorLogo extends ConsumerWidget {
   const SeletorLogo({super.key});
 
   Future<void> _escolher(BuildContext context, WidgetRef ref) async {
-    final resultado = await FilePicker.platform.pickFiles(
+    final resultado = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: extensoesLogoAceitas,
     );

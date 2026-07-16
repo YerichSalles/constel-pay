@@ -1,12 +1,26 @@
 import 'package:flutter/material.dart';
 
 import '../../../../compartilhado/widgets/cartao.dart';
+import '../../../../compartilhado/widgets/leitor_camera.dart';
 import '../../../../l10n/app_localizations.dart';
 
-/// Visor de leitura: só orienta o cliente a posicionar o código. A leitura em
-/// si chega pelo leitor de hardware, capturado no nível da página.
+/// Visor de leitura. Por padrão só orienta o cliente a posicionar o código: a
+/// leitura chega pelo leitor de hardware, capturado no nível da página.
+///
+/// Com [aoLerPorCamera], o visor vira a prévia da câmera — usado nos totens
+/// Android sem leitor, conforme a configuração do terminal.
 class CardScanner extends StatefulWidget {
-  const CardScanner({super.key});
+  const CardScanner({
+    super.key,
+    this.aoLerPorCamera,
+    this.cameraAtiva = false,
+  });
+
+  /// Quando informado, o card lê pela câmera em vez de exibir só a animação.
+  final ValueChanged<String>? aoLerPorCamera;
+
+  /// Mantém a câmera aberta apenas durante a fase de leitura.
+  final bool cameraAtiva;
 
   @override
   State<CardScanner> createState() => _CardScannerState();
@@ -230,7 +244,14 @@ class _CardScannerState extends State<CardScanner>
     final t = AppLocalizations.of(context);
     return Cartao(
       preenchimento: const EdgeInsets.all(16),
-      filho: _visor(primaria, t),
+      filho: widget.aoLerPorCamera == null
+          ? _visor(primaria, t)
+          : LeitorCamera(
+              aoLer: widget.aoLerPorCamera!,
+              ativo: widget.cameraAtiva,
+              altura: _alturaVisor,
+              reserva: _visor(primaria, t),
+            ),
     );
   }
 }

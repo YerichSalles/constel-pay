@@ -1,4 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Leitura do codigo de barras da comanda pela camera, em terminais sem
+         leitor de hardware. E opcional: o totem com leitor nunca abre a camera,
+         por isso a camera nao e requisito de instalacao. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
+
     <application
         android:label="Constel Pay"
         android:name="${applicationName}"

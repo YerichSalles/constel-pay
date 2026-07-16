@@ -19,6 +19,7 @@ O cliente encosta a comanda no leitor de código de barras, confere o consumo, p
 - **shared_preferences** — persistência local não sensível (tema, configurações, mídias)
 - **flutter_secure_storage** — sessão/token e credenciais
 - **window_manager** — modo totem no Windows
+- **mobile_scanner** — leitura do código de barras pela câmera no Android
 - **qr_flutter** — QR Code do PIX
 - **video_player** + **video_player_win** — vídeos da tela de espera
 - **flutter_svg**, **file_picker**, **path_provider**, **package_info_plus**, **uuid**, **logger**, **intl**, **collection**
@@ -156,7 +157,7 @@ Duas decisões que parecem inconsistentes mas são deliberadas, documentadas no 
 
 Quatro abas (`funcionalidades/configuracoes/apresentacao/`):
 
-- **Comunicação** — nome do estabelecimento (vem do login), identificador do terminal, ID do dispositivo, ambiente (produção/homologação), credenciais e URL da nuvem, URL da API local, testes de conexão com status e latência.
+- **Comunicação** — nome do estabelecimento (vem do login), identificador do terminal, ID do dispositivo, leitura por câmera (só no Android), ambiente (produção/homologação), credenciais e URL da nuvem, URL da API local, testes de conexão com status e latência.
 - **Aparência** — logo, fonte, cores (principal, secundária, fundo, botões, textos), faixa de pagamento com texto por idioma e indicador de contraste (WCAG AA), com pré-visualização. Trabalha em rascunho: nada é salvo até "Aplicar alterações".
 - **Propaganda** — conteúdo da tela de espera (carrossel/letreiro/parceiro) e publicidade da barra superior do chat.
 - **Diagnóstico** — versão, ambiente, IP, última sincronização e "Limpar dados locais" (com confirmação).
@@ -176,6 +177,26 @@ Centralizado em `nucleo/janela/`, chamado no `main()` antes de exibir a UI para 
 
 O terminal opera em pé: a orientação é travada em retrato.
 
+## Leitura do cartão
+
+A comanda entra por um único ponto — `consultarPorCodigo` —, venha de onde vier:
+
+- **Leitor de código de barras (keyboard wedge)**, em Windows e Android. É a via padrão. `CapturaLeitorCodigo` escuta o teclado globalmente, sem depender de foco, porque no totem qualquer botão tocado assume o foco e a leitura precisa continuar valendo.
+- **Câmera**, só no Android e só se o operador ligar em Configurações → Comunicação → Terminal. Serve para terminais sem leitor.
+
+Não existe detecção automática do leitor: ele se apresenta ao sistema como um teclado comum e só dá sinal de vida quando digita. Não há como saber que ele está ausente sem esperar por um código que nunca vem — por isso a escolha é do operador, por dispositivo, e não um fallback automático.
+
+A câmera só abre durante a fase de leitura e para em seguida (bateria, aquecimento e privacidade), e usa `DetectionSpeed.noDuplicates` para não repetir a consulta enquanto o código fica na frente da lente.
+
+## Android: AGP preso no 8.x
+
+O `android/settings.gradle.kts` fixa o **AGP 8.13.2**. Não é desatualização — subir para o 9.x quebra a build, e o motivo é um impasse entre plugins:
+
+- No AGP 9 o Kotlin embutido passa a ser obrigatório. O `file_picker` 11 detecta isso e **deixa de aplicar** o Kotlin Gradle Plugin, contando com o embutido.
+- Mas `flutter_plugin_android_lifecycle`, `mobile_scanner` e `package_info_plus` ainda **aplicam** o KGP, que o AGP 9 recusa.
+
+Com `android.builtInKotlin=false`, o Kotlin do file_picker não compila e o `GeneratedPluginRegistrant` não acha `FilePickerPlugin`. Com `true`, os outros três quebram. As duas exigências não coexistem. O AGP 8.x satisfaz todos. Voltar ao 9.x só quando esses plugins migrarem.
+
 ## Testes
 
 78 arquivos em `test/`, espelhando a estrutura de `lib/`: unitários (domínio, dados, núcleo), de widget (compartilhados, páginas e componentes) e de integração de fluxo (`test/integracao/`). Mocks com `mocktail`; as fontes mockadas expõem `atraso` no construtor para testes determinísticos.
@@ -185,8 +206,8 @@ O terminal opera em pé: a orientação é travada em retrato.
 - **Validação de certificado TLS está desligada em todo o app.** `instalarConfiancaTlsGlobal()` (`main.dart` + `nucleo/configuracao/confianca_tls_io.dart`) instala um `HttpOverrides` cujo `badCertificateCallback` sempre aceita. É intencional — cobre o Dio e o `Image.network` das fotos dos itens em PCs sem as raízes atualizadas —, mas o app deixa de garantir a identidade do servidor: a conexão continua criptografada, porém exposta a MITM. A correção adequada é ajustar o certificado (SAN/cadeia) ou instalar as raízes na máquina.
 - **A feature `pagamento` ainda é mock.** `FontePagamentoMock` sempre aprova após um atraso e o payload PIX é rotulado `…CONSTEL-PAY-MOCK…` — não é PIX real. `RepositorioPagamentoImpl` depende da classe concreta do mock, então a troca pela fonte real exige alterar o Impl ou introduzir a interface.
 - **`FonteLeituraMock` (`lerCartao`) não tem mais chamador em produção** — a leitura real entra por `consultarPorCodigo`. A cadeia mock segue no projeto, exercitada apenas por testes; é dívida técnica consciente.
-- **Sem plano B na tela de leitura:** não há busca manual nem botão de simular. O atendimento depende inteiramente do leitor físico.
-- `connectivity_plus` e `crypto` estão no `pubspec.yaml` mas não são importados em lugar nenhum — candidatos a remoção.
+- **Sem plano B na tela de leitura:** não há busca manual nem botão de simular. No Windows o atendimento depende inteiramente do leitor físico; no Android há a câmera, se o operador ligar.
+- **Versões presas de propósito, não por desatualização:** o `mobile_scanner` fica no 6.x (o 7.x exige Flutter ≥ 3.29, acima da stack alvo) e o AGP no 8.x — veja a nota abaixo.
 - Nunca logar token, senha, payload sensível ou dados de cartão. O `ClienteApi` e o `Registrador` já seguem essa regra.
 
 ## Convenções
