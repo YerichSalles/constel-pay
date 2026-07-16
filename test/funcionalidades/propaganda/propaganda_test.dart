@@ -40,6 +40,9 @@ void main() {
           GoRoute(
               path: '/chat',
               builder: (_, __) => const Scaffold(body: Text('CHAT'))),
+          GoRoute(
+              path: '/pin',
+              builder: (_, __) => const Scaffold(body: Text('PIN'))),
         ],
       );
 
@@ -176,7 +179,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
   });
 
-  testWidgets('o seletor de idioma aparece a esquerda da engrenagem',
+  testWidgets('nao ha engrenagem visivel; o seletor de idioma aparece',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     final preferencias = await SharedPreferences.getInstance();
@@ -190,11 +193,57 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.byType(SeletorIdioma), findsOneWidget);
-    expect(find.byIcon(Icons.settings), findsOneWidget);
+    expect(find.byIcon(Icons.settings), findsNothing);
+  });
 
-    final xSeletor = tester.getCenter(find.byType(SeletorIdioma)).dx;
-    final xEngrenagem = tester.getCenter(find.byIcon(Icons.settings)).dx;
-    expect(xSeletor, lessThan(xEngrenagem));
+  testWidgets('4 toques no canto superior direito abrem as configuracoes',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: appPropaganda(roteadorPropagandaEChat()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // Toca no hotspot invisivel do canto (bem no topo direito, longe do centro
+    // que apenas avancaria para o chat).
+    final tamanho = tester.view.physicalSize / tester.view.devicePixelRatio;
+    final canto = Offset(tamanho.width - 10, 78);
+    for (var i = 0; i < 4; i++) {
+      await tester.tapAt(canto);
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await tester.pumpAndSettle();
+
+    expect(find.text('PIN'), findsOneWidget);
+    expect(find.text('CHAT'), findsNothing);
+  });
+
+  testWidgets('menos de 4 toques nao abrem as configuracoes', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+        child: appPropaganda(roteadorPropagandaEChat()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    final tamanho = tester.view.physicalSize / tester.view.devicePixelRatio;
+    final canto = Offset(tamanho.width - 10, 78);
+    for (var i = 0; i < 3; i++) {
+      await tester.tapAt(canto);
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.text('PIN'), findsNothing);
   });
 
   testWidgets('no preview, o seletor de idioma e a engrenagem nao aparecem',

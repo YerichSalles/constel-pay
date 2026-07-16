@@ -19,7 +19,6 @@ class ModeloConfiguracao with _$ModeloConfiguracao {
     required String urlBaseHomologacao,
     @Default('') String urlNuvemProducao,
     @Default('') String urlNuvemHomologacao,
-    required String pinHash,
   }) = _ModeloConfiguracao;
 
   factory ModeloConfiguracao.fromJson(Map<String, dynamic> json) =>
@@ -35,7 +34,6 @@ class ModeloConfiguracao with _$ModeloConfiguracao {
         urlBaseHomologacao: entidade.urlBaseHomologacao,
         urlNuvemProducao: entidade.urlNuvemProducao,
         urlNuvemHomologacao: entidade.urlNuvemHomologacao,
-        pinHash: entidade.pinHash,
       );
 
   ConfiguracaoTerminal paraEntidade() => ConfiguracaoTerminal(
@@ -47,6 +45,5 @@ class ModeloConfiguracao with _$ModeloConfiguracao {
         urlBaseHomologacao: urlBaseHomologacao,
         urlNuvemProducao: urlNuvemProducao,
         urlNuvemHomologacao: urlNuvemHomologacao,
-        pinHash: pinHash,
       );
 }

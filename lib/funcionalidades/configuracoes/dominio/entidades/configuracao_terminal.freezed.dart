@@ -26,7 +26,6 @@ mixin _$ConfiguracaoTerminal {
       throw _privateConstructorUsedError; // URLs da API na nuvem (login/autenticação).
   String get urlNuvemProducao => throw _privateConstructorUsedError;
   String get urlNuvemHomologacao => throw _privateConstructorUsedError;
-  String get pinHash => throw _privateConstructorUsedError;
 
   /// Create a copy of ConfiguracaoTerminal
   /// with the given fields replaced by the non-null parameter values.
@@ -49,8 +48,7 @@ abstract class $ConfiguracaoTerminalCopyWith<$Res> {
       String urlBaseProducao,
       String urlBaseHomologacao,
       String urlNuvemProducao,
-      String urlNuvemHomologacao,
-      String pinHash});
+      String urlNuvemHomologacao});
 }
 
 /// @nodoc
@@ -77,7 +75,6 @@ class _$ConfiguracaoTerminalCopyWithImpl<$Res,
     Object? urlBaseHomologacao = null,
     Object? urlNuvemProducao = null,
     Object? urlNuvemHomologacao = null,
-    Object? pinHash = null,
   }) {
     return _then(_value.copyWith(
       nomeRestaurante: null == nomeRestaurante
@@ -112,10 +109,6 @@ class _$ConfiguracaoTerminalCopyWithImpl<$Res,
           ? _value.urlNuvemHomologacao
           : urlNuvemHomologacao // ignore: cast_nullable_to_non_nullable
               as String,
-      pinHash: null == pinHash
-          ? _value.pinHash
-          : pinHash // ignore: cast_nullable_to_non_nullable
-              as String,
     ) as $Val);
   }
 }
@@ -136,8 +129,7 @@ abstract class _$$ConfiguracaoTerminalImplCopyWith<$Res>
       String urlBaseProducao,
       String urlBaseHomologacao,
       String urlNuvemProducao,
-      String urlNuvemHomologacao,
-      String pinHash});
+      String urlNuvemHomologacao});
 }
 
 /// @nodoc
@@ -161,7 +153,6 @@ class __$$ConfiguracaoTerminalImplCopyWithImpl<$Res>
     Object? urlBaseHomologacao = null,
     Object? urlNuvemProducao = null,
     Object? urlNuvemHomologacao = null,
-    Object? pinHash = null,
   }) {
     return _then(_$ConfiguracaoTerminalImpl(
       nomeRestaurante: null == nomeRestaurante
@@ -196,10 +187,6 @@ class __$$ConfiguracaoTerminalImplCopyWithImpl<$Res>
           ? _value.urlNuvemHomologacao
           : urlNuvemHomologacao // ignore: cast_nullable_to_non_nullable
               as String,
-      pinHash: null == pinHash
-          ? _value.pinHash
-          : pinHash // ignore: cast_nullable_to_non_nullable
-              as String,
     ));
   }
 }
@@ -215,8 +202,7 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
       this.urlBaseProducao = '',
       this.urlBaseHomologacao = '',
       this.urlNuvemProducao = '',
-      this.urlNuvemHomologacao = '',
-      this.pinHash = ''})
+      this.urlNuvemHomologacao = ''})
       : super._();
 
   @override
@@ -245,13 +231,10 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
   @override
   @JsonKey()
   final String urlNuvemHomologacao;
-  @override
-  @JsonKey()
-  final String pinHash;
 
   @override
   String toString() {
-    return 'ConfiguracaoTerminal(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, idDispositivo: $idDispositivo, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, urlNuvemProducao: $urlNuvemProducao, urlNuvemHomologacao: $urlNuvemHomologacao, pinHash: $pinHash)';
+    return 'ConfiguracaoTerminal(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, idDispositivo: $idDispositivo, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, urlNuvemProducao: $urlNuvemProducao, urlNuvemHomologacao: $urlNuvemHomologacao)';
   }
 
   @override
@@ -275,8 +258,7 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
             (identical(other.urlNuvemProducao, urlNuvemProducao) ||
                 other.urlNuvemProducao == urlNuvemProducao) &&
             (identical(other.urlNuvemHomologacao, urlNuvemHomologacao) ||
-                other.urlNuvemHomologacao == urlNuvemHomologacao) &&
-            (identical(other.pinHash, pinHash) || other.pinHash == pinHash));
+                other.urlNuvemHomologacao == urlNuvemHomologacao));
   }
 
   @override
@@ -289,8 +271,7 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
       urlBaseProducao,
       urlBaseHomologacao,
       urlNuvemProducao,
-      urlNuvemHomologacao,
-      pinHash);
+      urlNuvemHomologacao);
 
   /// Create a copy of ConfiguracaoTerminal
   /// with the given fields replaced by the non-null parameter values.
@@ -312,8 +293,7 @@ abstract class _ConfiguracaoTerminal extends ConfiguracaoTerminal {
       final String urlBaseProducao,
       final String urlBaseHomologacao,
       final String urlNuvemProducao,
-      final String urlNuvemHomologacao,
-      final String pinHash}) = _$ConfiguracaoTerminalImpl;
+      final String urlNuvemHomologacao}) = _$ConfiguracaoTerminalImpl;
   const _ConfiguracaoTerminal._() : super._();
 
   @override
@@ -333,8 +313,6 @@ abstract class _ConfiguracaoTerminal extends ConfiguracaoTerminal {
   String get urlNuvemProducao;
   @override
   String get urlNuvemHomologacao;
-  @override
-  String get pinHash;
 
   /// Create a copy of ConfiguracaoTerminal
   /// with the given fields replaced by the non-null parameter values.

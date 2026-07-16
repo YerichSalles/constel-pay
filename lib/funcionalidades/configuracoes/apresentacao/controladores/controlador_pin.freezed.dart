@@ -16,12 +16,9 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$EstadoPin {
-  ModoPin get modo => throw _privateConstructorUsedError;
   String get digitos => throw _privateConstructorUsedError;
-  String get primeiroPin => throw _privateConstructorUsedError;
   String? get erro => throw _privateConstructorUsedError;
   bool get concluido => throw _privateConstructorUsedError;
-  bool get carregando => throw _privateConstructorUsedError;
 
   /// Create a copy of EstadoPin
   /// with the given fields replaced by the non-null parameter values.
@@ -35,13 +32,7 @@ abstract class $EstadoPinCopyWith<$Res> {
   factory $EstadoPinCopyWith(EstadoPin value, $Res Function(EstadoPin) then) =
       _$EstadoPinCopyWithImpl<$Res, EstadoPin>;
   @useResult
-  $Res call(
-      {ModoPin modo,
-      String digitos,
-      String primeiroPin,
-      String? erro,
-      bool concluido,
-      bool carregando});
+  $Res call({String digitos, String? erro, bool concluido});
 }
 
 /// @nodoc
@@ -59,25 +50,14 @@ class _$EstadoPinCopyWithImpl<$Res, $Val extends EstadoPin>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? modo = null,
     Object? digitos = null,
-    Object? primeiroPin = null,
     Object? erro = freezed,
     Object? concluido = null,
-    Object? carregando = null,
   }) {
     return _then(_value.copyWith(
-      modo: null == modo
-          ? _value.modo
-          : modo // ignore: cast_nullable_to_non_nullable
-              as ModoPin,
       digitos: null == digitos
           ? _value.digitos
           : digitos // ignore: cast_nullable_to_non_nullable
-              as String,
-      primeiroPin: null == primeiroPin
-          ? _value.primeiroPin
-          : primeiroPin // ignore: cast_nullable_to_non_nullable
               as String,
       erro: freezed == erro
           ? _value.erro
@@ -86,10 +66,6 @@ class _$EstadoPinCopyWithImpl<$Res, $Val extends EstadoPin>
       concluido: null == concluido
           ? _value.concluido
           : concluido // ignore: cast_nullable_to_non_nullable
-              as bool,
-      carregando: null == carregando
-          ? _value.carregando
-          : carregando // ignore: cast_nullable_to_non_nullable
               as bool,
     ) as $Val);
   }
@@ -103,13 +79,7 @@ abstract class _$$EstadoPinImplCopyWith<$Res>
       __$$EstadoPinImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {ModoPin modo,
-      String digitos,
-      String primeiroPin,
-      String? erro,
-      bool concluido,
-      bool carregando});
+  $Res call({String digitos, String? erro, bool concluido});
 }
 
 /// @nodoc
@@ -125,25 +95,14 @@ class __$$EstadoPinImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? modo = null,
     Object? digitos = null,
-    Object? primeiroPin = null,
     Object? erro = freezed,
     Object? concluido = null,
-    Object? carregando = null,
   }) {
     return _then(_$EstadoPinImpl(
-      modo: null == modo
-          ? _value.modo
-          : modo // ignore: cast_nullable_to_non_nullable
-              as ModoPin,
       digitos: null == digitos
           ? _value.digitos
           : digitos // ignore: cast_nullable_to_non_nullable
-              as String,
-      primeiroPin: null == primeiroPin
-          ? _value.primeiroPin
-          : primeiroPin // ignore: cast_nullable_to_non_nullable
               as String,
       erro: freezed == erro
           ? _value.erro
@@ -153,10 +112,6 @@ class __$$EstadoPinImplCopyWithImpl<$Res>
           ? _value.concluido
           : concluido // ignore: cast_nullable_to_non_nullable
               as bool,
-      carregando: null == carregando
-          ? _value.carregando
-          : carregando // ignore: cast_nullable_to_non_nullable
-              as bool,
     ));
   }
 }
@@ -164,35 +119,20 @@ class __$$EstadoPinImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$EstadoPinImpl implements _EstadoPin {
-  const _$EstadoPinImpl(
-      {this.modo = ModoPin.verificar,
-      this.digitos = '',
-      this.primeiroPin = '',
-      this.erro,
-      this.concluido = false,
-      this.carregando = true});
+  const _$EstadoPinImpl({this.digitos = '', this.erro, this.concluido = false});
 
   @override
   @JsonKey()
-  final ModoPin modo;
-  @override
-  @JsonKey()
   final String digitos;
-  @override
-  @JsonKey()
-  final String primeiroPin;
   @override
   final String? erro;
   @override
   @JsonKey()
   final bool concluido;
-  @override
-  @JsonKey()
-  final bool carregando;
 
   @override
   String toString() {
-    return 'EstadoPin(modo: $modo, digitos: $digitos, primeiroPin: $primeiroPin, erro: $erro, concluido: $concluido, carregando: $carregando)';
+    return 'EstadoPin(digitos: $digitos, erro: $erro, concluido: $concluido)';
   }
 
   @override
@@ -200,20 +140,14 @@ class _$EstadoPinImpl implements _EstadoPin {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$EstadoPinImpl &&
-            (identical(other.modo, modo) || other.modo == modo) &&
             (identical(other.digitos, digitos) || other.digitos == digitos) &&
-            (identical(other.primeiroPin, primeiroPin) ||
-                other.primeiroPin == primeiroPin) &&
             (identical(other.erro, erro) || other.erro == erro) &&
             (identical(other.concluido, concluido) ||
-                other.concluido == concluido) &&
-            (identical(other.carregando, carregando) ||
-                other.carregando == carregando));
+                other.concluido == concluido));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType, modo, digitos, primeiroPin, erro, concluido, carregando);
+  int get hashCode => Object.hash(runtimeType, digitos, erro, concluido);
 
   /// Create a copy of EstadoPin
   /// with the given fields replaced by the non-null parameter values.
@@ -226,25 +160,16 @@ class _$EstadoPinImpl implements _EstadoPin {
 
 abstract class _EstadoPin implements EstadoPin {
   const factory _EstadoPin(
-      {final ModoPin modo,
-      final String digitos,
-      final String primeiroPin,
+      {final String digitos,
       final String? erro,
-      final bool concluido,
-      final bool carregando}) = _$EstadoPinImpl;
+      final bool concluido}) = _$EstadoPinImpl;
 
   @override
-  ModoPin get modo;
-  @override
   String get digitos;
-  @override
-  String get primeiroPin;
   @override
   String? get erro;
   @override
   bool get concluido;
-  @override
-  bool get carregando;
 
   /// Create a copy of EstadoPin
   /// with the given fields replaced by the non-null parameter values.

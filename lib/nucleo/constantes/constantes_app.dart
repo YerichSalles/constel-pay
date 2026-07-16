@@ -1,4 +1,7 @@
 abstract final class ConstantesApp {
+  // PIN fixo de acesso às configurações do terminal. Não é configurável.
+  static const String pinAcesso = '159753';
+
   static const Duration tempoInatividade = Duration(minutes: 2);
   static const Duration tempoAvisoInatividade = Duration(seconds: 15);
   static const Duration duracaoSplash = Duration(seconds: 4);

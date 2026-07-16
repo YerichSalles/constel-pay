@@ -15,9 +15,8 @@ void main() {
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     final preferencias = await SharedPreferences.getInstance();
-    // Terminal ja provisionado (PIN criado)
     await RepositorioConfiguracaoImpl(preferencias)
-        .salvar(const ConfiguracaoTerminal(pinHash: 'hash-existente'));
+        .salvar(const ConfiguracaoTerminal());
 
     await tester.pumpWidget(
       ProviderScope(

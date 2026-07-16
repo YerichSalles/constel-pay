@@ -28,7 +28,6 @@ mixin _$ModeloConfiguracao {
   String get urlBaseHomologacao => throw _privateConstructorUsedError;
   String get urlNuvemProducao => throw _privateConstructorUsedError;
   String get urlNuvemHomologacao => throw _privateConstructorUsedError;
-  String get pinHash => throw _privateConstructorUsedError;
 
   /// Serializes this ModeloConfiguracao to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -54,8 +53,7 @@ abstract class $ModeloConfiguracaoCopyWith<$Res> {
       String urlBaseProducao,
       String urlBaseHomologacao,
       String urlNuvemProducao,
-      String urlNuvemHomologacao,
-      String pinHash});
+      String urlNuvemHomologacao});
 }
 
 /// @nodoc
@@ -81,7 +79,6 @@ class _$ModeloConfiguracaoCopyWithImpl<$Res, $Val extends ModeloConfiguracao>
     Object? urlBaseHomologacao = null,
     Object? urlNuvemProducao = null,
     Object? urlNuvemHomologacao = null,
-    Object? pinHash = null,
   }) {
     return _then(_value.copyWith(
       nomeRestaurante: null == nomeRestaurante
@@ -116,10 +113,6 @@ class _$ModeloConfiguracaoCopyWithImpl<$Res, $Val extends ModeloConfiguracao>
           ? _value.urlNuvemHomologacao
           : urlNuvemHomologacao // ignore: cast_nullable_to_non_nullable
               as String,
-      pinHash: null == pinHash
-          ? _value.pinHash
-          : pinHash // ignore: cast_nullable_to_non_nullable
-              as String,
     ) as $Val);
   }
 }
@@ -140,8 +133,7 @@ abstract class _$$ModeloConfiguracaoImplCopyWith<$Res>
       String urlBaseProducao,
       String urlBaseHomologacao,
       String urlNuvemProducao,
-      String urlNuvemHomologacao,
-      String pinHash});
+      String urlNuvemHomologacao});
 }
 
 /// @nodoc
@@ -165,7 +157,6 @@ class __$$ModeloConfiguracaoImplCopyWithImpl<$Res>
     Object? urlBaseHomologacao = null,
     Object? urlNuvemProducao = null,
     Object? urlNuvemHomologacao = null,
-    Object? pinHash = null,
   }) {
     return _then(_$ModeloConfiguracaoImpl(
       nomeRestaurante: null == nomeRestaurante
@@ -200,10 +191,6 @@ class __$$ModeloConfiguracaoImplCopyWithImpl<$Res>
           ? _value.urlNuvemHomologacao
           : urlNuvemHomologacao // ignore: cast_nullable_to_non_nullable
               as String,
-      pinHash: null == pinHash
-          ? _value.pinHash
-          : pinHash // ignore: cast_nullable_to_non_nullable
-              as String,
     ));
   }
 }
@@ -219,8 +206,7 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
       required this.urlBaseProducao,
       required this.urlBaseHomologacao,
       this.urlNuvemProducao = '',
-      this.urlNuvemHomologacao = '',
-      required this.pinHash})
+      this.urlNuvemHomologacao = ''})
       : super._();
 
   factory _$ModeloConfiguracaoImpl.fromJson(Map<String, dynamic> json) =>
@@ -245,12 +231,10 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
   @override
   @JsonKey()
   final String urlNuvemHomologacao;
-  @override
-  final String pinHash;
 
   @override
   String toString() {
-    return 'ModeloConfiguracao(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, idDispositivo: $idDispositivo, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, urlNuvemProducao: $urlNuvemProducao, urlNuvemHomologacao: $urlNuvemHomologacao, pinHash: $pinHash)';
+    return 'ModeloConfiguracao(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, idDispositivo: $idDispositivo, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, urlNuvemProducao: $urlNuvemProducao, urlNuvemHomologacao: $urlNuvemHomologacao)';
   }
 
   @override
@@ -274,8 +258,7 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
             (identical(other.urlNuvemProducao, urlNuvemProducao) ||
                 other.urlNuvemProducao == urlNuvemProducao) &&
             (identical(other.urlNuvemHomologacao, urlNuvemHomologacao) ||
-                other.urlNuvemHomologacao == urlNuvemHomologacao) &&
-            (identical(other.pinHash, pinHash) || other.pinHash == pinHash));
+                other.urlNuvemHomologacao == urlNuvemHomologacao));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -289,8 +272,7 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
       urlBaseProducao,
       urlBaseHomologacao,
       urlNuvemProducao,
-      urlNuvemHomologacao,
-      pinHash);
+      urlNuvemHomologacao);
 
   /// Create a copy of ModeloConfiguracao
   /// with the given fields replaced by the non-null parameter values.
@@ -318,8 +300,7 @@ abstract class _ModeloConfiguracao extends ModeloConfiguracao {
       required final String urlBaseProducao,
       required final String urlBaseHomologacao,
       final String urlNuvemProducao,
-      final String urlNuvemHomologacao,
-      required final String pinHash}) = _$ModeloConfiguracaoImpl;
+      final String urlNuvemHomologacao}) = _$ModeloConfiguracaoImpl;
   const _ModeloConfiguracao._() : super._();
 
   factory _ModeloConfiguracao.fromJson(Map<String, dynamic> json) =
@@ -341,8 +322,6 @@ abstract class _ModeloConfiguracao extends ModeloConfiguracao {
   String get urlNuvemProducao;
   @override
   String get urlNuvemHomologacao;
-  @override
-  String get pinHash;
 
   /// Create a copy of ModeloConfiguracao
   /// with the given fields replaced by the non-null parameter values.

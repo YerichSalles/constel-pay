@@ -26,7 +26,6 @@ void main() {
         nomeRestaurante: 'Durango Burgers',
         ambiente: Ambiente.producao,
         urlBaseProducao: 'https://api.durango.com.br',
-        pinHash: 'abc123',
       );
       await repositorio.salvar(config);
       expect(await repositorio.obter(), config);

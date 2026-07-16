@@ -19,41 +19,13 @@ class PaginaPin extends ConsumerStatefulWidget {
 
 class _PaginaPinState extends ConsumerState<PaginaPin> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => ref.read(provedorPin.notifier).iniciar());
-  }
-
-  String _titulo(ModoPin modo) => switch (modo) {
-        ModoPin.criar => 'Crie o PIN de acesso',
-        ModoPin.confirmar => 'Confirme o novo PIN',
-        ModoPin.verificar => 'Digite o PIN',
-      };
-
-  String _subtitulo(ModoPin modo) => switch (modo) {
-        ModoPin.criar =>
-          'De 4 a 6 dígitos. Ele protege as configurações do terminal.',
-        ModoPin.confirmar => 'Digite o mesmo PIN novamente.',
-        ModoPin.verificar => 'Acesso restrito ao administrador.',
-      };
-
-  @override
   Widget build(BuildContext context) {
     final estado = ref.watch(provedorPin);
     final controlador = ref.read(provedorPin.notifier);
     ref.listen(provedorPin.select((e) => e.concluido), (_, concluido) {
       if (!concluido) return;
-      final criacao = estado.modo != ModoPin.verificar;
-      context.go(widget.destino ?? (criacao ? '/splash' : '/configuracoes'));
+      context.go(widget.destino ?? '/configuracoes');
     });
-
-    if (estado.carregando) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-        bottomNavigationBar: BarraCreditos(),
-      );
-    }
 
     return Scaffold(
       body: SafeArea(
@@ -65,14 +37,14 @@ class _PaginaPinState extends ConsumerState<PaginaPin> {
               children: [
                 const IconeEmoji('🔒', tamanho: 52),
                 const SizedBox(height: 12),
-                Text(_titulo(estado.modo),
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.w800)),
+                const Text('Digite o PIN',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 6),
-                Text(
-                  _subtitulo(estado.modo),
+                const Text(
+                  'Acesso restrito ao administrador.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: CoresApp.textoSecundario,
                       fontWeight: FontWeight.w500),
                 ),

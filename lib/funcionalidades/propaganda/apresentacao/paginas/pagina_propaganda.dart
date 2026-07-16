@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/tema_constel.dart';
 import '../../../../compartilhado/widgets/barra_creditos.dart';
+import '../../../../compartilhado/widgets/detector_toques_multiplos.dart';
 import '../../../../compartilhado/widgets/faixa_pagamento.dart';
 import '../../../../compartilhado/widgets/icone_emoji.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
@@ -173,28 +174,25 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
             behavior: HitTestBehavior.opaque,
             child: conteudo,
           ),
-          // Seletor de idioma + botao temporario de acesso as configuracoes.
+          // Acesso discreto às configurações: 4 toques no canto superior
+          // direito. Sem botão visível, para não expor a área de operação ao
+          // cliente. Fica abaixo do seletor de idioma no Stack, então tocar no
+          // seletor continua funcionando normalmente.
           if (!widget.preview)
             Positioned(
+              top: 0,
+              right: 0,
+              child: DetectorToquesMultiplos(
+                aoCompletar: _abrirConfiguracoes,
+                filho: const SizedBox(width: 96, height: 96),
+              ),
+            ),
+          // Seletor de idioma, visível para o cliente.
+          if (!widget.preview)
+            const Positioned(
               top: 12,
               right: 12,
-              child: SafeArea(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SeletorIdioma(),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: _abrirConfiguracoes,
-                      tooltip: 'Configurações',
-                      icon: const Icon(Icons.settings, color: Colors.white),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.black.withValues(alpha: .45),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              child: SafeArea(child: SeletorIdioma()),
             ),
         ],
       ),

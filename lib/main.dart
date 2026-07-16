@@ -19,11 +19,7 @@ Future<void> main() async {
     overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
   );
   await container.read(provedorTema.notifier).carregar();
-  final configuracao =
-      await container.read(provedorRepositorioConfiguracao).obter();
-  final roteador = criarRoteador(
-    localInicial: configuracao.pinHash.isEmpty ? '/pin' : '/splash',
-  );
+  final roteador = criarRoteador(localInicial: '/splash');
   runApp(
     UncontrolledProviderScope(
       container: container,

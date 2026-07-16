@@ -20,7 +20,6 @@ class ConfiguracaoTerminal with _$ConfiguracaoTerminal {
     // URLs da API na nuvem (login/autenticação).
     @Default('') String urlNuvemProducao,
     @Default('') String urlNuvemHomologacao,
-    @Default('') String pinHash,
   }) = _ConfiguracaoTerminal;
 
   /// Base da API local (consumo), conforme o ambiente ativo. A barra final é

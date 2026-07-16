@@ -16,19 +16,6 @@ void main() {
         () => expect(Validadores.urlValida('ftp://x.com'), isFalse));
   });
 
-  group('Validadores.pinValido', () {
-    test('aceita 4 digitos',
-        () => expect(Validadores.pinValido('1234'), isTrue));
-    test('aceita 6 digitos',
-        () => expect(Validadores.pinValido('123456'), isTrue));
-    test('rejeita 3 digitos',
-        () => expect(Validadores.pinValido('123'), isFalse));
-    test('rejeita 7 digitos',
-        () => expect(Validadores.pinValido('1234567'), isFalse));
-    test(
-        'rejeita letras', () => expect(Validadores.pinValido('12a4'), isFalse));
-  });
-
   group('Validadores.uuidValido', () {
     test(
         'aceita UUID v4',

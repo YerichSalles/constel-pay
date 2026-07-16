@@ -17,7 +17,6 @@ _$ModeloConfiguracaoImpl _$$ModeloConfiguracaoImplFromJson(
       urlBaseHomologacao: json['urlBaseHomologacao'] as String,
       urlNuvemProducao: json['urlNuvemProducao'] as String? ?? '',
       urlNuvemHomologacao: json['urlNuvemHomologacao'] as String? ?? '',
-      pinHash: json['pinHash'] as String,
     );
 
 Map<String, dynamic> _$$ModeloConfiguracaoImplToJson(
@@ -31,7 +30,6 @@ Map<String, dynamic> _$$ModeloConfiguracaoImplToJson(
       'urlBaseHomologacao': instance.urlBaseHomologacao,
       'urlNuvemProducao': instance.urlNuvemProducao,
       'urlNuvemHomologacao': instance.urlNuvemHomologacao,
-      'pinHash': instance.pinHash,
     };
 
 const _$AmbienteEnumMap = {
