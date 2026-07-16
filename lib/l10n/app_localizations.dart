@@ -304,24 +304,6 @@ abstract class AppLocalizations {
   /// **'Posicione o código do cartão dentro da área'**
   String get scanPositionHint;
 
-  /// Botão que simula a leitura do código de barras.
-  ///
-  /// In pt, this message translates to:
-  /// **'Simular leitura do código'**
-  String get simulateScanButton;
-
-  /// Hint do campo temporário de digitação do número da comanda.
-  ///
-  /// In pt, this message translates to:
-  /// **'Nº do cartão'**
-  String get cardNumberHint;
-
-  /// Botão de busca ao lado do campo temporário de comanda digitada.
-  ///
-  /// In pt, this message translates to:
-  /// **'Buscar'**
-  String get searchButton;
-
   /// Rótulo exibido no cartão de comanda quando ela já foi paga.
   ///
   /// In pt, this message translates to:

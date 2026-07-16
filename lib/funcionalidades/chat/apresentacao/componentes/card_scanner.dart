@@ -1,24 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../../compartilhado/widgets/botao_primario.dart';
 import '../../../../compartilhado/widgets/cartao.dart';
 import '../../../../l10n/app_localizations.dart';
 
+/// Visor de leitura: só orienta o cliente a posicionar o código. A leitura em
+/// si chega pelo leitor de hardware, capturado no nível da página.
 class CardScanner extends StatefulWidget {
-  const CardScanner({
-    super.key,
-    required this.aoEscanear,
-    this.aoInformarCodigo,
-    this.habilitado = true,
-  });
-
-  final VoidCallback aoEscanear;
-
-  /// Fallback manual: digitar o número da comanda quando o código de barras
-  /// estiver ilegível/danificado. O leitor de hardware entra pela captura de
-  /// teclado, sem passar por este campo.
-  final ValueChanged<String>? aoInformarCodigo;
-  final bool habilitado;
+  const CardScanner({super.key});
 
   @override
   State<CardScanner> createState() => _CardScannerState();
@@ -31,20 +19,11 @@ class _CardScannerState extends State<CardScanner>
   late final AnimationController _controlador = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 2200))
     ..repeat(reverse: true);
-  final TextEditingController _comanda = TextEditingController();
 
   @override
   void dispose() {
     _controlador.dispose();
-    _comanda.dispose();
     super.dispose();
-  }
-
-  void _enviarComanda() {
-    final texto = _comanda.text.trim();
-    if (texto.isEmpty) return;
-    widget.aoInformarCodigo?.call(texto);
-    _comanda.clear();
   }
 
   Widget _canto({required Alignment alinhamento, required Color cor}) {
@@ -251,52 +230,7 @@ class _CardScannerState extends State<CardScanner>
     final t = AppLocalizations.of(context);
     return Cartao(
       preenchimento: const EdgeInsets.all(16),
-      filho: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _visor(primaria, t),
-          const SizedBox(height: 14),
-          BotaoPrimario(
-            rotulo: t.simulateScanButton,
-            aoTocar: widget.habilitado ? widget.aoEscanear : null,
-          ),
-          // Fallback manual: digitação da comanda quando o código não lê.
-          if (widget.aoInformarCodigo != null) ...[
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _comanda,
-                    enabled: widget.habilitado,
-                    keyboardType: TextInputType.number,
-                    onSubmitted:
-                        widget.habilitado ? (_) => _enviarComanda() : null,
-                    decoration: InputDecoration(
-                      hintText: t.cardNumberHint,
-                      isDense: true,
-                      filled: true,
-                      fillColor: const Color(0xFFF4F3F8),
-                      prefixIcon: const Icon(Icons.tag, size: 18),
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 12),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                FilledButton.tonal(
-                  onPressed: widget.habilitado ? _enviarComanda : null,
-                  child: Text(t.searchButton),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
+      filho: _visor(primaria, t),
     );
   }
 }

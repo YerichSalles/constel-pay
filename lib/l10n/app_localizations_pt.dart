@@ -156,15 +156,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get scanPositionHint => 'Posicione o código do cartão dentro da área';
 
   @override
-  String get simulateScanButton => 'Simular leitura do código';
-
-  @override
-  String get cardNumberHint => 'Nº do cartão';
-
-  @override
-  String get searchButton => 'Buscar';
-
-  @override
   String get paidLabel => 'Pago ✓';
 
   @override

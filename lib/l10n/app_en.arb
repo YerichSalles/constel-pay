@@ -36,9 +36,6 @@
   "totalBarServiceSuffix": " · includes service",
 
   "scanPositionHint": "Position the card code inside the frame",
-  "simulateScanButton": "Simulate code scan",
-  "cardNumberHint": "Card number",
-  "searchButton": "Search",
 
   "paidLabel": "Paid ✓",
   "subtotalLabel": "Subtotal",

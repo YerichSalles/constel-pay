@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:constel_pay/aplicativo/injecao.dart';
+import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/card_scanner.dart';
+import 'package:constel_pay/funcionalidades/chat/apresentacao/controladores/controlador_fluxo_pagamento.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/paginas/pagina_chat.dart';
 import 'package:constel_pay/funcionalidades/leitura_cartao/dados/fontes_dados/fonte_leitura_mock.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dados/fontes_dados/fonte_pagamento_mock.dart';
@@ -19,6 +23,20 @@ const _publicidadeLetreiroExibivel = PublicidadeBarra(
     MensagemLetreiro(id: 'm1', texto: 'Promoção especial hoje', ordem: 1),
   ],
 );
+
+/// A leitura chega pelo leitor de hardware, sem botão na tela; nestes testes de
+/// fluxo ela é acionada pelo controlador, com a fonte de leitura mockada.
+///
+/// A chamada não é aguardada de propósito: como o toque no botão fazia antes,
+/// ela dispara e são os `pump` que avançam os timers do mock até o fim.
+Future<void> _lerCartao(WidgetTester tester) async {
+  final container =
+      ProviderScope.containerOf(tester.element(find.byType(PaginaChat)));
+  unawaited(container.read(provedorFluxoPagamento.notifier).lerCartao());
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 50));
+  await tester.pump();
+}
 
 void main() {
   testWidgets(
@@ -59,13 +77,10 @@ void main() {
 
     // boas-vindas + scanner
     expect(find.textContaining('cartão de consumo'), findsWidgets);
-    expect(find.textContaining('Simular leitura'), findsOneWidget);
+    expect(find.byType(CardScanner), findsOneWidget);
 
     // leitura do primeiro cartao
-    await tester.tap(find.textContaining('Simular leitura'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 50));
-    await tester.pump();
+    await _lerCartao(tester);
     expect(find.textContaining('Comanda 01'), findsWidgets);
 
     // ir para pagamento: a taxa de serviço da API já vem embutida, sem escolha
@@ -138,10 +153,7 @@ void main() {
 
     // primeira leitura: sem ação de desistência disponível
     expect(find.text('Continuar com os cartões já adicionados'), findsNothing);
-    await tester.tap(find.textContaining('Simular leitura'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 50));
-    await tester.pump();
+    await _lerCartao(tester);
     expect(find.text('Adicionar outro cartão'), findsOneWidget);
 
     // entra na inclusão adicional e desiste

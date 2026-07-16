@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:constel_pay/aplicativo/constel_pay_app.dart';
 import 'package:constel_pay/aplicativo/injecao.dart';
 import 'package:constel_pay/aplicativo/rotas.dart';
+import 'package:constel_pay/funcionalidades/chat/apresentacao/controladores/controlador_fluxo_pagamento.dart';
+import 'package:constel_pay/funcionalidades/chat/apresentacao/paginas/pagina_chat.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dados/repositorios/repositorio_configuracao_impl.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/configuracao_terminal.dart';
 import 'package:constel_pay/funcionalidades/leitura_cartao/dados/fontes_dados/fonte_leitura_mock.dart';
@@ -50,7 +54,12 @@ void main() {
     // Pump extra: o conteúdo recém-adicionado ao ListView só reflete a
     // rolagem automática (jumpTo pós-frame) no quadro seguinte.
     await tester.pump();
-    await tester.tap(find.textContaining('Simular leitura'));
+    // A leitura chega pelo leitor de hardware, sem botão na tela; aqui ela é
+    // acionada pelo controlador, sem aguardar, para que os `pump` avancem os
+    // timers da fonte mockada.
+    final container =
+        ProviderScope.containerOf(tester.element(find.byType(PaginaChat)));
+    unawaited(container.read(provedorFluxoPagamento.notifier).lerCartao());
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     await tester.tap(find.textContaining('Continuar para pagamento'));

@@ -126,11 +126,7 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
         if (cartao == null) return const SizedBox.shrink();
         return recuado(CardComanda(cartao: cartao));
       case TipoMensagem.scanner:
-        return recuado(CardScanner(
-          aoEscanear: controlador.lerCartao,
-          aoInformarCodigo: controlador.consultarPorCodigo,
-          habilitado: estado.etapa == EtapaFluxo.lendo && !estado.digitando,
-        ));
+        return recuado(const CardScanner());
       case TipoMensagem.metodos:
         return recuado(CardMetodosPagamento(
           metodos: const [

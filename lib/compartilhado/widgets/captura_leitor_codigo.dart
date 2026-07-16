@@ -11,8 +11,10 @@ import 'package:flutter/services.dart';
 /// buffer, então o operador nunca dispara uma leitura sem querer.
 ///
 /// O widget não desenha nada além do [filho]; apenas escuta o teclado enquanto
-/// [ativo]. Quando o foco está num campo de texto (ex.: o fallback de digitação
-/// manual), ignora os eventos para não duplicar a leitura.
+/// [ativo]. A escuta é global (não depende de foco), porque no totem qualquer
+/// botão tocado assume o foco e o leitor precisa continuar funcionando. Quando
+/// o foco está num campo de texto, ignora os eventos e deixa o campo tratar a
+/// digitação.
 class CapturaLeitorCodigo extends StatefulWidget {
   const CapturaLeitorCodigo({
     super.key,
@@ -42,18 +44,31 @@ class CapturaLeitorCodigo extends StatefulWidget {
 }
 
 class _CapturaLeitorCodigoState extends State<CapturaLeitorCodigo> {
-  final FocusNode _foco = FocusNode(debugLabel: 'captura_leitor_codigo');
   final StringBuffer _buffer = StringBuffer();
   DateTime? _ultimaTecla;
 
   @override
+  void initState() {
+    super.initState();
+    HardwareKeyboard.instance.addHandler(_aoTeclar);
+  }
+
+  @override
+  void didUpdateWidget(CapturaLeitorCodigo anterior) {
+    super.didUpdateWidget(anterior);
+    // Sair da fase de leitura descarta o que estava no buffer, para não emendar
+    // uma leitura interrompida com a próxima.
+    if (anterior.ativo && !widget.ativo) _reiniciar();
+  }
+
+  @override
   void dispose() {
-    _foco.dispose();
+    HardwareKeyboard.instance.removeHandler(_aoTeclar);
     super.dispose();
   }
 
-  /// Evita interferir quando o operador está usando um campo de texto (o
-  /// fallback manual): nesse caso o próprio campo trata a digitação.
+  /// Evita interferir quando o foco está num campo de texto: nesse caso o
+  /// próprio campo trata a digitação.
   bool _campoDeTextoFocado() {
     final contexto = FocusManager.instance.primaryFocus?.context;
     if (contexto == null) return false;
@@ -66,11 +81,11 @@ class _CapturaLeitorCodigoState extends State<CapturaLeitorCodigo> {
     _ultimaTecla = null;
   }
 
-  KeyEventResult _aoTeclar(FocusNode node, KeyEvent evento) {
-    if (!widget.ativo || evento is! KeyDownEvent) {
-      return KeyEventResult.ignored;
-    }
-    if (_campoDeTextoFocado()) return KeyEventResult.ignored;
+  /// Retorna `true` apenas quando consome a tecla, para que o restante da UI
+  /// continue respondendo normalmente ao teclado.
+  bool _aoTeclar(KeyEvent evento) {
+    if (!widget.ativo || evento is! KeyDownEvent) return false;
+    if (_campoDeTextoFocado()) return false;
 
     final tecla = evento.logicalKey;
     if (tecla == LogicalKeyboardKey.enter ||
@@ -79,9 +94,10 @@ class _CapturaLeitorCodigoState extends State<CapturaLeitorCodigo> {
       _reiniciar();
       if (codigo.length >= widget.tamanhoMinimo) {
         widget.aoLer(codigo);
-        return KeyEventResult.handled;
+        // Consome o Enter do leitor: sem isso ele acionaria o botão focado.
+        return true;
       }
-      return KeyEventResult.ignored;
+      return false;
     }
 
     // Só caracteres imprimíveis compõem o código; ignora teclas de controle.
@@ -89,7 +105,7 @@ class _CapturaLeitorCodigoState extends State<CapturaLeitorCodigo> {
     if (caractere == null ||
         caractere.isEmpty ||
         caractere.codeUnitAt(0) < 0x20) {
-      return KeyEventResult.ignored;
+      return false;
     }
 
     final agora = DateTime.now();
@@ -100,17 +116,9 @@ class _CapturaLeitorCodigoState extends State<CapturaLeitorCodigo> {
     }
     _buffer.write(caractere);
     _ultimaTecla = agora;
-    // Não consome o evento: a UI continua respondendo normalmente às teclas.
-    return KeyEventResult.ignored;
+    return false;
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Focus(
-      focusNode: _foco,
-      autofocus: true,
-      onKeyEvent: _aoTeclar,
-      child: widget.filho,
-    );
-  }
+  Widget build(BuildContext context) => widget.filho;
 }

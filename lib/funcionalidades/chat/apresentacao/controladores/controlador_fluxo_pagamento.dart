@@ -217,9 +217,8 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     );
   }
 
-  /// Consulta o consumo pela referência lida do código de barras (leitor de
-  /// hardware) ou digitada no fallback manual. Ambos os caminhos entram por
-  /// aqui e batem na mesma API de consumo da loja.
+  /// Consulta o consumo pela referência lida do código de barras no leitor de
+  /// hardware, contra a API de consumo da loja.
   Future<void> consultarPorCodigo(String referencia) async {
     final fonte = _fonteConsumoAtendimento;
     final ref = referencia.trim();

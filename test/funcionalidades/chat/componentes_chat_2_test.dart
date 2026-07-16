@@ -1,3 +1,4 @@
+import 'package:constel_pay/compartilhado/widgets/botao_primario.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/area_acoes.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/barra_total.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/card_metodos_pagamento.dart';
@@ -21,44 +22,14 @@ Widget _app(Widget filho, {Locale locale = const Locale('pt', 'BR')}) =>
     );
 
 void main() {
-  testWidgets('CardScanner dispara aoEscanear quando habilitado',
+  testWidgets('CardScanner mostra o visor sem busca manual nem simulacao',
       (tester) async {
-    var escaneou = false;
-    await tester
-        .pumpWidget(_app(CardScanner(aoEscanear: () => escaneou = true)));
+    await tester.pumpWidget(_app(const CardScanner()));
     await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.textContaining('Simular leitura'));
-    expect(escaneou, isTrue);
-  });
-
-  testWidgets('CardScanner com aoInformarCodigo envia o número digitado',
-      (tester) async {
-    String? recebido;
-    await tester.pumpWidget(_app(CardScanner(
-      aoEscanear: () {},
-      aoInformarCodigo: (valor) => recebido = valor,
-    )));
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.enterText(find.byType(TextField), '502');
-    await tester.tap(find.text('Buscar'));
-    expect(recebido, '502');
-  });
-
-  testWidgets('CardScanner sem aoInformarCodigo esconde o campo',
-      (tester) async {
-    await tester.pumpWidget(_app(CardScanner(aoEscanear: () {})));
-    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Posicione o código do cartão dentro da área'),
+        findsOneWidget);
     expect(find.byType(TextField), findsNothing);
-  });
-
-  testWidgets('CardScanner desabilitado nao dispara', (tester) async {
-    var escaneou = false;
-    await tester.pumpWidget(_app(
-        CardScanner(aoEscanear: () => escaneou = true, habilitado: false)));
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.textContaining('Simular leitura'),
-        warnIfMissed: false);
-    expect(escaneou, isFalse);
+    expect(find.byType(BotaoPrimario), findsNothing);
   });
 
   testWidgets(

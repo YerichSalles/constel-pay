@@ -36,9 +36,6 @@
   "totalBarServiceSuffix": " · incluye servicio",
 
   "scanPositionHint": "Coloca el código de la tarjeta dentro del área",
-  "simulateScanButton": "Simular lectura del código",
-  "cardNumberHint": "N.º de tarjeta",
-  "searchButton": "Buscar",
 
   "paidLabel": "Pagado ✓",
   "subtotalLabel": "Subtotal",

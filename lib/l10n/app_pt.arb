@@ -168,18 +168,6 @@
   "@scanPositionHint": {
     "description": "Texto sobreposto ao visor do scanner simulado."
   },
-  "simulateScanButton": "Simular leitura do código",
-  "@simulateScanButton": {
-    "description": "Botão que simula a leitura do código de barras."
-  },
-  "cardNumberHint": "Nº do cartão",
-  "@cardNumberHint": {
-    "description": "Hint do campo temporário de digitação do número da comanda."
-  },
-  "searchButton": "Buscar",
-  "@searchButton": {
-    "description": "Botão de busca ao lado do campo temporário de comanda digitada."
-  },
 
   "paidLabel": "Pago ✓",
   "@paidLabel": {

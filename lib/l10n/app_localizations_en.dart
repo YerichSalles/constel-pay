@@ -155,15 +155,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanPositionHint => 'Position the card code inside the frame';
 
   @override
-  String get simulateScanButton => 'Simulate code scan';
-
-  @override
-  String get cardNumberHint => 'Card number';
-
-  @override
-  String get searchButton => 'Search';
-
-  @override
   String get paidLabel => 'Paid ✓';
 
   @override
