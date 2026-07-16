@@ -23,14 +23,14 @@ abstract final class ValidacoesEncerramento {
     }
     if (configuracao == null) {
       return const FalhaValidacao(
-          'Não foi possível obter os dados de faturamento da sessão do '
-          'caixa. Verifique a conexão com a nuvem e se a sessão já possui '
-          'alguma venda registrada.');
+          'Não foi possível obter a configuração de faturamento do terminal. '
+          'Verifique a conexão com o servidor da loja e com a nuvem e tente '
+          'novamente.');
     }
     if (!configuracao.completaPara(metodo)) {
       return FalhaValidacao(
-          'Ainda não há venda em "${metodo.name}" registrada no caixa para o '
-          'terminal aprender a forma de pagamento. Realize uma no caixa e '
+          'A forma de pagamento "${metodo.name}" não está configurada no '
+          'retaguarda para este terminal. Verifique o cadastro de formas e '
           'tente novamente.');
     }
     for (final a in atendimentos) {

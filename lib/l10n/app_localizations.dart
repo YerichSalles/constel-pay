@@ -103,13 +103,13 @@ abstract class AppLocalizations {
   /// Primeira mensagem do bot ao iniciar o atendimento.
   ///
   /// In pt, this message translates to:
-  /// **'Olá! Bem-vindo(a). Vou fechar sua conta em segundos. 😊'**
+  /// **'Olá! Que bom ter você aqui. Vou fechar sua conta em segundos. 😊'**
   String get welcomeMessage;
 
   /// Instrução do bot para escanear o cartão.
   ///
   /// In pt, this message translates to:
-  /// **'Para começar, aponte a câmera para o código do seu cartão de consumo 👇'**
+  /// **'Para começar, passe o código do seu cartão de consumo no leitor 👇'**
   String get scanInstruction;
 
   /// Pergunta do bot após ler um cartão com sucesso.
@@ -307,7 +307,7 @@ abstract class AppLocalizations {
   /// Botão que simula a leitura do código de barras.
   ///
   /// In pt, this message translates to:
-  /// **'📷 Simular leitura do código'**
+  /// **'Simular leitura do código'**
   String get simulateScanButton;
 
   /// Hint do campo temporário de digitação do número da comanda.

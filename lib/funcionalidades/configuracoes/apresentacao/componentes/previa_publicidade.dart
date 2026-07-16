@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../aplicativo/tema/estilos_texto.dart';
 import '../../../../aplicativo/tema/tema_constel.dart';
+import '../../../../compartilhado/widgets/icone_emoji.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
 import '../../../propaganda/apresentacao/componentes/conteudo_publicidade.dart';
 import '../../../propaganda/dominio/entidades/publicidade_barra.dart';
@@ -57,9 +58,8 @@ class PreviaPublicidade extends StatelessWidget {
       alignment: Alignment.center,
       child: temLogo
           ? ImagemLogo(
-              caminho: caminho,
-              reserva: const Text('🍽️', style: TextStyle(fontSize: 14)))
-          : const Text('🍽️', style: TextStyle(fontSize: 14)),
+              caminho: caminho, reserva: const IconeEmoji('🍽️', tamanho: 15))
+          : const IconeEmoji('🍽️', tamanho: 15),
     );
   }
 
@@ -159,9 +159,12 @@ class PreviaPublicidade extends StatelessWidget {
           const SizedBox(height: 12),
           Align(
             alignment: Alignment.centerLeft,
-            child: TextButton(
+            child: TextButton.icon(
               onPressed: aoAlternarReproducao,
-              child: Text(reproduzindo ? '⏸ Pausar' : '▶ Reproduzir'),
+              icon: Icon(
+                  reproduzindo ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                  size: 18),
+              label: Text(reproduzindo ? 'Pausar' : 'Reproduzir'),
             ),
           ),
         ],

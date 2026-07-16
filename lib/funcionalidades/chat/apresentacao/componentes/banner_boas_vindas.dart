@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/cores_app.dart';
+import '../../../../compartilhado/widgets/icone_emoji.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
 import '../../../../l10n/app_localizations.dart';
 
@@ -51,9 +52,9 @@ class BannerBoasVindas extends ConsumerWidget {
             child: temLogo
                 ? ImagemLogo(
                     caminho: logoPath,
-                    reserva: const Text('🍽️', style: TextStyle(fontSize: 40)),
+                    reserva: const IconeEmoji('🍽️', tamanho: 44),
                   )
-                : const Text('🍽️', style: TextStyle(fontSize: 40)),
+                : const IconeEmoji('🍽️', tamanho: 44),
           ),
           const SizedBox(height: 10),
           Text(nomeRestaurante,

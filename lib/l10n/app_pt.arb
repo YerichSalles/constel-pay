@@ -1,11 +1,11 @@
 {
   "@@locale": "pt",
 
-  "welcomeMessage": "Olá! Bem-vindo(a). Vou fechar sua conta em segundos. 😊",
+  "welcomeMessage": "Olá! Que bom ter você aqui. Vou fechar sua conta em segundos. 😊",
   "@welcomeMessage": {
     "description": "Primeira mensagem do bot ao iniciar o atendimento."
   },
-  "scanInstruction": "Para começar, aponte a câmera para o código do seu cartão de consumo 👇",
+  "scanInstruction": "Para começar, passe o código do seu cartão de consumo no leitor 👇",
   "@scanInstruction": {
     "description": "Instrução do bot para escanear o cartão."
   },
@@ -168,7 +168,7 @@
   "@scanPositionHint": {
     "description": "Texto sobreposto ao visor do scanner simulado."
   },
-  "simulateScanButton": "📷 Simular leitura do código",
+  "simulateScanButton": "Simular leitura do código",
   "@simulateScanButton": {
     "description": "Botão que simula a leitura do código de barras."
   },

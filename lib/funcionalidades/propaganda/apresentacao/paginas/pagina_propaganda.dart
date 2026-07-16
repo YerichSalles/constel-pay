@@ -6,7 +6,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/tema_constel.dart';
+import '../../../../compartilhado/widgets/barra_creditos.dart';
 import '../../../../compartilhado/widgets/faixa_pagamento.dart';
+import '../../../../compartilhado/widgets/icone_emoji.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
 import '../../../../compartilhado/widgets/seletor_idioma.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -85,10 +87,9 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
               child: temLogo
                   ? ImagemLogo(
                       caminho: logoPath,
-                      reserva:
-                          const Text('🍽️', style: TextStyle(fontSize: 60)),
+                      reserva: const IconeEmoji('🍽️', tamanho: 64),
                     )
-                  : const Text('🍽️', style: TextStyle(fontSize: 60)),
+                  : const IconeEmoji('🍽️', tamanho: 64),
             ),
             const SizedBox(height: 20),
             Text(
@@ -134,16 +135,33 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
         ? AppLocalizations.of(context).tapToPay
         : tema.textoFaixaEfetivo;
 
+    // A barra de créditos sobrepõe a base da faixa sem empurrá-la para cima:
+    // a mensagem fica centralizada na banda inteira do rodapé e os créditos,
+    // pequenos, moram nos cantos. Sobreposta, a barra não pinta fundo próprio
+    // (sobreCor) para não decepar os descendentes da mensagem.
+    final Widget rodape;
+    if (estado.carregando) {
+      rodape = widget.preview ? const SizedBox.shrink() : const BarraCreditos();
+    } else {
+      final corFaixa = TemaConstel.corDeHex(tema.corFaixaEfetiva, primaria);
+      final faixa = FaixaPagamento(
+        texto: textoFaixa,
+        corFundo: corFaixa,
+        corTexto: TemaConstel.corDeHex(tema.corTextoFaixa, Colors.white),
+        fonte: tema.fonte,
+      );
+      rodape = widget.preview
+          ? faixa
+          : Stack(
+              alignment: Alignment.bottomCenter,
+              children: [faixa, BarraCreditos(sobreCor: corFaixa)],
+            );
+    }
+
     final conteudo = Column(
       children: [
         Expanded(child: SizedBox(width: double.infinity, child: fundo)),
-        if (!estado.carregando)
-          FaixaPagamento(
-            texto: textoFaixa,
-            corFundo: TemaConstel.corDeHex(tema.corFaixaEfetiva, primaria),
-            corTexto: TemaConstel.corDeHex(tema.corTextoFaixa, Colors.white),
-            fonte: tema.fonte,
-          ),
+        rodape,
       ],
     );
 

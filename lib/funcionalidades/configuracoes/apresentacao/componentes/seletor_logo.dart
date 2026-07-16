@@ -10,6 +10,7 @@ import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../compartilhado/feedback/snackbar_padrao.dart';
 import '../../../../compartilhado/widgets/botao_secundario.dart';
 import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
+import '../../../../compartilhado/widgets/icone_emoji.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
 
 class SeletorLogo extends ConsumerWidget {
@@ -88,10 +89,9 @@ class SeletorLogo extends ConsumerWidget {
               child: temLogo
                   ? ImagemLogo(
                       caminho: logoPath,
-                      reserva:
-                          const Text('🍽️', style: TextStyle(fontSize: 28)),
+                      reserva: const IconeEmoji('🍽️', tamanho: 30),
                     )
-                  : const Text('🍽️', style: TextStyle(fontSize: 28)),
+                  : const IconeEmoji('🍽️', tamanho: 30),
             ),
             const SizedBox(width: 14),
             Expanded(

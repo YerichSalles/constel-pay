@@ -9,6 +9,7 @@ import '../../../../compartilhado/feedback/snackbar_padrao.dart';
 import '../../../../compartilhado/widgets/botao_primario.dart';
 import '../../../../compartilhado/widgets/botao_secundario.dart';
 import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
+import '../../../../compartilhado/widgets/icone_emoji.dart';
 import '../../dominio/entidades/tema_personalizado.dart';
 import '../../../propaganda/apresentacao/paginas/pagina_propaganda.dart';
 import '../../../propaganda/dominio/entidades/midia_propaganda.dart';
@@ -117,8 +118,8 @@ class SecaoConteudoTela extends ConsumerWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             alignment: Alignment.center,
-            child: Text(midia.tipo == TipoMidia.video ? '🎬' : '🖼️',
-                style: const TextStyle(fontSize: 22)),
+            child: IconeEmoji(midia.tipo == TipoMidia.video ? '🎬' : '🖼️',
+                tamanho: 23),
           ),
           const SizedBox(width: 10),
           Expanded(

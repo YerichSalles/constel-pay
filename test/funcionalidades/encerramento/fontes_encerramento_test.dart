@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/configuracao_terminal.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/repositorios/repositorio_configuracao.dart';
-import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_atendimentos_sessao.dart';
+import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_dispositivo.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_encerramento_atendimento.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_fatura.dart';
+import 'package:constel_pay/funcionalidades/encerramento/dados/fontes_dados/fonte_forma_pagamento.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dados/modelos/requisicao_encerramento.dart';
-import 'package:constel_pay/funcionalidades/encerramento/dominio/entidades/atendimento_encerrado.dart';
 import 'package:constel_pay/funcionalidades/encerramento/dominio/entidades/fatura_referencia.dart';
 import 'package:constel_pay/nucleo/configuracao/cliente_api.dart';
 import 'package:constel_pay/nucleo/erros/falha.dart';
@@ -154,40 +154,55 @@ void main() {
     });
   });
 
-  group('FonteAtendimentosSessao', () {
-    test('consulta o mapa da sessão e devolve só encerrados com fatura',
-        () async {
-      final adaptador = _AdaptadorResposta([
-        {
-          'id': 'a-encerrado',
-          'situacao': 30,
-          'conclusao': '2026-07-14T17:34:32.666Z',
-          'fatura': {'id': 'f1', 'codigo': 'VN0051636'},
-        },
-        {
-          'id': 'a-estornado',
-          'situacao': 90,
-          'conclusao': '2026-07-14T18:00:00.000Z',
-          'fatura': {'id': 'f2', 'codigo': 'VN0051637'},
-        },
-      ], 200);
-      final fonte = FonteAtendimentosSessao(_cliente(adaptador));
-      final resultado = await fonte.consultarEncerrados('s1');
-      expect(resultado, isA<Sucesso<List<AtendimentoEncerrado>>>());
-      final lista = (resultado as Sucesso<List<AtendimentoEncerrado>>).valor;
-      expect(lista.single.atendimentoId, 'a-encerrado');
-      expect(lista.single.faturaId, 'f1');
-      expect(lista.single.faturaCodigo, 'VN0051636');
-      final requisicao = adaptador.ultimaRequisicao!;
-      expect(requisicao.uri.path, endsWith('venda/atendimento/mapa'));
-      expect(requisicao.queryParameters, {'situacao': 30, 'sessaoid': 's1'});
+  group('FonteDispositivo', () {
+    test('busca o documento do dispositivo por id', () async {
+      final adaptador = _AdaptadorResposta(dispositivoDocJson(), 200);
+      final fonte = FonteDispositivo(_cliente(adaptador));
+      final resultado = await fonte.obter(idDispositivoTerminal);
+      expect(resultado, isA<Sucesso<Map<String, dynamic>>>());
+      final doc = (resultado as Sucesso<Map<String, dynamic>>).valor;
+      expect((doc['operacao'] as Map)['codigo'], '519');
+      expect(adaptador.ultimaRequisicao!.uri.path,
+          endsWith('estrutura/dispositivo/$idDispositivoTerminal'));
     });
 
-    test('corpo que não é lista vira erro', () async {
-      final fonte = FonteAtendimentosSessao(
+    test('erro HTTP vira Falha mapeada', () async {
+      final fonte = FonteDispositivo(
+          _cliente(_AdaptadorResposta(const {'message': 'x'}, 500)));
+      final resultado = await fonte.obter('x');
+      expect(resultado, isA<Erro<Map<String, dynamic>>>());
+    });
+  });
+
+  group('FonteFormaPagamento', () {
+    test('lista as formas com texto vazio', () async {
+      final adaptador = _AdaptadorResposta(formasListaJson(), 200);
+      final fonte = FonteFormaPagamento(_cliente(adaptador));
+      final resultado = await fonte.listar();
+      expect(resultado, isA<Sucesso<List<Map<String, dynamic>>>>());
+      final lista = (resultado as Sucesso<List<Map<String, dynamic>>>).valor;
+      expect(lista.length, 3);
+      expect(
+          adaptador.ultimaRequisicao!.uri.path, endsWith('financeiro/forma'));
+      expect(adaptador.ultimaRequisicao!.queryParameters, {'texto': ''});
+    });
+
+    test('detalhe da forma traz a conta de recebimento', () async {
+      final adaptador = _AdaptadorResposta(formaPixDetalheJson(), 200);
+      final fonte = FonteFormaPagamento(_cliente(adaptador));
+      final resultado = await fonte.obter(idFormaPix);
+      expect(resultado, isA<Sucesso<Map<String, dynamic>>>());
+      final detalhe = (resultado as Sucesso<Map<String, dynamic>>).valor;
+      expect((detalhe['conta'] as Map)['nome'], 'Banco do Brasil Aldeota');
+      expect(adaptador.ultimaRequisicao!.uri.path,
+          endsWith('financeiro/forma/$idFormaPix'));
+    });
+
+    test('listagem em formato desconhecido vira erro', () async {
+      final fonte = FonteFormaPagamento(
           _cliente(_AdaptadorResposta(const {'x': 1}, 200)));
-      final resultado = await fonte.consultarEncerrados('s1');
-      expect(resultado, isA<Erro<List<AtendimentoEncerrado>>>());
+      final resultado = await fonte.listar();
+      expect(resultado, isA<Erro<List<Map<String, dynamic>>>>());
     });
   });
 }

@@ -10,11 +10,11 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get welcomeMessage =>
-      'Olá! Bem-vindo(a). Vou fechar sua conta em segundos. 😊';
+      'Olá! Que bom ter você aqui. Vou fechar sua conta em segundos. 😊';
 
   @override
   String get scanInstruction =>
-      'Para começar, aponte a câmera para o código do seu cartão de consumo 👇';
+      'Para começar, passe o código do seu cartão de consumo no leitor 👇';
 
   @override
   String get addAnotherCardQuestion =>
@@ -156,7 +156,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get scanPositionHint => 'Posicione o código do cartão dentro da área';
 
   @override
-  String get simulateScanButton => '📷 Simular leitura do código';
+  String get simulateScanButton => 'Simular leitura do código';
 
   @override
   String get cardNumberHint => 'Nº do cartão';

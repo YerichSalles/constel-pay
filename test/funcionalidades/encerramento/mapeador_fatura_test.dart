@@ -55,8 +55,9 @@ void main() {
     expect((json['historico'] as Map)['codigo'], '3.01');
     expect((json['operacao'] as Map)['codigo'], '510');
     expect((json['moeda'] as Map)['codigo'], 'BRL');
-    // Modalidade do cabeçalho é a do TERMINAL (Balcão), não a do atendimento.
-    expect((json['modalidade'] as Map)['nome'], 'Balcão');
+    // Modalidade do cabeçalho é a do ATENDIMENTO (Cartão); o retaguarda faz o
+    // rateio de resultado a partir dos itens.
+    expect((json['modalidade'] as Map)['nome'], 'Cartão');
     expect((json['dispositivo'] as Map)['codigo'], '0072');
     expect(
         (json['estabelecimentoDepartamento'] as Map)['nome'], 'Almoxarifado');
@@ -68,7 +69,8 @@ void main() {
     final item = fatura.itens.single.paraJson();
     expect(item['sequencial'], 1);
     expect((item['item'] as Map)['nome'], 'Água com Gás');
-    expect((item['resultado'] as Map)['nome'], 'Vendas');
+    // Resultado do item fica a cargo do retaguarda (vazio no envio).
+    expect(item['resultado'], isEmpty);
     expect(item['valor'], 5.9);
     expect(item['quantidade'], 1.0);
     expect(item['fator'], 1.0);
@@ -134,14 +136,9 @@ void main() {
     expect(json['baixa'], '2026-07-13T00:00:00.000Z');
   });
 
-  test('faturaResultados usa o resultado da configuração SEM o nome', () {
+  test('faturaResultados vai vazio — o retaguarda faz o rateio', () {
     final json = _montar().paraJson();
-    final resultado = (json['faturaResultados'] as List).single as Map;
-    expect(resultado['sequencial'], 1);
-    expect(resultado['percentual'], 100.0);
-    final referencia = resultado['resultado'] as Map;
-    expect(referencia['id'], '0699fb41-2943-417d-a2f7-017ffce3ce01');
-    expect(referencia.containsKey('nome'), isFalse);
+    expect(json['faturaResultados'], isEmpty);
   });
 
   test('total da fatura corresponde à soma dos atendimentos', () {

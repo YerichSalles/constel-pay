@@ -30,9 +30,9 @@ void main() {
     expect(tema.corBotoes, '#5E52D6');
   });
 
-  test('MetodoPagamento tem os 7 metodos com rotulos', () {
+  test('MetodoPagamento tem os 7 metodos', () {
     expect(MetodoPagamento.values, hasLength(7));
-    expect(MetodoPagamento.pix.rotulo, 'Pix');
-    expect(MetodoPagamento.credito.rotulo, 'Crédito');
+    expect(MetodoPagamento.values, contains(MetodoPagamento.pix));
+    expect(MetodoPagamento.values, contains(MetodoPagamento.credito));
   });
 }

@@ -6,19 +6,21 @@ import '../../../../nucleo/utils/gerador_identificador.dart';
 import '../../../../nucleo/utils/json_leniente.dart';
 import '../../../../nucleo/utils/registrador.dart';
 import '../../../../nucleo/utils/relogio.dart';
+import '../../../configuracoes/dominio/repositorios/repositorio_configuracao.dart';
 import '../../../leitura_cartao/dados/fontes_dados/fonte_consumo_atendimento.dart';
 import '../../../leitura_cartao/dados/modelos/resposta_consumo_atendimento.dart';
 import '../../../leitura_cartao/dominio/entidades/atendimento.dart';
 import '../../../pagamento/dominio/entidades/metodo_pagamento.dart';
-import '../../dados/adaptadores/derivador_configuracao_faturamento.dart';
 import '../../dados/adaptadores/mapeador_fatura.dart';
-import '../../dados/fontes_dados/fonte_atendimentos_sessao.dart';
+import '../../dados/adaptadores/resolvedor_configuracao_faturamento.dart';
+import '../../dados/fontes_dados/fonte_dispositivo.dart';
 import '../../dados/fontes_dados/fonte_encerramento_atendimento.dart';
 import '../../dados/fontes_dados/fonte_fatura.dart';
+import '../../dados/fontes_dados/fonte_forma_pagamento.dart';
 import '../../dados/modelos/requisicao_encerramento.dart';
 import '../../dados/modelos/resposta_fatura.dart';
-import '../entidades/atendimento_encerrado.dart';
 import '../entidades/configuracao_faturamento.dart';
+import '../entidades/especie_forma.dart';
 import '../entidades/fatura_enums.dart';
 import '../entidades/fase_encerramento.dart';
 import '../entidades/fatura_referencia.dart';
@@ -43,26 +45,33 @@ class CasoUsoEncerrarAtendimentos {
   CasoUsoEncerrarAtendimentos({
     required FonteEncerramentoAtendimento fonteEncerramento,
     required FonteFatura fonteFatura,
-    required FonteAtendimentosSessao fonteAtendimentosSessao,
+    required FonteDispositivo fonteDispositivo,
+    required FonteFormaPagamento fonteFormaPagamento,
     required RepositorioTransacoesPendentes repositorioPendentes,
-    required RepositorioConfiguracaoFaturamento repositorioConfiguracao,
+    required RepositorioConfiguracaoFaturamento
+        repositorioConfiguracaoFaturamento,
+    required RepositorioConfiguracao repositorioConfiguracaoTerminal,
     FonteConsumoAtendimento? fonteConsumo,
     Relogio relogio = const Relogio(),
     GeradorIdentificador? geradorIdentificador,
   })  : _fonteEncerramento = fonteEncerramento,
         _fonteFatura = fonteFatura,
-        _fonteAtendimentosSessao = fonteAtendimentosSessao,
+        _fonteDispositivo = fonteDispositivo,
+        _fonteFormaPagamento = fonteFormaPagamento,
         _pendentes = repositorioPendentes,
-        _configuracoes = repositorioConfiguracao,
+        _configuracoes = repositorioConfiguracaoFaturamento,
+        _configuracaoTerminal = repositorioConfiguracaoTerminal,
         _fonteConsumo = fonteConsumo,
         _relogio = relogio,
         _gerador = geradorIdentificador ?? GeradorIdentificador();
 
   final FonteEncerramentoAtendimento _fonteEncerramento;
   final FonteFatura _fonteFatura;
-  final FonteAtendimentosSessao _fonteAtendimentosSessao;
+  final FonteDispositivo _fonteDispositivo;
+  final FonteFormaPagamento _fonteFormaPagamento;
   final RepositorioTransacoesPendentes _pendentes;
   final RepositorioConfiguracaoFaturamento _configuracoes;
+  final RepositorioConfiguracao _configuracaoTerminal;
   final FonteConsumoAtendimento? _fonteConsumo;
   final Relogio _relogio;
   final GeradorIdentificador _gerador;
@@ -102,8 +111,7 @@ class CasoUsoEncerrarAtendimentos {
             'Conclua-o (mesmas comandas) antes de iniciar outro.');
       }
     }
-    final configuracao =
-        await _resolverConfiguracao(atendimentos.first.sessaoId, metodo);
+    final configuracao = await _resolverConfiguracao(atendimentos, metodo);
     return ValidacoesEncerramento.validarAtendimentos(
         atendimentos, metodo, configuracao);
   }
@@ -150,8 +158,7 @@ class CasoUsoEncerrarAtendimentos {
     required int? valorRecebidoCentavos,
     required void Function(FaseEncerramento fase) aoMudarFase,
   }) async {
-    final configuracao = await _resolverConfiguracao(
-        atendimentos.isEmpty ? '' : atendimentos.first.sessaoId, metodo);
+    final configuracao = await _resolverConfiguracao(atendimentos, metodo);
 
     // Pendência primeiro: retomada não passa pelas validações de frescor
     // (o atendimento relido pode já vir com a fatura vinculada — é
@@ -503,64 +510,69 @@ class CasoUsoEncerrarAtendimentos {
 
   // ---- auxiliares ----
 
-  /// Configuração de faturamento SEM intervenção do técnico: cache da mesma
-  /// sessão → derivação das faturas que o caixa já gerou → cache antigo como
-  /// reserva (nuvem fora do ar ou sessão ainda sem vendas). Cache da própria
-  /// sessão só encerra a busca se cobrir a forma pedida — a primeira venda
-  /// do dia numa forma nova (ex.: PIX no caixa) precisa ser re-aprendida.
+  /// Configuração de faturamento SEM intervenção do técnico e SEM depender de
+  /// venda anterior: cache do mesmo dispositivo → montagem a partir dos
+  /// cadastros do retaguarda (documento do dispositivo + cadastro da forma) →
+  /// cache antigo como reserva se o retaguarda estiver fora do ar. O cache só
+  /// encerra a busca se cobrir a forma pedida (o primeiro PIX ainda não
+  /// aprendido precisa ser resolvido).
   Future<ConfiguracaoFaturamento?> _resolverConfiguracao(
-      String sessaoId, MetodoPagamento metodo) async {
+      List<Atendimento> atendimentos, MetodoPagamento metodo) async {
     final cache = await _configuracoes.obter();
-    if (sessaoId.isEmpty) return cache;
+    final dispositivoId =
+        (await _configuracaoTerminal.obter()).idDispositivo.trim();
+    if (dispositivoId.isEmpty) return cache;
     if (cache != null &&
-        cache.sessaoOrigem == sessaoId &&
+        cache.dispositivoOrigem == dispositivoId &&
         cache.completaPara(metodo)) {
       return cache;
     }
 
-    final derivada = await _derivarConfiguracao(sessaoId);
-    if (derivada == null) {
+    final estabelecimentoId = atendimentos.isEmpty
+        ? ''
+        : _id(atendimentos.first.bruto['estabelecimento']);
+    final montada =
+        await _montarConfiguracao(dispositivoId, estabelecimentoId, metodo);
+    if (montada == null) {
       if (cache != null) {
-        registrador.i('Faturamento: sessão $sessaoId sem faturas deriváveis; '
+        registrador.i('Faturamento: cadastro do dispositivo indisponível; '
             'usando configuração aprendida anteriormente.');
       }
       return cache;
     }
-    final mesclada = derivada.mesclandoFormasDe(cache);
+    final mesclada = montada.mesclandoFormasDe(cache);
     try {
       await _configuracoes.salvar(jsonEncode(mesclada.paraJson()));
     } catch (erro) {
-      registrador.w('Faturamento: falha ao gravar cache derivado: $erro');
+      registrador.w('Faturamento: falha ao gravar cache do dispositivo: $erro');
     }
     return mesclada;
   }
 
-  /// As faturas da sessão vêm do mapa de atendimentos ENCERRADOS da própria
-  /// loja (cada um ecoa a fatura que o encerrou); o detalhe de cada fatura é
-  /// buscado na nuvem — limitado às mais recentes para não atrasar o fluxo
-  /// de pagamento.
-  Future<ConfiguracaoFaturamento?> _derivarConfiguracao(String sessaoId) async {
-    final consulta =
-        await _fonteAtendimentosSessao.consultarEncerrados(sessaoId);
-    if (consulta is! Sucesso<List<AtendimentoEncerrado>>) return null;
+  /// Monta a configuração dos CADASTROS: cabeçalho fiscal do documento do
+  /// dispositivo (loja) + forma/plano/conta do cadastro da forma pela espécie
+  /// do método (nuvem). `null` se algum cadastro falhar ou não cobrir a forma.
+  Future<ConfiguracaoFaturamento?> _montarConfiguracao(String dispositivoId,
+      String estabelecimentoId, MetodoPagamento metodo) async {
+    final dispositivo = await _fonteDispositivo.obter(dispositivoId);
+    if (dispositivo is! Sucesso<Map<String, dynamic>>) return null;
 
-    final encerrados = [...consulta.valor]
-      ..sort((a, b) => b.conclusao.compareTo(a.conclusao));
-    final idsFatura = <String>{};
-    for (final encerrado in encerrados) {
-      if (encerrado.faturaId.isEmpty) continue;
-      idsFatura.add(encerrado.faturaId);
-      if (idsFatura.length == 3) break;
-    }
-    final detalhadas = <Map<String, dynamic>>[];
-    for (final id in idsFatura) {
-      final detalhe = await _fonteFatura.obterBruta(id);
-      if (detalhe is Sucesso<Map<String, dynamic>>) {
-        detalhadas.add(detalhe.valor);
-      }
-    }
-    return DerivadorConfiguracaoFaturamento.derivar(detalhadas,
-        sessaoId: sessaoId);
+    final especie = EspecieForma.deMetodo(metodo);
+    if (especie == null) return null;
+    final lista = await _fonteFormaPagamento.listar();
+    if (lista is! Sucesso<List<Map<String, dynamic>>>) return null;
+    final idForma = ResolvedorConfiguracaoFaturamento.idFormaPorEspecie(
+        lista.valor, especie);
+    if (idForma.isEmpty) return null;
+    final detalhe = await _fonteFormaPagamento.obter(idForma);
+    if (detalhe is! Sucesso<Map<String, dynamic>>) return null;
+    final forma = ResolvedorConfiguracaoFaturamento.formaDoCadastro(
+        detalhe.valor,
+        estabelecimentoId: estabelecimentoId);
+    if (forma == null) return null;
+
+    return ResolvedorConfiguracaoFaturamento.doDispositivo(dispositivo.valor,
+        dispositivoId: dispositivoId, formas: {metodo.name: forma});
   }
 
   Future<TransacaoPendente?> _pendenteEnvolvendo(List<String> ids) async {
@@ -600,4 +612,6 @@ class CasoUsoEncerrarAtendimentos {
 
   int _totalCentavos(List<Atendimento> atendimentos) =>
       atendimentos.fold(0, (soma, a) => soma + a.totalCentavos);
+
+  String _id(dynamic mapa) => JsonLeniente.texto(JsonLeniente.mapa(mapa)['id']);
 }

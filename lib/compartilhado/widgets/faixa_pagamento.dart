@@ -30,7 +30,7 @@ class FaixaPagamento extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 17),
           child: Text(
             texto,
             textAlign: TextAlign.center,

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../aplicativo/tema/cores_app.dart';
+import '../../../../compartilhado/widgets/barra_creditos.dart';
+import '../../../../compartilhado/widgets/icone_emoji.dart';
 import '../componentes/teclado_numerico.dart';
 import '../controladores/controlador_pin.dart';
 
@@ -47,7 +49,10 @@ class _PaginaPinState extends ConsumerState<PaginaPin> {
     });
 
     if (estado.carregando) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+        bottomNavigationBar: BarraCreditos(),
+      );
     }
 
     return Scaffold(
@@ -58,7 +63,7 @@ class _PaginaPinState extends ConsumerState<PaginaPin> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('🔒', style: TextStyle(fontSize: 44)),
+                const IconeEmoji('🔒', tamanho: 52),
                 const SizedBox(height: 12),
                 Text(_titulo(estado.modo),
                     style: const TextStyle(
@@ -115,6 +120,7 @@ class _PaginaPinState extends ConsumerState<PaginaPin> {
           ),
         ),
       ),
+      bottomNavigationBar: const BarraCreditos(),
     );
   }
 }

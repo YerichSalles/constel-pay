@@ -2,7 +2,7 @@
   "@@locale": "en",
 
   "welcomeMessage": "Hello! Welcome. I'll help you pay your bill in just a few seconds. 😊",
-  "scanInstruction": "To get started, point the camera at the code on your consumption card 👇",
+  "scanInstruction": "To get started, scan the code on your consumption card with the reader 👇",
   "addAnotherCardQuestion": "Would you like to add another card to this bill?",
   "lastCardOpenMessage": "That was the last open card.",
   "cardReadErrorTitle": "We couldn't read the card",
@@ -36,7 +36,7 @@
   "totalBarServiceSuffix": " · includes service",
 
   "scanPositionHint": "Position the card code inside the frame",
-  "simulateScanButton": "📷 Simulate code scan",
+  "simulateScanButton": "Simulate code scan",
   "cardNumberHint": "Card number",
   "searchButton": "Search",
 

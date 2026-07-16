@@ -55,11 +55,8 @@ class CardSucesso extends StatelessWidget {
                 ],
               ),
               alignment: Alignment.center,
-              child: const Text('✓',
-                  style: TextStyle(
-                      fontSize: 40,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800)),
+              child: const Icon(Icons.check_rounded,
+                  size: 46, color: Colors.white),
             ),
           ),
           const SizedBox(height: 12),
@@ -93,11 +90,21 @@ class CardSucesso extends StatelessWidget {
                       color: CoresApp.lilasClaro,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text('✓ $nome',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: primaria)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.check_rounded, size: 13, color: primaria),
+                        const SizedBox(width: 3),
+                        Flexible(
+                          child: Text(nome,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: primaria)),
+                        ),
+                      ],
+                    ),
                   ),
                 )
                 .toList(),

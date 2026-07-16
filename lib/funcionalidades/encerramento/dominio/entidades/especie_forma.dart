@@ -8,4 +8,14 @@ abstract final class EspecieForma {
     1: MetodoPagamento.dinheiro,
     230: MetodoPagamento.pix,
   };
+
+  /// Espécie do retaguarda correspondente ao método — usada para localizar a
+  /// forma no cadastro (`financeiro/forma`). `null` para método sem espécie
+  /// conhecida.
+  static int? deMetodo(MetodoPagamento metodo) {
+    for (final entrada in paraMetodo.entries) {
+      if (entrada.value == metodo) return entrada.key;
+    }
+    return null;
+  }
 }

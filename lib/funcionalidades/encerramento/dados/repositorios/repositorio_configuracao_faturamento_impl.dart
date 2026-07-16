@@ -47,8 +47,8 @@ class RepositorioConfiguracaoFaturamentoImpl
     final configuracao = ConfiguracaoFaturamento.deJson(json);
     if (configuracao == null) {
       throw const FormatException(
-          'Configuração incompleta: histórico, operação, moeda, modalidade, '
-          'resultado e dispositivo precisam existir e ter "id".');
+          'Configuração incompleta: histórico, operação, moeda e dispositivo '
+          'precisam existir e ter "id".');
     }
     await _preferencias.setString(chave, jsonBruto);
   }

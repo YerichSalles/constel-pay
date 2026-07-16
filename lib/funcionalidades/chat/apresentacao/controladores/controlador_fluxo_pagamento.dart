@@ -217,10 +217,10 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     );
   }
 
-  // TEMPORÁRIO (teste da API de consumo): leitura digitando o número da
-  // comanda em vez do código de barras. Remover quando o scanner real
-  // substituir o mock.
-  Future<void> lerComandaDigitada(String referencia) async {
+  /// Consulta o consumo pela referência lida do código de barras (leitor de
+  /// hardware) ou digitada no fallback manual. Ambos os caminhos entram por
+  /// aqui e batem na mesma API de consumo da loja.
+  Future<void> consultarPorCodigo(String referencia) async {
     final fonte = _fonteConsumoAtendimento;
     final ref = referencia.trim();
     if (fonte == null || ref.isEmpty) return;
@@ -350,11 +350,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
       _adicionar(_mensagem(TipoMensagem.texto,
           emoji: '💳',
           texto: t.howWouldYouLikePay(
-              FormatadorMoeda.formatar(state.totalCentavos)),
-          subtexto: state.servicoCentavos > 0
-              ? t.includesServiceFee(
-                  FormatadorMoeda.formatar(state.servicoCentavos))
-              : null));
+              FormatadorMoeda.formatar(state.totalCentavos))));
       _adicionar(_mensagem(TipoMensagem.metodos));
     });
   }
@@ -500,6 +496,9 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
           _adicionar(_mensagem(TipoMensagem.texto,
               emoji: '🥳', texto: t.allCardsSettled));
           state = state.copyWith(etapa: EtapaFluxo.sucessoCompleto);
+          // Tudo quitado: nada mais depende do cliente — segue sozinho para
+          // o agradecimento e o comprovante, sem exigir toque em "Encerrar".
+          await encerrar(automatico: true);
         }
     }
   }
@@ -531,13 +530,17 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     });
   }
 
-  Future<void> encerrar() async {
+  /// Mostra o agradecimento e o comprovante. Com [automatico] o fluxo seguiu
+  /// sozinho (tudo quitado), então não ecoa a fala "Encerrar" do cliente.
+  Future<void> encerrar({bool automatico = false}) async {
     if (state.etapa != EtapaFluxo.sucessoComRestante &&
         state.etapa != EtapaFluxo.sucessoCompleto) {
       return;
     }
-    _adicionar(_mensagem(TipoMensagem.texto,
-        lado: LadoMensagem.cliente, texto: _obterTraducoes().endService));
+    if (!automatico) {
+      _adicionar(_mensagem(TipoMensagem.texto,
+          lado: LadoMensagem.cliente, texto: _obterTraducoes().endService));
+    }
     state = state.copyWith(etapa: EtapaFluxo.encerramento);
     await _bot(() {
       final t = _obterTraducoes();

@@ -73,7 +73,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pump();
-    expect(find.textContaining('de serviço'), findsWidgets);
+    expect(find.textContaining('inclui serviço'), findsWidgets);
     expect(find.text('Sem taxa'), findsNothing);
     expect(find.text('Pix'), findsOneWidget);
 
@@ -90,7 +90,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
     expect(find.textContaining('aprovado'), findsWidgets);
 
-    // encerrar
+    // Com comandas ainda em aberto, encerrar é decisão do cliente (manual);
+    // o encerramento automático só acontece quando tudo foi quitado.
     await tester.ensureVisible(find.text('Encerrar'));
     await tester.tap(find.text('Encerrar'));
     await tester.pump();

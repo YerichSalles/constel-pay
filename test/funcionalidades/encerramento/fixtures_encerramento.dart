@@ -10,6 +10,13 @@ const String idAtendimento512 = 'dd222fda-aa10-4ab8-9ee3-9a40ae3cbbdb';
 const String idSessao = 'e330e839-0e9c-4490-b947-c330cff1317a';
 const String codigoSessao = '0003479';
 
+/// Dispositivo do terminal (DPNOE) e formas do cadastro — fontes reais da
+/// configuração de faturamento, sem depender de venda anterior.
+const String idDispositivoTerminal = '179d91fe-984e-4323-96bc-c95b64cfce44';
+const String idEstabelecimento = 'fe5b422e-bfb2-4328-83d4-7876020acef9';
+const String idFormaPix = '530feff8-3d7f-4168-b713-35ffc36e33f3';
+const String idFormaDinheiro = 'ff01756f-df45-40de-bf8e-75b595abcf88';
+
 /// JSON do atendimento como `venda/atendimento/colecao` devolve.
 Map<String, dynamic> atendimentoBrutoCartao512() => {
       'classe': 1600,
@@ -171,27 +178,13 @@ Map<String, dynamic> configuracaoFaturamentoJson() => {
         'codigo': 'BRL',
         'nome': 'Real Brasileiro',
       },
-      'modalidade': {
-        'situacao': 0,
-        'tipo': 10,
-        'id': '877a7dbb-c1c3-4c14-b369-bbb48592434b',
-        'codigo': '01',
-        'nome': 'Balcão',
-      },
-      'resultado': {
-        'nivel': 0,
-        'analitico': false,
-        'percentual': 0.0,
-        'valor': 0.0,
-        'id': '0699fb41-2943-417d-a2f7-017ffce3ce01',
-        'nome': 'Vendas',
-      },
       'dispositivo': {
         'situacao': 0,
         'id': '39dfe2d9-ea47-4a8b-b5ed-76a03d09ca7a',
         'codigo': '0072',
         'nome': 'NOE CAIXA',
       },
+      'dispositivoOrigem': idDispositivoTerminal,
       'formasPagamento': {
         'dinheiro': {
           'forma': {
@@ -238,124 +231,147 @@ Map<String, dynamic> respostaFaturaPaga(String identificador) => {
       'id': 'e0c2eafc-493f-40a6-a3b9-eddfff7b1522',
     };
 
-/// Fatura COMPLETA como o retaguarda devolve (VN0051636 real, resumida) —
-/// base da derivação automática da configuração de faturamento. Traz tudo
-/// que o terminal aprende: histórico, operação, moeda, modalidade,
-/// resultado, dispositivo e pagamentos com espécie (1=dinheiro, 230=pix).
-Map<String, dynamic> faturaCompletaParaDerivacao() => {
-      'id': '7ef09146-5631-4fa4-9e7f-a16d5f080c79',
-      'inclusao': '2026-07-14T17:34:32.666Z',
-      'codigo': 'VN0051636',
-      'situacao': 340,
-      'tipo': 110,
-      'natureza': 1,
-      'historico': {
-        'id': 'ca40f80c-f6f9-4b76-9149-1ad8e2a9203d',
-        'codigo': '3.01',
-        'nome': 'Venda',
-        'tipo': 30,
+/// Documento do dispositivo como `estrutura/dispositivo/<id>` devolve: o
+/// cabeçalho fiscal já configurado no terminal (histórico, operação, moeda,
+/// dispositivo, departamento) — não depende de venda anterior.
+Map<String, dynamic> dispositivoDocJson() => {
+      'id': idDispositivoTerminal,
+      'codigo': '0048',
+      'nome': 'DPNOE',
+      'caixa': true,
+      'conta': {
+        'id': 'b715b23a-e4ff-4fe0-94a7-75dfa425c5c7',
+        'codigo': '1.1.01.01.05',
+        'nome': 'Caixa Guilherme',
       },
-      'operacao': {
-        'id': '4fd3c889-1fb9-4ede-abcc-92cf4c8f1d23',
-        'codigo': '510',
-        'nome': 'Venda CST 102 - Simples Nacional',
-      },
-      'moeda': {
-        'id': 'bd8acb0a-6206-462c-81ce-9cc76b18f528',
-        'codigo': 'BRL',
-        'nome': 'Real Brasileiro',
-        'simbolo': r'R$',
-      },
-      'modalidade': {
-        'id': '877a7dbb-c1c3-4c14-b369-bbb48592434b',
+      'estabelecimento': {
+        'id': idEstabelecimento,
         'codigo': '01',
-        'nome': 'Balcão',
-        'tipo': 10,
-      },
-      'dispositivo': {
-        'id': '39dfe2d9-ea47-4a8b-b5ed-76a03d09ca7a',
-        'codigo': '0072',
-        'nome': 'NOE CAIXA',
+        'nome': 'Dionísio Torres',
       },
       'estabelecimentoDepartamento': {
         'id': 'ef58a474-f5ea-4657-a3bd-d48833ee2c01',
         'nome': 'Almoxarifado',
       },
-      'total': 61.53,
-      'pago': 61.53,
-      'saldo': 0,
-      'sessao': {'id': idSessao, 'codigo': codigoSessao},
-      'faturaResultados': [
+      'historico': {
+        'id': 'ca40f80c-f6f9-4b76-9149-1ad8e2a9203d',
+        'codigo': '3.01',
+        'nome': 'Venda',
+      },
+      'moeda': {
+        'id': 'bd8acb0a-6206-462c-81ce-9cc76b18f528',
+        'codigo': 'BRL',
+        'nome': 'Real Brasileiro',
+      },
+      'operacao': {
+        'id': '339644e7-38d7-4e9b-b4c2-c67d7a4024c3',
+        'codigo': '519',
+        'nome': 'CST 00 - ICMS - IPI - PIS - COFINS - Regime Normal',
+      },
+      'preco': {
+        'id': 'ed90534c-830a-47fc-9c7b-fc42c322626e',
+        'codigo': '01',
+        'nome': 'Atacado',
+      },
+    };
+
+/// Lista de formas como `financeiro/forma?texto=` devolve (enxuta): id,
+/// código, nome, situação e espécie. Inclui uma PIX inativa para provar que
+/// só a ativa é escolhida.
+List<Map<String, dynamic>> formasListaJson() => [
+      {
+        'id': idFormaDinheiro,
+        'codigo': '1',
+        'nome': 'Dinheiro',
+        'situacao': 1,
+        'especie': 1,
+      },
+      {
+        'id': idFormaPix,
+        'codigo': '12',
+        'nome': 'Recebimento em PIX',
+        'situacao': 1,
+        'especie': 230,
+      },
+      {
+        'id': 'forma-pix-inativa',
+        'codigo': '9',
+        'nome': 'PIX desativado',
+        'situacao': 90,
+        'especie': 230,
+      },
+    ];
+
+/// Detalhe de uma forma como `financeiro/forma/<id>` devolve: a forma se
+/// autodescreve com a `conta` de recebimento (override por estabelecimento em
+/// `formaContas`) e o plano padrão (`formaPlanos`).
+Map<String, dynamic> formaDetalheJson({
+  required String id,
+  required String nome,
+  required int especie,
+  required Map<String, dynamic> conta,
+  List<Map<String, dynamic>> formaContas = const [],
+}) =>
+    {
+      'id': id,
+      'codigo': especie == 230 ? '12' : '1',
+      'nome': nome,
+      'especie': especie,
+      'baixa': true,
+      'situacao': 1,
+      'conta': conta,
+      'formaPlanos': [
         {
-          'sequencial': 1,
-          'resultado': {
-            'id': '0699fb41-2943-417d-a2f7-017ffce3ce01',
-            'codigo': '2.06.22',
-            'nome': 'Vendas',
-            'situacao': 1,
-            'analitico': true,
-          },
-          'percentual': 100,
-        }
-      ],
-      'faturaPagamentos': [
-        {
-          'sequencial': 1,
-          'forma': {
-            'id': 'ff01756f-df45-40de-bf8e-75b595abcf88',
-            'codigo': '1',
-            'nome': 'Dinheiro',
-            'especie': 1,
-            'baixa': true,
-          },
-          'especie': 1,
+          'padrao': true,
           'plano': {
             'id': '71a8ab3f-dd2e-496a-9137-f63c37d0eb8f',
             'codigo': '01',
             'nome': 'A vista',
             'parcelas': 1,
           },
-          'conta': {
-            'id': '20e4d490-4152-4453-b302-0f5f5fa487b8',
-            'codigo': '1.1.01.01.03',
-            'nome': 'Caixa Miron',
-            'analitica': true,
-          },
-          'parcelas': 1,
-          'subtotal': 61.53,
-          'troco': 0,
-          'total': 61.53,
         },
+      ],
+      'formaContas': formaContas,
+    };
+
+Map<String, dynamic> formaPixDetalheJson() => formaDetalheJson(
+      id: idFormaPix,
+      nome: 'Recebimento em PIX',
+      especie: 230,
+      conta: {
+        'id': 'baca1738-acbf-4010-94ca-179048d2a636',
+        'codigo': '1.1.01.02.01',
+        'nome': 'Banco do Brasil Aldeota',
+        'analitica': true,
+        'tipo': 10,
+      },
+      // Override para OUTRO estabelecimento: não deve ser usado por esta loja.
+      formaContas: [
         {
-          'sequencial': 2,
-          'forma': {
-            'id': '530feff8-3d7f-4168-b713-35ffc36e33f3',
-            'codigo': '12',
-            'nome': 'Recebimento em PIX',
-            'especie': 230,
-            'baixa': true,
-          },
-          'especie': 230,
-          'plano': {
-            'id': '71a8ab3f-dd2e-496a-9137-f63c37d0eb8f',
-            'codigo': '01',
-            'nome': 'A vista',
-            'parcelas': 1,
-          },
+          'estabelecimentoIds': ['outro-estabelecimento'],
           'conta': {
-            'id': 'baca1738-acbf-4010-94ca-179048d2a636',
-            'codigo': '1.1.01.02.01',
-            'nome': 'Banco do Brasil Aldeota',
+            'id': 'conta-de-outra-loja',
+            'codigo': '1.1.99.99.99',
+            'nome': 'Caixa de Outra Loja',
             'analitica': true,
             'tipo': 10,
           },
-          'parcelas': 1,
-          'subtotal': 0,
-          'troco': 0,
-          'total': 0,
-        }
+        },
       ],
-    };
+    );
+
+Map<String, dynamic> formaDinheiroDetalheJson() => formaDetalheJson(
+      id: idFormaDinheiro,
+      nome: 'Dinheiro',
+      especie: 1,
+      conta: {
+        'id': '20e4d490-4152-4453-b302-0f5f5fa487b8',
+        'codigo': '1.1.01.01.03',
+        'nome': 'Caixa Miron',
+        'analitica': true,
+        'tipo': 10,
+      },
+    );
 
 /// Fatura como a CONSULTA do retaguarda devolve (fatura real VN0051634,
 /// resumida): SEM o campo `identificador`, mas com o id do atendimento em

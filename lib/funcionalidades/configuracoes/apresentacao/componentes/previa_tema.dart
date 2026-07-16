@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../aplicativo/tema/estilos_texto.dart';
 import '../../../../aplicativo/tema/tema_constel.dart';
+import '../../../../compartilhado/widgets/icone_emoji.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
 import '../../dominio/entidades/tema_personalizado.dart';
 
@@ -223,9 +224,9 @@ class _MiniLogo extends StatelessWidget {
       child: temLogo
           ? ImagemLogo(
               caminho: caminho,
-              reserva: Text('🍽️', style: TextStyle(fontSize: tamanho * .45)),
+              reserva: IconeEmoji('🍽️', tamanho: tamanho * .48),
             )
-          : Text('🍽️', style: TextStyle(fontSize: tamanho * .45)),
+          : IconeEmoji('🍽️', tamanho: tamanho * .48),
     );
   }
 }

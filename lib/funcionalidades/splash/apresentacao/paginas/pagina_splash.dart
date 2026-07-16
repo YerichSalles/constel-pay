@@ -7,7 +7,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/tema_constel.dart';
+import '../../../../compartilhado/widgets/barra_creditos.dart';
 import '../../../../compartilhado/widgets/detector_toque_longo.dart';
+import '../../../../compartilhado/widgets/icone_emoji.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../nucleo/constantes/constantes_app.dart';
@@ -223,6 +225,7 @@ class _PaginaSplashState extends ConsumerState<PaginaSplash>
             ],
           ),
         ),
+        bottomNavigationBar: const BarraCreditos(),
       ),
     );
   }
@@ -279,9 +282,9 @@ class _PaginaSplashState extends ConsumerState<PaginaSplash>
             child: temLogo
                 ? ImagemLogo(
                     caminho: logoPath!,
-                    reserva: const Text('🍽️', style: TextStyle(fontSize: 60)),
+                    reserva: const IconeEmoji('🍽️', tamanho: 64),
                   )
-                : const Text('🍽️', style: TextStyle(fontSize: 60)),
+                : const IconeEmoji('🍽️', tamanho: 64),
           ),
         ),
       ],

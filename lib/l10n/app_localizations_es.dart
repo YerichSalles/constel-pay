@@ -14,7 +14,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get scanInstruction =>
-      'Para comenzar, apunta la cámara al código de tu tarjeta de consumo 👇';
+      'Para comenzar, pasa el código de tu tarjeta de consumo por el lector 👇';
 
   @override
   String get addAnotherCardQuestion =>
@@ -156,7 +156,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Coloca el código de la tarjeta dentro del área';
 
   @override
-  String get simulateScanButton => '📷 Simular lectura del código';
+  String get simulateScanButton => 'Simular lectura del código';
 
   @override
   String get cardNumberHint => 'N.º de tarjeta';

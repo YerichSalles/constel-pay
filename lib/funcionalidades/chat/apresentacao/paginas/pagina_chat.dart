@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
@@ -8,10 +9,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../aplicativo/injecao.dart';
 import '../../../../compartilhado/layout/layout_responsivo.dart';
+import '../../../../compartilhado/widgets/barra_creditos.dart';
 import '../../../../compartilhado/widgets/barra_superior.dart';
+import '../../../../compartilhado/widgets/captura_leitor_codigo.dart';
 import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../nucleo/constantes/constantes_app.dart';
 import '../../../comprovante/apresentacao/componentes/card_comprovante.dart';
 import '../../../pagamento/dominio/entidades/metodo_pagamento.dart';
 import '../../../propaganda/apresentacao/componentes/publicidade_barra_superior.dart';
@@ -40,6 +44,7 @@ class PaginaChat extends ConsumerStatefulWidget {
 class _PaginaChatState extends ConsumerState<PaginaChat> {
   final ScrollController _rolagem = ScrollController();
   String _nomeRestaurante = 'Constel Pay';
+  Timer? _retornoAutomatico;
 
   @override
   void initState() {
@@ -56,8 +61,30 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
 
   @override
   void dispose() {
+    _retornoAutomatico?.cancel();
     _rolagem.dispose();
     super.dispose();
+  }
+
+  /// Com o comprovante na tela, o terminal volta sozinho ao início depois de
+  /// um tempo — o cliente não precisa tocar em nada; "Novo pagamento" só
+  /// antecipa a volta.
+  void _agendarRetornoAutomatico() {
+    _retornoAutomatico?.cancel();
+    _retornoAutomatico = Timer(ConstantesApp.duracaoExibicaoComprovante, () {
+      if (!mounted) return;
+      if (ref.read(provedorFluxoPagamento).etapa != EtapaFluxo.encerramento) {
+        return;
+      }
+      _novaOperacao();
+    });
+  }
+
+  void _novaOperacao() {
+    _retornoAutomatico?.cancel();
+    ref.read(provedorFluxoPagamento.notifier).novaOperacao();
+    ref.read(provedorIdioma.notifier).resetar();
+    context.go('/splash');
   }
 
   void _rolarParaFim() {
@@ -101,15 +128,15 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
       case TipoMensagem.scanner:
         return recuado(CardScanner(
           aoEscanear: controlador.lerCartao,
-          aoDigitarComanda: controlador.lerComandaDigitada,
+          aoInformarCodigo: controlador.consultarPorCodigo,
           habilitado: estado.etapa == EtapaFluxo.lendo && !estado.digitando,
         ));
       case TipoMensagem.metodos:
         return recuado(CardMetodosPagamento(
           metodos: const [
-            MetodoPagamento.pix,
             MetodoPagamento.credito,
             MetodoPagamento.debito,
+            MetodoPagamento.pix,
           ],
           aoSelecionar: controlador.selecionarMetodo,
           habilitado:
@@ -180,6 +207,9 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
         (_, __) => _rolarParaFim());
     ref.listen(provedorFluxoPagamento.select((e) => e.digitando),
         (_, __) => _rolarParaFim());
+    ref.listen(provedorFluxoPagamento.select((e) => e.etapa), (_, etapa) {
+      if (etapa == EtapaFluxo.encerramento) _agendarRetornoAutomatico();
+    });
     final publicidadeSalva = ref.watch(provedorPublicidadeSalva).valueOrNull;
 
     return Scaffold(
@@ -191,72 +221,43 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
             ? const PublicidadeBarraSuperior()
             : null,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ConteudoCentralizado(
-              filho: ListView(
-                controller: _rolagem,
-                padding: const EdgeInsets.fromLTRB(14, 16, 14, 20),
-                children: [
-                  BannerBoasVindas(nomeRestaurante: _nomeRestaurante),
-                  ...estado.mensagens.map(
-                    (mensagem) => Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: _porTipo(mensagem, estado, controlador),
+      body: CapturaLeitorCodigo(
+        ativo: estado.etapa == EtapaFluxo.lendo && !estado.digitando,
+        aoLer: controlador.consultarPorCodigo,
+        filho: Column(
+          children: [
+            Expanded(
+              child: ConteudoCentralizado(
+                filho: ListView(
+                  controller: _rolagem,
+                  padding: const EdgeInsets.fromLTRB(14, 16, 14, 20),
+                  children: [
+                    BannerBoasVindas(nomeRestaurante: _nomeRestaurante),
+                    ...estado.mensagens.map(
+                      (mensagem) => Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: _porTipo(mensagem, estado, controlador),
+                      ),
                     ),
-                  ),
-                  if (estado.digitando) const IndicadorDigitando(),
-                ],
+                    if (estado.digitando) const IndicadorDigitando(),
+                  ],
+                ),
               ),
             ),
-          ),
-          AreaAcoes(
-            estado: estado,
-            aoLerOutro: controlador.lerOutroCartao,
-            aoIrPagamento: controlador.irParaPagamento,
-            aoPagarRestante: controlador.pagarRestante,
-            aoEncerrar: controlador.encerrar,
-            aoNovaOperacao: () {
-              controlador.novaOperacao();
-              ref.read(provedorIdioma.notifier).resetar();
-              context.go('/splash');
-            },
-            aoTentarNovamente: controlador.tentarNovamente,
-            aoContinuarComCartoes: controlador.continuarComCartoes,
-          ),
-          const _BarraCreditos(),
-        ],
-      ),
-    );
-  }
-}
-
-/// Faixa fina de créditos no rodapé; segue a cor primária do tema,
-/// mais discreta que a barra superior.
-class _BarraCreditos extends StatelessWidget {
-  const _BarraCreditos();
-
-  @override
-  Widget build(BuildContext context) {
-    final primaria = Theme.of(context).colorScheme.primary;
-    return Container(
-      width: double.infinity,
-      color: primaria,
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: SafeArea(
-        top: false,
-        child: Text(
-          'Audax e Solução Sistemas',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-            letterSpacing: .8,
-            color: Colors.white.withValues(alpha: .85),
-          ),
+            AreaAcoes(
+              estado: estado,
+              aoLerOutro: controlador.lerOutroCartao,
+              aoIrPagamento: controlador.irParaPagamento,
+              aoPagarRestante: controlador.pagarRestante,
+              aoEncerrar: controlador.encerrar,
+              aoNovaOperacao: _novaOperacao,
+              aoTentarNovamente: controlador.tentarNovamente,
+              aoContinuarComCartoes: controlador.continuarComCartoes,
+            ),
+          ],
         ),
       ),
+      bottomNavigationBar: const BarraCreditos(),
     );
   }
 }

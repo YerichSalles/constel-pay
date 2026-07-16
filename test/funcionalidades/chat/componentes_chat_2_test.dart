@@ -31,12 +31,12 @@ void main() {
     expect(escaneou, isTrue);
   });
 
-  testWidgets('CardScanner com aoDigitarComanda envia o número digitado',
+  testWidgets('CardScanner com aoInformarCodigo envia o número digitado',
       (tester) async {
     String? recebido;
     await tester.pumpWidget(_app(CardScanner(
       aoEscanear: () {},
-      aoDigitarComanda: (valor) => recebido = valor,
+      aoInformarCodigo: (valor) => recebido = valor,
     )));
     await tester.pump(const Duration(milliseconds: 100));
     await tester.enterText(find.byType(TextField), '502');
@@ -44,7 +44,7 @@ void main() {
     expect(recebido, '502');
   });
 
-  testWidgets('CardScanner sem aoDigitarComanda esconde o campo',
+  testWidgets('CardScanner sem aoInformarCodigo esconde o campo',
       (tester) async {
     await tester.pumpWidget(_app(CardScanner(aoEscanear: () {})));
     await tester.pump(const Duration(milliseconds: 100));
@@ -126,8 +126,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.textContaining('aprovado'), findsOneWidget);
     expect(find.text(r'R$ 149,60'), findsOneWidget);
-    expect(find.text('✓ Comanda 01'), findsOneWidget);
-    expect(find.text('✓ Comanda 02'), findsOneWidget);
+    expect(find.text('Comanda 01'), findsOneWidget);
+    expect(find.text('Comanda 02'), findsOneWidget);
+    // Círculo de aprovado + um check por comanda quitada.
+    expect(find.byIcon(Icons.check_rounded), findsNWidgets(3));
   });
 
   testWidgets('ChipAcao e BarraTotal renderizam', (tester) async {

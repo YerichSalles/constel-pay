@@ -2,30 +2,27 @@ import '../../../../nucleo/utils/json_leniente.dart';
 import '../../../pagamento/dominio/entidades/metodo_pagamento.dart';
 
 /// Dados de faturamento que NÃO existem no atendimento: histórico contábil,
-/// operação fiscal, moeda, modalidade do terminal, resultado, dispositivo e
-/// a forma/plano/conta de cada método de pagamento. São DERIVADOS
-/// automaticamente das faturas já existentes na sessão do caixa e mantidos
-/// em cache local — o técnico não configura nada. Os sub-objetos são
-/// ecoados na fatura exatamente como vieram (mapas brutos); o app não
-/// conhece nem valida a semântica interna deles, só exige que tenham `id`.
+/// operação fiscal, moeda, dispositivo e a forma/plano/conta de cada método
+/// de pagamento. O cabeçalho fiscal vem do documento do dispositivo
+/// (`estrutura/dispositivo/<id>`) e a forma/plano/conta do cadastro de formas
+/// (`financeiro/forma`) — nada disso exige venda anterior. A `modalidade` de
+/// cabeçalho e o `resultado`/rateio NÃO ficam aqui: o retaguarda os completa
+/// no POST da fatura. Os sub-objetos são ecoados na fatura exatamente como
+/// vieram (mapas brutos); o app não valida a semântica interna, só exige `id`.
 class ConfiguracaoFaturamento {
   const ConfiguracaoFaturamento({
     required this.historico,
     required this.operacao,
     required this.moeda,
-    required this.modalidade,
-    required this.resultado,
     required this.dispositivo,
     this.estabelecimentoDepartamento = const {},
     this.formasPagamento = const {},
-    this.sessaoOrigem = '',
+    this.dispositivoOrigem = '',
   });
 
   final Map<String, dynamic> historico;
   final Map<String, dynamic> operacao;
   final Map<String, dynamic> moeda;
-  final Map<String, dynamic> modalidade;
-  final Map<String, dynamic> resultado;
   final Map<String, dynamic> dispositivo;
 
   /// Opcional: quando ausente, a fatura usa o departamento do primeiro
@@ -35,25 +32,24 @@ class ConfiguracaoFaturamento {
   /// Forma/plano/conta por método de pagamento (`MetodoPagamento.name`).
   final Map<String, FormaFaturamento> formasPagamento;
 
-  /// Sessão do caixa da qual esta configuração foi derivada. Sessão nova →
-  /// re-derivar (o cache antigo continua como reserva se a nuvem falhar).
-  final String sessaoOrigem;
+  /// Dispositivo do qual esta configuração foi montada. Dispositivo diferente
+  /// → montar de novo (o cache antigo continua como reserva se o cadastro
+  /// falhar).
+  final String dispositivoOrigem;
 
-  /// Cópia com as formas de [outras] preservadas quando esta configuração
-  /// não conhece o método — uma sessão só de dinheiro não pode apagar a
-  /// forma PIX aprendida antes.
+  /// Cópia com as formas de [outra] preservadas quando esta configuração não
+  /// conhece o método — resolver só o PIX não pode apagar a forma Dinheiro já
+  /// aprendida antes.
   ConfiguracaoFaturamento mesclandoFormasDe(ConfiguracaoFaturamento? outra) {
     if (outra == null) return this;
     return ConfiguracaoFaturamento(
       historico: historico,
       operacao: operacao,
       moeda: moeda,
-      modalidade: modalidade,
-      resultado: resultado,
       dispositivo: dispositivo,
       estabelecimentoDepartamento: estabelecimentoDepartamento,
       formasPagamento: {...outra.formasPagamento, ...formasPagamento},
-      sessaoOrigem: sessaoOrigem,
+      dispositivoOrigem: dispositivoOrigem,
     );
   }
 
@@ -62,8 +58,6 @@ class ConfiguracaoFaturamento {
       historico: _mapa(json['historico']),
       operacao: _mapa(json['operacao']),
       moeda: _mapa(json['moeda']),
-      modalidade: _mapa(json['modalidade']),
-      resultado: _mapa(json['resultado']),
       dispositivo: _mapa(json['dispositivo']),
       estabelecimentoDepartamento: _mapa(json['estabelecimentoDepartamento']),
       formasPagamento: {
@@ -72,7 +66,7 @@ class ConfiguracaoFaturamento {
             entrada.key:
                 FormaFaturamento.deJson(entrada.value as Map<String, dynamic>),
       },
-      sessaoOrigem: JsonLeniente.texto(json['sessaoOrigem']),
+      dispositivoOrigem: JsonLeniente.texto(json['dispositivoOrigem']),
     );
     return base._basicaValida ? base : null;
   }
@@ -81,23 +75,19 @@ class ConfiguracaoFaturamento {
         'historico': historico,
         'operacao': operacao,
         'moeda': moeda,
-        'modalidade': modalidade,
-        'resultado': resultado,
         'dispositivo': dispositivo,
         'estabelecimentoDepartamento': estabelecimentoDepartamento,
         'formasPagamento': {
           for (final entrada in formasPagamento.entries)
             entrada.key: entrada.value.paraJson(),
         },
-        'sessaoOrigem': sessaoOrigem,
+        'dispositivoOrigem': dispositivoOrigem,
       };
 
   bool get _basicaValida =>
       _temId(historico) &&
       _temId(operacao) &&
       _temId(moeda) &&
-      _temId(modalidade) &&
-      _temId(resultado) &&
       _temId(dispositivo);
 
   /// Config pronta para faturar com o método informado.

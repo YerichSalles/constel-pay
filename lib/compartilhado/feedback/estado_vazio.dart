@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../aplicativo/tema/cores_app.dart';
+import '../widgets/icone_emoji.dart';
 
 class EstadoVazio extends StatelessWidget {
   const EstadoVazio(
@@ -23,7 +24,7 @@ class EstadoVazio extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 48)),
+            IconeEmoji(emoji, tamanho: 56),
             const SizedBox(height: 12),
             Text(titulo,
                 style:

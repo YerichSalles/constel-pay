@@ -23,9 +23,10 @@ import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_gerar_pix.dart';
 import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_processar_pagamento.dart';
 import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_verificar_pagamento.dart';
 import '../funcionalidades/pagamento/dominio/repositorios/repositorio_pagamento.dart';
-import '../funcionalidades/encerramento/dados/fontes_dados/fonte_atendimentos_sessao.dart';
+import '../funcionalidades/encerramento/dados/fontes_dados/fonte_dispositivo.dart';
 import '../funcionalidades/encerramento/dados/fontes_dados/fonte_encerramento_atendimento.dart';
 import '../funcionalidades/encerramento/dados/fontes_dados/fonte_fatura.dart';
+import '../funcionalidades/encerramento/dados/fontes_dados/fonte_forma_pagamento.dart';
 import '../funcionalidades/encerramento/dados/repositorios/repositorio_configuracao_faturamento_impl.dart';
 import '../funcionalidades/encerramento/dados/repositorios/repositorio_transacoes_pendentes_impl.dart';
 import '../funcionalidades/encerramento/dominio/casos_uso/caso_uso_encerrar_atendimentos.dart';
@@ -300,10 +301,16 @@ final provedorFonteFatura = Provider<FonteFatura>(
   (ref) => FonteFatura(ref.watch(provedorClienteApiNuvem)),
 );
 
-// Encerrados da sessão: API da loja — é o mapa deles que aponta as faturas
-// da sessão para derivar a configuração e reconciliar pendências.
-final provedorFonteAtendimentosSessao = Provider<FonteAtendimentosSessao>(
-  (ref) => FonteAtendimentosSessao(ref.watch(provedorClienteApiLoja)),
+// Documento do dispositivo: API da loja — cabeçalho fiscal do faturamento
+// (histórico, operação, moeda, dispositivo, departamento), sem venda anterior.
+final provedorFonteDispositivo = Provider<FonteDispositivo>(
+  (ref) => FonteDispositivo(ref.watch(provedorClienteApiLoja)),
+);
+
+// Cadastro de formas de pagamento: API da nuvem — forma/plano/conta por
+// espécie (a forma se autodescreve com a conta de recebimento e o plano).
+final provedorFonteFormaPagamento = Provider<FonteFormaPagamento>(
+  (ref) => FonteFormaPagamento(ref.watch(provedorClienteApiNuvem)),
 );
 
 final provedorCasoUsoEncerrarAtendimentos =
@@ -311,10 +318,12 @@ final provedorCasoUsoEncerrarAtendimentos =
   (ref) => CasoUsoEncerrarAtendimentos(
     fonteEncerramento: ref.watch(provedorFonteEncerramentoAtendimento),
     fonteFatura: ref.watch(provedorFonteFatura),
-    fonteAtendimentosSessao: ref.watch(provedorFonteAtendimentosSessao),
+    fonteDispositivo: ref.watch(provedorFonteDispositivo),
+    fonteFormaPagamento: ref.watch(provedorFonteFormaPagamento),
     repositorioPendentes: ref.watch(provedorRepositorioTransacoesPendentes),
-    repositorioConfiguracao:
+    repositorioConfiguracaoFaturamento:
         ref.watch(provedorRepositorioConfiguracaoFaturamento),
+    repositorioConfiguracaoTerminal: ref.watch(provedorRepositorioConfiguracao),
     fonteConsumo: ref.watch(provedorFonteConsumoAtendimento),
   ),
 );

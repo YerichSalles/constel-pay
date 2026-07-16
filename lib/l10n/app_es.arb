@@ -2,7 +2,7 @@
   "@@locale": "es",
 
   "welcomeMessage": "¡Hola! Te damos la bienvenida. Te ayudaré a pagar tu cuenta en pocos segundos. 😊",
-  "scanInstruction": "Para comenzar, apunta la cámara al código de tu tarjeta de consumo 👇",
+  "scanInstruction": "Para comenzar, pasa el código de tu tarjeta de consumo por el lector 👇",
   "addAnotherCardQuestion": "¿Deseas agregar otra tarjeta a esta cuenta?",
   "lastCardOpenMessage": "Esa fue la última tarjeta pendiente.",
   "cardReadErrorTitle": "No pudimos leer la tarjeta",
@@ -36,7 +36,7 @@
   "totalBarServiceSuffix": " · incluye servicio",
 
   "scanPositionHint": "Coloca el código de la tarjeta dentro del área",
-  "simulateScanButton": "📷 Simular lectura del código",
+  "simulateScanButton": "Simular lectura del código",
   "cardNumberHint": "N.º de tarjeta",
   "searchButton": "Buscar",
 

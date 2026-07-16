@@ -215,7 +215,7 @@ void main() {
       ),
     ]);
     await controlador.iniciar();
-    await controlador.lerComandaDigitada('700');
+    await controlador.consultarPorCodigo('700');
     await controlador.irParaPagamento();
     final estado = controlador.state;
     expect(estado.subtotalCentavos, 5699);
@@ -253,7 +253,8 @@ void main() {
     expect(sucesso.dados?['comandas'], ['Comanda 01']);
   });
 
-  test('fluxo completo das 3 comandas termina em sucessoCompleto', () async {
+  test('fluxo completo das 3 comandas encerra sozinho com o comprovante',
+      () async {
     await controlador.iniciar();
     await controlador.lerCartao();
     await controlador.lerOutroCartao();
@@ -266,7 +267,12 @@ void main() {
     expect(controlador.state.totalCentavos, 34980);
     await controlador.selecionarMetodo(MetodoPagamento.pix);
     await controlador.confirmarPagamentoPix();
-    expect(controlador.state.etapa, EtapaFluxo.sucessoCompleto);
+    // Tudo quitado: segue sozinho para o comprovante, sem toque do cliente.
+    expect(controlador.state.etapa, EtapaFluxo.encerramento);
+    expect(
+        controlador.state.mensagens
+            .any((mensagem) => mensagem.tipo == TipoMensagem.comprovante),
+        isTrue);
   });
 
   test('encerrar exibe o comprovante com o nome do restaurante', () async {
@@ -300,9 +306,9 @@ void main() {
     expect(repositorioLeitura.cartoesRestantes, 3);
   });
 
-  test('lerComandaDigitada adiciona o cartão real da API', () async {
+  test('consultarPorCodigo adiciona o cartão real da API', () async {
     await controlador.iniciar();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     final estado = controlador.state;
     expect(fonteConsumo.ultimaReferencia, '502');
     expect(estado.etapa, EtapaFluxo.aguardandoMaisCartoes);
@@ -314,9 +320,9 @@ void main() {
         isTrue);
   });
 
-  test('lerComandaDigitada traz a foto do item do cadastro da loja', () async {
+  test('consultarPorCodigo traz a foto do item do cadastro da loja', () async {
     await controlador.iniciar();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     final item = controlador.state.cartoes.single.itens.single;
     expect(fonteRecurso.consultados, ['item-burger']);
     expect(item.imagemUrl, 'https://s3.amazonaws.com/files/burger.png');
@@ -326,7 +332,7 @@ void main() {
       () async {
     fonteRecurso.porItem.clear();
     await controlador.iniciar();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     final item = controlador.state.cartoes.single.itens.single;
     expect(item.imagemUrl, isEmpty);
     expect(item.emoji, isNotEmpty);
@@ -335,17 +341,17 @@ void main() {
 
   test('foto ja carregada nao e buscada de novo na releitura', () async {
     await controlador.iniciar();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     await controlador.lerOutroCartao();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     expect(fonteRecurso.consultados, ['item-burger']);
   });
 
-  test('lerComandaDigitada sem consumo vai para semConsumo com aviso',
+  test('consultarPorCodigo sem consumo vai para semConsumo com aviso',
       () async {
     fonteConsumo.resultado = const Sucesso([]);
     await controlador.iniciar();
-    await controlador.lerComandaDigitada('505');
+    await controlador.consultarPorCodigo('505');
     final estado = controlador.state;
     expect(estado.etapa, EtapaFluxo.semConsumo);
     expect(estado.cartoes, isEmpty);
@@ -353,11 +359,11 @@ void main() {
     expect(estado.mensagens.last.subtexto, contains('505'));
   });
 
-  test('lerComandaDigitada com falha vai para erroLeitura com a mensagem',
+  test('consultarPorCodigo com falha vai para erroLeitura com a mensagem',
       () async {
     fonteConsumo.resultado = const Erro(FalhaNaoAutorizado());
     await controlador.iniciar();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     final estado = controlador.state;
     expect(estado.etapa, EtapaFluxo.erroLeitura);
     expect(estado.cartoes, isEmpty);
@@ -365,11 +371,11 @@ void main() {
     expect(estado.mensagens.last.subtexto, contains('não autorizado'));
   });
 
-  test('lerComandaDigitada não duplica cartão já adicionado', () async {
+  test('consultarPorCodigo não duplica cartão já adicionado', () async {
     await controlador.iniciar();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     await controlador.lerOutroCartao();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     expect(controlador.state.cartoes, hasLength(1));
   });
 
@@ -405,10 +411,10 @@ void main() {
   test('tentarNovamente apos sem consumo volta ao scanner preservando cartoes',
       () async {
     await controlador.iniciar();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     await controlador.lerOutroCartao();
     fonteConsumo.resultado = const Sucesso([]);
-    await controlador.lerComandaDigitada('411');
+    await controlador.consultarPorCodigo('411');
     expect(controlador.state.etapa, EtapaFluxo.semConsumo);
     expect(controlador.state.cartoes, hasLength(1));
     await controlador.tentarNovamente();
@@ -429,10 +435,10 @@ void main() {
 
   test('continuarComCartoes apos erro preserva comandas e avanca', () async {
     await controlador.iniciar();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     await controlador.lerOutroCartao();
     fonteConsumo.resultado = const Erro(FalhaNaoAutorizado());
-    await controlador.lerComandaDigitada('999');
+    await controlador.consultarPorCodigo('999');
     expect(controlador.state.etapa, EtapaFluxo.erroLeitura);
     expect(controlador.state.cartoes, hasLength(1));
     await controlador.continuarComCartoes();
@@ -442,10 +448,10 @@ void main() {
 
   test('duplicado avisa, nao duplica e mantem os totais', () async {
     await controlador.iniciar();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     final subtotal = controlador.state.subtotalCentavos;
     await controlador.lerOutroCartao();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     final estado = controlador.state;
     expect(estado.etapa, EtapaFluxo.aguardandoMaisCartoes);
     expect(estado.cartoes, hasLength(1));

@@ -136,7 +136,7 @@ void main() {
 
   Future<void> pagarComandaReal() async {
     await controlador.iniciar();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     await controlador.irParaPagamento();
     await controlador.selecionarMetodo(MetodoPagamento.pix);
     await controlador.confirmarPagamentoPix();
@@ -148,7 +148,8 @@ void main() {
     expect(casoUsoEncerrar.chamadas, [
       ['at502']
     ]);
-    expect(estado.etapa, EtapaFluxo.sucessoCompleto);
+    // Tudo quitado: o fluxo segue sozinho até o comprovante.
+    expect(estado.etapa, EtapaFluxo.encerramento);
     expect(estado.cartoes.single.pago, isTrue);
     final textos = [for (final m in estado.mensagens) m.texto];
     expect(textos, contains('Preparando encerramento…'));
@@ -185,7 +186,7 @@ void main() {
     );
     await controlador.confirmarPagamentoPix();
     expect(casoUsoEncerrar.chamadas, hasLength(2));
-    expect(controlador.state.etapa, EtapaFluxo.sucessoCompleto);
+    expect(controlador.state.etapa, EtapaFluxo.encerramento);
     expect(controlador.state.cartoes.single.pago, isTrue);
   });
 
@@ -205,7 +206,7 @@ void main() {
     casoUsoEncerrar.impedimento =
         const FalhaValidacao('Faturamento não configurado.');
     await controlador.iniciar();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     await controlador.irParaPagamento();
     await controlador.selecionarMetodo(MetodoPagamento.pix);
     await controlador.confirmarPagamentoPix();
@@ -222,7 +223,7 @@ void main() {
 
   test('nova operação limpa os atendimentos registrados', () async {
     await controlador.iniciar();
-    await controlador.lerComandaDigitada('502');
+    await controlador.consultarPorCodigo('502');
     controlador.novaOperacao();
     await controlador.iniciar();
     await controlador.lerCartao();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../aplicativo/tema/cores_app.dart';
+import '../../../../compartilhado/widgets/icone_emoji.dart';
 import '../../dominio/entidades/mensagem.dart';
 import '../../dominio/entidades/tipo_mensagem.dart';
 import 'avatar_bot.dart';
@@ -31,45 +32,43 @@ class BolhaMensagem extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (mensagem.emoji != null)
-            Container(
-              width: 56,
-              height: 56,
-              margin: const EdgeInsets.only(bottom: 9),
-              decoration: BoxDecoration(
-                color: CoresApp.lilasClaro,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              alignment: Alignment.center,
-              child:
-                  Text(mensagem.emoji!, style: const TextStyle(fontSize: 30)),
-            ),
-          Text(
-            mensagem.texto ?? '',
-            style: const TextStyle(
-              fontSize: 14.5,
-              fontWeight: FontWeight.w600,
-              color: CoresApp.textoPrincipal,
-              height: 1.5,
+          if (mensagem.emoji != null) ...[
+            IconeEmoji(mensagem.emoji!, tamanho: 24),
+            const SizedBox(width: 10),
+          ],
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  mensagem.texto ?? '',
+                  style: const TextStyle(
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w600,
+                    color: CoresApp.textoPrincipal,
+                    height: 1.5,
+                  ),
+                ),
+                if (mensagem.subtexto != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5),
+                    child: Text(
+                      mensagem.subtexto!,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: CoresApp.textoSecundario,
+                        fontWeight: FontWeight.w500,
+                        height: 1.45,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
-          if (mensagem.subtexto != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 5),
-              child: Text(
-                mensagem.subtexto!,
-                style: const TextStyle(
-                  fontSize: 12.5,
-                  color: CoresApp.textoSecundario,
-                  fontWeight: FontWeight.w500,
-                  height: 1.45,
-                ),
-              ),
-            ),
         ],
       ),
     );

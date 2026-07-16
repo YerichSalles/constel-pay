@@ -69,7 +69,8 @@ void main() {
     await tester.pumpWidget(_app(const BolhaMensagem(mensagem: mensagem)));
     expect(find.text('Olá!'), findsOneWidget);
     expect(find.text('Bem-vindo'), findsOneWidget);
-    expect(find.text('🍽️'), findsOneWidget);
+    // Emoji conhecido vira ícone Material.
+    expect(find.byIcon(Icons.restaurant_rounded), findsOneWidget);
   });
 
   testWidgets('CardComanda lista os itens sem precisar tocar em nada',
@@ -127,10 +128,12 @@ void main() {
     expect(find.textContaining('Comanda 01 · João'), findsOneWidget);
   });
 
-  testWidgets('item sem foto mostra o emoji', (tester) async {
+  testWidgets('item sem foto mostra o icone no lugar da imagem',
+      (tester) async {
     await tester.pumpWidget(_app(CardComanda(cartao: _cartao())));
     expect(find.byType(Image), findsNothing);
-    expect(find.text('🍲'), findsWidgets);
+    expect(find.byIcon(Icons.ramen_dining_outlined), findsWidgets);
+    expect(find.byIcon(Icons.kebab_dining_outlined), findsWidgets);
   });
 
   testWidgets('item com foto renderiza a imagem da URL', (tester) async {

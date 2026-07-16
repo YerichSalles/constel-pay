@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../compartilhado/feedback/snackbar_padrao.dart';
+import '../../../../compartilhado/widgets/barra_creditos.dart';
 import '../componentes/aba_aparencia.dart';
 import '../componentes/aba_comunicacao.dart';
 import '../componentes/aba_diagnostico.dart';
@@ -49,6 +50,7 @@ class PaginaConfiguracoes extends ConsumerWidget {
             AbaDiagnostico(),
           ],
         ),
+        bottomNavigationBar: const BarraCreditos(),
       ),
     );
   }

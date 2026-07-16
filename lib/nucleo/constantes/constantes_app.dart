@@ -3,6 +3,10 @@ abstract final class ConstantesApp {
   static const Duration tempoAvisoInatividade = Duration(seconds: 15);
   static const Duration duracaoSplash = Duration(seconds: 4);
   static const Duration atrasoBotPadrao = Duration(milliseconds: 650);
+
+  // Tempo que o comprovante fica na tela antes de o terminal voltar sozinho
+  // ao início; o cliente pode antecipar tocando em "Novo pagamento".
+  static const Duration duracaoExibicaoComprovante = Duration(seconds: 15);
   static const Duration duracaoPadraoImagem = Duration(seconds: 8);
   static const String chaveUltimaSincronizacao = 'ultima_sincronizacao';
 
@@ -33,12 +37,18 @@ abstract final class ConstantesApp {
   static const String caminhoEncerraAtendimento = 'venda/atendimento/encerra';
   static const String caminhoFatura = 'movimento/fatura';
 
-  // Mapa de atendimentos da loja (mesmo contrato usado pelo caixa mobile):
-  // com situacao=30 e sessaoid devolve os encerrados da sessão, cada um com
-  // a fatura vinculada — é como o terminal descobre as faturas da sessão,
-  // já que a nuvem não tem consulta de fatura por sessão.
-  static const String caminhoMapaAtendimento = 'venda/atendimento/mapa';
-  static const int situacaoAtendimentoEncerrado = 30;
+  // Documento do dispositivo na API da loja (`estrutura/dispositivo/<id>`):
+  // traz o cabeçalho fiscal já configurado para o terminal (histórico,
+  // operação, moeda, dispositivo, departamento). É a fonte da configuração
+  // de faturamento que NÃO depende de venda anterior.
+  static const String caminhoDispositivo = 'estrutura/dispositivo';
+
+  // Cadastro de formas de pagamento na API da nuvem (`financeiro/forma`):
+  // `?texto=` lista as formas; `/<id>` traz o detalhe com a conta de
+  // recebimento (`conta`/`formaContas` por estabelecimento) e o plano
+  // padrão (`formaPlanos`). É como o terminal descobre forma/plano/conta
+  // por espécie, sem depender de fatura anterior.
+  static const String caminhoForma = 'financeiro/forma';
 
   // Chaves de SharedPreferences que SOBREVIVEM ao "Limpar dados locais":
   // registros transacionais cuja perda deixaria dado financeiro órfão no

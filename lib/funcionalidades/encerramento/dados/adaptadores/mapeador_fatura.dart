@@ -6,7 +6,6 @@ import '../modelos/requisicao_fatura.dart';
 import '../modelos/requisicao_fatura_item.dart';
 import '../modelos/requisicao_fatura_modalidade.dart';
 import '../modelos/requisicao_fatura_pagamento.dart';
-import '../modelos/requisicao_fatura_resultado.dart';
 import '../modelos/valores_fatura.dart';
 
 /// Monta a `RequisicaoFatura` a partir dos atendimentos (JSON bruto da API),
@@ -32,7 +31,7 @@ abstract final class MapeadorFatura {
     final brutos = [for (final a in atendimentos) a.bruto];
     final primeiro = brutos.first;
 
-    final itens = _itens(brutos, configuracao);
+    final itens = _itens(brutos);
     final totalCentavos = _soma(brutos, 'total');
 
     return RequisicaoFatura(
@@ -46,7 +45,9 @@ abstract final class MapeadorFatura {
       historico: configuracao.historico,
       operacao: configuracao.operacao,
       moeda: configuracao.moeda,
-      modalidade: configuracao.modalidade,
+      // Modalidade de cabeçalho é a do próprio atendimento (ex.: Cartão); o
+      // retaguarda faz o rateio de resultado a partir dos itens.
+      modalidade: _mapa(primeiro['modalidade']),
       preco: _mapa(primeiro['preco']),
       corretor: _mapa(primeiro['corretor']),
       vendedor: _mapa(primeiro['vendedor']),
@@ -64,9 +65,9 @@ abstract final class MapeadorFatura {
       deducaoCentavos: _soma(brutos, 'deducao'),
       totalCentavos: totalCentavos,
       dispositivo: configuracao.dispositivo,
-      resultados: [
-        RequisicaoFaturaResultado(resultado: configuracao.resultado),
-      ],
+      // Rateio de resultado deixado a cargo do retaguarda, que o calcula pela
+      // categoria de cada item no POST da fatura.
+      resultados: const [],
       modalidades: _modalidades(atendimentos, momentoUtc),
       pagamentos: [
         RequisicaoFaturaPagamento(
@@ -85,7 +86,6 @@ abstract final class MapeadorFatura {
 
   static List<RequisicaoFaturaItem> _itens(
     List<Map<String, dynamic>> brutos,
-    ConfiguracaoFaturamento configuracao,
   ) {
     var sequencial = 0;
     return [
@@ -93,7 +93,8 @@ abstract final class MapeadorFatura {
         for (final resumo in _lista(bruto['atendimentoResumos']))
           RequisicaoFaturaItem(
             sequencial: ++sequencial,
-            resultado: configuracao.resultado,
+            // Resultado por item também é rateado pelo retaguarda.
+            resultado: const {},
             modalidade: _mapa(resumo['modalidade']),
             corretor: _mapa(resumo['corretor']),
             vendedor: _mapa(resumo['vendedor']),

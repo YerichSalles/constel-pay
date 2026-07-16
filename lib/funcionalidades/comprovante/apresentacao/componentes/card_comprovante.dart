@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../compartilhado/widgets/cartao.dart';
+import '../../../../compartilhado/widgets/icone_emoji.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../nucleo/formatadores/formatador_data.dart';
 import '../../../../nucleo/formatadores/formatador_moeda.dart';
@@ -55,7 +56,7 @@ class CardComprovante extends StatelessWidget {
       filho: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Center(child: Text('🧾', style: TextStyle(fontSize: 32))),
+          const Center(child: IconeEmoji('🧾', tamanho: 36)),
           const SizedBox(height: 6),
           Center(
             child: Text(t.receiptTitle,

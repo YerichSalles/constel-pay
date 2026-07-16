@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../aplicativo/tema/cores_app.dart';
+import '../../../../compartilhado/widgets/icone_emoji.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../nucleo/formatadores/formatador_moeda.dart';
 import '../../../../nucleo/formatadores/formatador_percentual.dart';
@@ -64,11 +65,8 @@ class CardComanda extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: marcado
-                      ? const Text('✓',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w800))
+                      ? const Icon(Icons.check_rounded,
+                          size: 15, color: Colors.white)
                       : null,
                 ),
                 const SizedBox(width: 11),
@@ -80,8 +78,7 @@ class CardComanda extends StatelessWidget {
                     borderRadius: BorderRadius.circular(13),
                   ),
                   alignment: Alignment.center,
-                  child:
-                      Text(cartao.emoji, style: const TextStyle(fontSize: 25)),
+                  child: IconeEmoji(cartao.emoji, tamanho: 28),
                 ),
                 const SizedBox(width: 11),
                 Expanded(
@@ -255,5 +252,5 @@ class _FotoItem extends StatelessWidget {
     );
   }
 
-  Widget _emoji() => Text(item.emoji, style: const TextStyle(fontSize: 23));
+  Widget _emoji() => IconeEmoji(item.emoji, tamanho: 26);
 }
