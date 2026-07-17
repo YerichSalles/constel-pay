@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../aplicativo/injecao.dart';
+import '../../../../aplicativo/tema/tema_constel.dart';
 import '../../../../compartilhado/layout/layout_responsivo.dart';
 import '../../../../compartilhado/widgets/barra_creditos.dart';
 import '../../../../compartilhado/widgets/barra_superior.dart';
@@ -229,6 +230,9 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
       if (etapa == EtapaFluxo.encerramento) _agendarRetornoAutomatico();
     });
     final publicidadeSalva = ref.watch(provedorPublicidadeSalva).valueOrNull;
+    final corCreditos = TemaConstel.corDeHex(
+        ref.watch(provedorTema).corBarraCreditosChatEfetiva,
+        Theme.of(context).colorScheme.primary);
 
     return Scaffold(
       appBar: BarraSuperior(
@@ -275,7 +279,7 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
           ],
         ),
       ),
-      bottomNavigationBar: const BarraCreditos(),
+      bottomNavigationBar: BarraCreditos(corFundo: corCreditos),
     );
   }
 }

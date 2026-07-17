@@ -26,6 +26,13 @@ class TemaPersonalizado with _$TemaPersonalizado {
     @Default(textoFaixaPadrao) String textoFaixa,
     @Default('') String textoFaixaEn,
     @Default('') String textoFaixaEs,
+    // Barra de créditos (rodapé "Constel Pay" / site). Na tela principal ela
+    // nasce transparente sobre a faixa de pagamento; só ganha fundo próprio
+    // quando o operador liga `pintarBarraCreditosPrincipal`. No chat ela sempre
+    // tem fundo — só a cor é escolhida.
+    @Default(false) bool pintarBarraCreditosPrincipal,
+    String? corBarraCreditosPrincipal,
+    String? corBarraCreditosChat,
     @Default('Inter') String fonte,
     String? logoPath,
     @Default(OrientacaoTela.vertical) OrientacaoTela orientacaoTela,
@@ -38,6 +45,20 @@ class TemaPersonalizado with _$TemaPersonalizado {
   /// a mesma coisa que null: senao a heranca morre em silencio.
   String get corFaixaEfetiva =>
       (corFaixa?.trim().isEmpty ?? true) ? corPrimaria : corFaixa!.trim();
+
+  /// As barras de creditos acompanham a cor principal ate o operador escolher
+  /// uma cor propria, pela mesma razao de [corFaixaEfetiva]: null (ou campo
+  /// limpo) e o que da a heranca, sem uma flag "herdar" extra para manter em
+  /// sincronia.
+  String get corBarraCreditosPrincipalEfetiva =>
+      (corBarraCreditosPrincipal?.trim().isEmpty ?? true)
+          ? corPrimaria
+          : corBarraCreditosPrincipal!.trim();
+
+  String get corBarraCreditosChatEfetiva =>
+      (corBarraCreditosChat?.trim().isEmpty ?? true)
+          ? corPrimaria
+          : corBarraCreditosChat!.trim();
 
   /// Um totem sem chamada para pagar e um defeito, nao uma preferencia: campo
   /// vazio cai no padrao. O texto tambem chega aparado, para nao levar os

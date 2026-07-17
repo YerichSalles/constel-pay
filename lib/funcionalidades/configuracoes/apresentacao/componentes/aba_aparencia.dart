@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../aplicativo/injecao.dart';
@@ -245,6 +245,66 @@ class _AbaAparenciaState extends ConsumerState<AbaAparencia>
     );
   }
 
+  Widget _secaoBarraCreditos(TemaPersonalizado tema) {
+    return SecaoConfiguracoes(
+      titulo: 'Barra inferior',
+      descricao: 'A faixa com "Constel Pay" e o site da Constel no rodapé das '
+          'telas. O texto ajusta o contraste sozinho conforme a cor '
+          'escolhida.',
+      filho: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          MergeSemantics(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _editar(tema.copyWith(
+                  pintarBarraCreditosPrincipal:
+                      !tema.pintarBarraCreditosPrincipal)),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Pintar a barra na tela principal',
+                      style:
+                          TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  Switch(
+                    key: const Key('interruptor_barra_creditos_principal'),
+                    value: tema.pintarBarraCreditosPrincipal,
+                    onChanged: (valor) => _editar(
+                        tema.copyWith(pintarBarraCreditosPrincipal: valor)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const Text(
+            'Desligada, a barra fica transparente sobre a faixa de pagamento.',
+            style: TextStyle(fontSize: 11.5, color: CoresApp.textoSecundario),
+          ),
+          if (tema.pintarBarraCreditosPrincipal) ...[
+            const SizedBox(height: 14),
+            CampoCor(
+              key: const Key('cor_barra_creditos_principal'),
+              rotulo: 'Cor da barra na tela principal',
+              valorHex: tema.corBarraCreditosPrincipalEfetiva,
+              aoMudar: (hex) =>
+                  _editar(tema.copyWith(corBarraCreditosPrincipal: hex)),
+            ),
+          ],
+          const SizedBox(height: 14),
+          CampoCor(
+            key: const Key('cor_barra_creditos_chat'),
+            rotulo: 'Cor da barra na tela do chat',
+            valorHex: tema.corBarraCreditosChatEfetiva,
+            aoMudar: (hex) => _editar(tema.copyWith(corBarraCreditosChat: hex)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _secaoPrevia(TemaPersonalizado tema, String? logoPath) {
     return SecaoConfiguracoes(
       titulo: 'Pré-visualização',
@@ -277,6 +337,8 @@ class _AbaAparenciaState extends ConsumerState<AbaAparencia>
                 _secaoCores(tema),
                 const SizedBox(height: 16),
                 _secaoFaixa(tema),
+                const SizedBox(height: 16),
+                _secaoBarraCreditos(tema),
               ];
               if (!duasColunas) {
                 return ListView(

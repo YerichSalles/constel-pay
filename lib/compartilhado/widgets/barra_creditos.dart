@@ -2,17 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 /// Rodapé de créditos presente em todas as telas. Segue a cor primária
-/// configurada no tema. Mostra "Constel Pay" + versão à esquerda e o site da
-/// Constel à direita, com contraste de texto automático conforme a cor de
-/// fundo.
+/// configurada no tema, salvo cor própria em [corFundo]. Mostra "Constel Pay"
+/// + versão à esquerda e o site da Constel à direita, com contraste de texto
+/// automático conforme a cor de fundo.
 class BarraCreditos extends StatelessWidget {
-  const BarraCreditos({super.key, this.sobreCor});
+  const BarraCreditos({super.key, this.sobreCor, this.corFundo})
+      : assert(sobreCor == null || corFundo == null,
+            'Sobreposta a barra não pinta fundo: use um ou outro.');
 
   /// Cor da superfície sobre a qual a barra está sobreposta (ex.: a faixa de
   /// pagamento). Quando informada, a barra não pinta fundo próprio — deixa a
   /// superfície aparecer, sem cobrir o que estiver desenhado nela — e calcula
   /// o contraste do texto a partir dessa cor.
   final Color? sobreCor;
+
+  /// Fundo próprio da barra. Sem ela, a barra usa a cor primária do tema.
+  final Color? corFundo;
 
   static const String _nomeApp = 'Constel Pay';
   static const String _site = 'www.constel.cloud';
@@ -24,7 +29,7 @@ class BarraCreditos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final base = sobreCor ?? Theme.of(context).colorScheme.primary;
+    final base = sobreCor ?? corFundo ?? Theme.of(context).colorScheme.primary;
     final fundoEscuro = base.computeLuminance() < .5;
     final corForte = fundoEscuro ? Colors.white : const Color(0xFF1E1E1E);
     final corSuave = corForte.withValues(alpha: fundoEscuro ? .82 : .68);

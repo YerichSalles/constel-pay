@@ -67,6 +67,64 @@ void main() {
       expect((await repositorio.obter()).orientacaoTela,
           OrientacaoTela.horizontal);
     });
+
+    test('as cores das barras de creditos sobrevivem ao round-trip', () async {
+      SharedPreferences.setMockInitialValues({});
+      final repositorio =
+          RepositorioTemaImpl(await SharedPreferences.getInstance());
+      const tema = TemaPersonalizado(
+        pintarBarraCreditosPrincipal: true,
+        corBarraCreditosPrincipal: '#1B7F3B',
+        corBarraCreditosChat: '#C0392B',
+      );
+      await repositorio.salvar(tema);
+      expect(await repositorio.obter(), tema);
+    });
+
+    test('tema salvo antes das barras de creditos cai nos padroes', () async {
+      // Temas gravados por versoes anteriores nao tem os campos novos: o
+      // round-trip precisa herdar, nao explodir.
+      SharedPreferences.setMockInitialValues({
+        'tema_personalizado': '{"corPrimaria":"#C0392B","corSecundaria":'
+            '"#FFD166","corFundo":"#F7F7FB","corBotoes":"#5E52D6"}'
+      });
+      final repositorio =
+          RepositorioTemaImpl(await SharedPreferences.getInstance());
+      final tema = await repositorio.obter();
+      expect(tema.pintarBarraCreditosPrincipal, isFalse);
+      expect(tema.corBarraCreditosPrincipalEfetiva, '#C0392B');
+      expect(tema.corBarraCreditosChatEfetiva, '#C0392B');
+    });
+  });
+
+  group('barras de creditos no tema', () {
+    test('as duas barras herdam a primaria ate ganharem cor propria', () {
+      const herdando = TemaPersonalizado(corPrimaria: '#C0392B');
+      expect(herdando.corBarraCreditosPrincipalEfetiva, '#C0392B');
+      expect(herdando.corBarraCreditosChatEfetiva, '#C0392B');
+
+      const propria = TemaPersonalizado(
+        corPrimaria: '#C0392B',
+        corBarraCreditosPrincipal: '#1B7F3B',
+        corBarraCreditosChat: '#112233',
+      );
+      expect(propria.corBarraCreditosPrincipalEfetiva, '#1B7F3B');
+      expect(propria.corBarraCreditosChatEfetiva, '#112233');
+    });
+
+    test('campo limpo ou so com espacos volta a herdar a primaria', () {
+      const vazias = TemaPersonalizado(
+        corPrimaria: '#FFD166',
+        corBarraCreditosPrincipal: '',
+        corBarraCreditosChat: '   ',
+      );
+      expect(vazias.corBarraCreditosPrincipalEfetiva, '#FFD166');
+      expect(vazias.corBarraCreditosChatEfetiva, '#FFD166');
+    });
+
+    test('a barra da tela principal nasce sem pintura', () {
+      expect(const TemaPersonalizado().pintarBarraCreditosPrincipal, isFalse);
+    });
   });
 
   group('faixa de pagamento no tema', () {

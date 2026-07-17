@@ -173,25 +173,40 @@ class PreviaTema extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                color: faixaFundo,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                child: Text(
-                  tema.textoFaixaParaIdioma(
-                      Localizations.localeOf(context).languageCode,
-                      AppLocalizations.of(context).tapToPay),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: EstilosTexto.estilo(
-                    tema.fonte,
-                    TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      color: faixaTexto,
+              // A faixa e, sobreposta à sua base, a barra de créditos — só
+              // quando o operador pede fundo próprio para ela, espelhando a
+              // tela principal.
+              Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  Container(
+                    color: faixaFundo,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    child: Text(
+                      tema.textoFaixaParaIdioma(
+                          Localizations.localeOf(context).languageCode,
+                          AppLocalizations.of(context).tapToPay),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: EstilosTexto.estilo(
+                        tema.fonte,
+                        TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: faixaTexto,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  if (tema.pintarBarraCreditosPrincipal)
+                    Container(
+                      key: const Key('previa_barra_creditos'),
+                      height: 8,
+                      color: TemaConstel.corDeHex(
+                          tema.corBarraCreditosPrincipalEfetiva, primaria),
+                    ),
+                ],
               ),
             ],
           ),

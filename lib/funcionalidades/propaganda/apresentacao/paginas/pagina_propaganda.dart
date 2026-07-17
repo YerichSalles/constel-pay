@@ -136,7 +136,8 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
     // A barra de créditos sobrepõe a base da faixa sem empurrá-la para cima:
     // a mensagem fica centralizada na banda inteira do rodapé e os créditos,
     // pequenos, moram nos cantos. Sobreposta, a barra não pinta fundo próprio
-    // (sobreCor) para não decepar os descendentes da mensagem.
+    // (sobreCor) para não decepar os descendentes da mensagem — a menos que o
+    // operador peça uma cor para ela nas configurações de aparência.
     final Widget rodape;
     if (estado.carregando) {
       rodape = widget.preview ? const SizedBox.shrink() : const BarraCreditos();
@@ -148,11 +149,16 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
         corTexto: TemaConstel.corDeHex(tema.corTextoFaixa, Colors.white),
         fonte: tema.fonte,
       );
+      final creditos = tema.pintarBarraCreditosPrincipal
+          ? BarraCreditos(
+              corFundo: TemaConstel.corDeHex(
+                  tema.corBarraCreditosPrincipalEfetiva, primaria))
+          : BarraCreditos(sobreCor: corFaixa);
       rodape = widget.preview
           ? faixa
           : Stack(
               alignment: Alignment.bottomCenter,
-              children: [faixa, BarraCreditos(sobreCor: corFaixa)],
+              children: [faixa, creditos],
             );
     }
 

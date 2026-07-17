@@ -32,6 +32,9 @@ mixin _$ModeloTemaPersonalizado {
   String get textoFaixa => throw _privateConstructorUsedError;
   String get textoFaixaEn => throw _privateConstructorUsedError;
   String get textoFaixaEs => throw _privateConstructorUsedError;
+  bool get pintarBarraCreditosPrincipal => throw _privateConstructorUsedError;
+  String? get corBarraCreditosPrincipal => throw _privateConstructorUsedError;
+  String? get corBarraCreditosChat => throw _privateConstructorUsedError;
   String get fonte => throw _privateConstructorUsedError;
   String? get logoPath => throw _privateConstructorUsedError;
   @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
@@ -64,6 +67,9 @@ abstract class $ModeloTemaPersonalizadoCopyWith<$Res> {
       String textoFaixa,
       String textoFaixaEn,
       String textoFaixaEs,
+      bool pintarBarraCreditosPrincipal,
+      String? corBarraCreditosPrincipal,
+      String? corBarraCreditosChat,
       String fonte,
       String? logoPath,
       @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
@@ -96,6 +102,9 @@ class _$ModeloTemaPersonalizadoCopyWithImpl<$Res,
     Object? textoFaixa = null,
     Object? textoFaixaEn = null,
     Object? textoFaixaEs = null,
+    Object? pintarBarraCreditosPrincipal = null,
+    Object? corBarraCreditosPrincipal = freezed,
+    Object? corBarraCreditosChat = freezed,
     Object? fonte = null,
     Object? logoPath = freezed,
     Object? orientacaoTela = null,
@@ -141,6 +150,18 @@ class _$ModeloTemaPersonalizadoCopyWithImpl<$Res,
           ? _value.textoFaixaEs
           : textoFaixaEs // ignore: cast_nullable_to_non_nullable
               as String,
+      pintarBarraCreditosPrincipal: null == pintarBarraCreditosPrincipal
+          ? _value.pintarBarraCreditosPrincipal
+          : pintarBarraCreditosPrincipal // ignore: cast_nullable_to_non_nullable
+              as bool,
+      corBarraCreditosPrincipal: freezed == corBarraCreditosPrincipal
+          ? _value.corBarraCreditosPrincipal
+          : corBarraCreditosPrincipal // ignore: cast_nullable_to_non_nullable
+              as String?,
+      corBarraCreditosChat: freezed == corBarraCreditosChat
+          ? _value.corBarraCreditosChat
+          : corBarraCreditosChat // ignore: cast_nullable_to_non_nullable
+              as String?,
       fonte: null == fonte
           ? _value.fonte
           : fonte // ignore: cast_nullable_to_non_nullable
@@ -177,6 +198,9 @@ abstract class _$$ModeloTemaPersonalizadoImplCopyWith<$Res>
       String textoFaixa,
       String textoFaixaEn,
       String textoFaixaEs,
+      bool pintarBarraCreditosPrincipal,
+      String? corBarraCreditosPrincipal,
+      String? corBarraCreditosChat,
       String fonte,
       String? logoPath,
       @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
@@ -208,6 +232,9 @@ class __$$ModeloTemaPersonalizadoImplCopyWithImpl<$Res>
     Object? textoFaixa = null,
     Object? textoFaixaEn = null,
     Object? textoFaixaEs = null,
+    Object? pintarBarraCreditosPrincipal = null,
+    Object? corBarraCreditosPrincipal = freezed,
+    Object? corBarraCreditosChat = freezed,
     Object? fonte = null,
     Object? logoPath = freezed,
     Object? orientacaoTela = null,
@@ -253,6 +280,18 @@ class __$$ModeloTemaPersonalizadoImplCopyWithImpl<$Res>
           ? _value.textoFaixaEs
           : textoFaixaEs // ignore: cast_nullable_to_non_nullable
               as String,
+      pintarBarraCreditosPrincipal: null == pintarBarraCreditosPrincipal
+          ? _value.pintarBarraCreditosPrincipal
+          : pintarBarraCreditosPrincipal // ignore: cast_nullable_to_non_nullable
+              as bool,
+      corBarraCreditosPrincipal: freezed == corBarraCreditosPrincipal
+          ? _value.corBarraCreditosPrincipal
+          : corBarraCreditosPrincipal // ignore: cast_nullable_to_non_nullable
+              as String?,
+      corBarraCreditosChat: freezed == corBarraCreditosChat
+          ? _value.corBarraCreditosChat
+          : corBarraCreditosChat // ignore: cast_nullable_to_non_nullable
+              as String?,
       fonte: null == fonte
           ? _value.fonte
           : fonte // ignore: cast_nullable_to_non_nullable
@@ -283,6 +322,9 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
       this.textoFaixa = textoFaixaPadrao,
       this.textoFaixaEn = '',
       this.textoFaixaEs = '',
+      this.pintarBarraCreditosPrincipal = false,
+      this.corBarraCreditosPrincipal,
+      this.corBarraCreditosChat,
       this.fonte = 'Inter',
       this.logoPath,
       @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
@@ -320,6 +362,13 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
   final String textoFaixaEs;
   @override
   @JsonKey()
+  final bool pintarBarraCreditosPrincipal;
+  @override
+  final String? corBarraCreditosPrincipal;
+  @override
+  final String? corBarraCreditosChat;
+  @override
+  @JsonKey()
   final String fonte;
   @override
   final String? logoPath;
@@ -329,7 +378,7 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
 
   @override
   String toString() {
-    return 'ModeloTemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, corTexto: $corTexto, corFaixa: $corFaixa, corTextoFaixa: $corTextoFaixa, textoFaixa: $textoFaixa, textoFaixaEn: $textoFaixaEn, textoFaixaEs: $textoFaixaEs, fonte: $fonte, logoPath: $logoPath, orientacaoTela: $orientacaoTela)';
+    return 'ModeloTemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, corTexto: $corTexto, corFaixa: $corFaixa, corTextoFaixa: $corTextoFaixa, textoFaixa: $textoFaixa, textoFaixaEn: $textoFaixaEn, textoFaixaEs: $textoFaixaEs, pintarBarraCreditosPrincipal: $pintarBarraCreditosPrincipal, corBarraCreditosPrincipal: $corBarraCreditosPrincipal, corBarraCreditosChat: $corBarraCreditosChat, fonte: $fonte, logoPath: $logoPath, orientacaoTela: $orientacaoTela)';
   }
 
   @override
@@ -357,6 +406,15 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
                 other.textoFaixaEn == textoFaixaEn) &&
             (identical(other.textoFaixaEs, textoFaixaEs) ||
                 other.textoFaixaEs == textoFaixaEs) &&
+            (identical(other.pintarBarraCreditosPrincipal,
+                    pintarBarraCreditosPrincipal) ||
+                other.pintarBarraCreditosPrincipal ==
+                    pintarBarraCreditosPrincipal) &&
+            (identical(other.corBarraCreditosPrincipal,
+                    corBarraCreditosPrincipal) ||
+                other.corBarraCreditosPrincipal == corBarraCreditosPrincipal) &&
+            (identical(other.corBarraCreditosChat, corBarraCreditosChat) ||
+                other.corBarraCreditosChat == corBarraCreditosChat) &&
             (identical(other.fonte, fonte) || other.fonte == fonte) &&
             (identical(other.logoPath, logoPath) ||
                 other.logoPath == logoPath) &&
@@ -378,6 +436,9 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
       textoFaixa,
       textoFaixaEn,
       textoFaixaEs,
+      pintarBarraCreditosPrincipal,
+      corBarraCreditosPrincipal,
+      corBarraCreditosChat,
       fonte,
       logoPath,
       orientacaoTela);
@@ -411,6 +472,9 @@ abstract class _ModeloTemaPersonalizado extends ModeloTemaPersonalizado {
       final String textoFaixa,
       final String textoFaixaEn,
       final String textoFaixaEs,
+      final bool pintarBarraCreditosPrincipal,
+      final String? corBarraCreditosPrincipal,
+      final String? corBarraCreditosChat,
       final String fonte,
       final String? logoPath,
       @JsonKey(unknownEnumValue: OrientacaoTela.vertical)
@@ -441,6 +505,12 @@ abstract class _ModeloTemaPersonalizado extends ModeloTemaPersonalizado {
   String get textoFaixaEn;
   @override
   String get textoFaixaEs;
+  @override
+  bool get pintarBarraCreditosPrincipal;
+  @override
+  String? get corBarraCreditosPrincipal;
+  @override
+  String? get corBarraCreditosChat;
   @override
   String get fonte;
   @override

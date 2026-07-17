@@ -28,7 +28,14 @@ mixin _$TemaPersonalizado {
 // vazios, caem no texto padrão traduzido pelo l10n do idioma atual.
   String get textoFaixa => throw _privateConstructorUsedError;
   String get textoFaixaEn => throw _privateConstructorUsedError;
-  String get textoFaixaEs => throw _privateConstructorUsedError;
+  String get textoFaixaEs =>
+      throw _privateConstructorUsedError; // Barra de créditos (rodapé "Constel Pay" / site). Na tela principal ela
+// nasce transparente sobre a faixa de pagamento; só ganha fundo próprio
+// quando o operador liga `pintarBarraCreditosPrincipal`. No chat ela sempre
+// tem fundo — só a cor é escolhida.
+  bool get pintarBarraCreditosPrincipal => throw _privateConstructorUsedError;
+  String? get corBarraCreditosPrincipal => throw _privateConstructorUsedError;
+  String? get corBarraCreditosChat => throw _privateConstructorUsedError;
   String get fonte => throw _privateConstructorUsedError;
   String? get logoPath => throw _privateConstructorUsedError;
   OrientacaoTela get orientacaoTela => throw _privateConstructorUsedError;
@@ -57,6 +64,9 @@ abstract class $TemaPersonalizadoCopyWith<$Res> {
       String textoFaixa,
       String textoFaixaEn,
       String textoFaixaEs,
+      bool pintarBarraCreditosPrincipal,
+      String? corBarraCreditosPrincipal,
+      String? corBarraCreditosChat,
       String fonte,
       String? logoPath,
       OrientacaoTela orientacaoTela});
@@ -87,6 +97,9 @@ class _$TemaPersonalizadoCopyWithImpl<$Res, $Val extends TemaPersonalizado>
     Object? textoFaixa = null,
     Object? textoFaixaEn = null,
     Object? textoFaixaEs = null,
+    Object? pintarBarraCreditosPrincipal = null,
+    Object? corBarraCreditosPrincipal = freezed,
+    Object? corBarraCreditosChat = freezed,
     Object? fonte = null,
     Object? logoPath = freezed,
     Object? orientacaoTela = null,
@@ -132,6 +145,18 @@ class _$TemaPersonalizadoCopyWithImpl<$Res, $Val extends TemaPersonalizado>
           ? _value.textoFaixaEs
           : textoFaixaEs // ignore: cast_nullable_to_non_nullable
               as String,
+      pintarBarraCreditosPrincipal: null == pintarBarraCreditosPrincipal
+          ? _value.pintarBarraCreditosPrincipal
+          : pintarBarraCreditosPrincipal // ignore: cast_nullable_to_non_nullable
+              as bool,
+      corBarraCreditosPrincipal: freezed == corBarraCreditosPrincipal
+          ? _value.corBarraCreditosPrincipal
+          : corBarraCreditosPrincipal // ignore: cast_nullable_to_non_nullable
+              as String?,
+      corBarraCreditosChat: freezed == corBarraCreditosChat
+          ? _value.corBarraCreditosChat
+          : corBarraCreditosChat // ignore: cast_nullable_to_non_nullable
+              as String?,
       fonte: null == fonte
           ? _value.fonte
           : fonte // ignore: cast_nullable_to_non_nullable
@@ -167,6 +192,9 @@ abstract class _$$TemaPersonalizadoImplCopyWith<$Res>
       String textoFaixa,
       String textoFaixaEn,
       String textoFaixaEs,
+      bool pintarBarraCreditosPrincipal,
+      String? corBarraCreditosPrincipal,
+      String? corBarraCreditosChat,
       String fonte,
       String? logoPath,
       OrientacaoTela orientacaoTela});
@@ -195,6 +223,9 @@ class __$$TemaPersonalizadoImplCopyWithImpl<$Res>
     Object? textoFaixa = null,
     Object? textoFaixaEn = null,
     Object? textoFaixaEs = null,
+    Object? pintarBarraCreditosPrincipal = null,
+    Object? corBarraCreditosPrincipal = freezed,
+    Object? corBarraCreditosChat = freezed,
     Object? fonte = null,
     Object? logoPath = freezed,
     Object? orientacaoTela = null,
@@ -240,6 +271,18 @@ class __$$TemaPersonalizadoImplCopyWithImpl<$Res>
           ? _value.textoFaixaEs
           : textoFaixaEs // ignore: cast_nullable_to_non_nullable
               as String,
+      pintarBarraCreditosPrincipal: null == pintarBarraCreditosPrincipal
+          ? _value.pintarBarraCreditosPrincipal
+          : pintarBarraCreditosPrincipal // ignore: cast_nullable_to_non_nullable
+              as bool,
+      corBarraCreditosPrincipal: freezed == corBarraCreditosPrincipal
+          ? _value.corBarraCreditosPrincipal
+          : corBarraCreditosPrincipal // ignore: cast_nullable_to_non_nullable
+              as String?,
+      corBarraCreditosChat: freezed == corBarraCreditosChat
+          ? _value.corBarraCreditosChat
+          : corBarraCreditosChat // ignore: cast_nullable_to_non_nullable
+              as String?,
       fonte: null == fonte
           ? _value.fonte
           : fonte // ignore: cast_nullable_to_non_nullable
@@ -270,6 +313,9 @@ class _$TemaPersonalizadoImpl extends _TemaPersonalizado {
       this.textoFaixa = textoFaixaPadrao,
       this.textoFaixaEn = '',
       this.textoFaixaEs = '',
+      this.pintarBarraCreditosPrincipal = false,
+      this.corBarraCreditosPrincipal,
+      this.corBarraCreditosChat,
       this.fonte = 'Inter',
       this.logoPath,
       this.orientacaoTela = OrientacaoTela.vertical})
@@ -307,6 +353,17 @@ class _$TemaPersonalizadoImpl extends _TemaPersonalizado {
   @override
   @JsonKey()
   final String textoFaixaEs;
+// Barra de créditos (rodapé "Constel Pay" / site). Na tela principal ela
+// nasce transparente sobre a faixa de pagamento; só ganha fundo próprio
+// quando o operador liga `pintarBarraCreditosPrincipal`. No chat ela sempre
+// tem fundo — só a cor é escolhida.
+  @override
+  @JsonKey()
+  final bool pintarBarraCreditosPrincipal;
+  @override
+  final String? corBarraCreditosPrincipal;
+  @override
+  final String? corBarraCreditosChat;
   @override
   @JsonKey()
   final String fonte;
@@ -318,7 +375,7 @@ class _$TemaPersonalizadoImpl extends _TemaPersonalizado {
 
   @override
   String toString() {
-    return 'TemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, corTexto: $corTexto, corFaixa: $corFaixa, corTextoFaixa: $corTextoFaixa, textoFaixa: $textoFaixa, textoFaixaEn: $textoFaixaEn, textoFaixaEs: $textoFaixaEs, fonte: $fonte, logoPath: $logoPath, orientacaoTela: $orientacaoTela)';
+    return 'TemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, corTexto: $corTexto, corFaixa: $corFaixa, corTextoFaixa: $corTextoFaixa, textoFaixa: $textoFaixa, textoFaixaEn: $textoFaixaEn, textoFaixaEs: $textoFaixaEs, pintarBarraCreditosPrincipal: $pintarBarraCreditosPrincipal, corBarraCreditosPrincipal: $corBarraCreditosPrincipal, corBarraCreditosChat: $corBarraCreditosChat, fonte: $fonte, logoPath: $logoPath, orientacaoTela: $orientacaoTela)';
   }
 
   @override
@@ -346,6 +403,15 @@ class _$TemaPersonalizadoImpl extends _TemaPersonalizado {
                 other.textoFaixaEn == textoFaixaEn) &&
             (identical(other.textoFaixaEs, textoFaixaEs) ||
                 other.textoFaixaEs == textoFaixaEs) &&
+            (identical(other.pintarBarraCreditosPrincipal,
+                    pintarBarraCreditosPrincipal) ||
+                other.pintarBarraCreditosPrincipal ==
+                    pintarBarraCreditosPrincipal) &&
+            (identical(other.corBarraCreditosPrincipal,
+                    corBarraCreditosPrincipal) ||
+                other.corBarraCreditosPrincipal == corBarraCreditosPrincipal) &&
+            (identical(other.corBarraCreditosChat, corBarraCreditosChat) ||
+                other.corBarraCreditosChat == corBarraCreditosChat) &&
             (identical(other.fonte, fonte) || other.fonte == fonte) &&
             (identical(other.logoPath, logoPath) ||
                 other.logoPath == logoPath) &&
@@ -366,6 +432,9 @@ class _$TemaPersonalizadoImpl extends _TemaPersonalizado {
       textoFaixa,
       textoFaixaEn,
       textoFaixaEs,
+      pintarBarraCreditosPrincipal,
+      corBarraCreditosPrincipal,
+      corBarraCreditosChat,
       fonte,
       logoPath,
       orientacaoTela);
@@ -392,6 +461,9 @@ abstract class _TemaPersonalizado extends TemaPersonalizado {
       final String textoFaixa,
       final String textoFaixaEn,
       final String textoFaixaEs,
+      final bool pintarBarraCreditosPrincipal,
+      final String? corBarraCreditosPrincipal,
+      final String? corBarraCreditosChat,
       final String fonte,
       final String? logoPath,
       final OrientacaoTela orientacaoTela}) = _$TemaPersonalizadoImpl;
@@ -419,7 +491,17 @@ abstract class _TemaPersonalizado extends TemaPersonalizado {
   @override
   String get textoFaixaEn;
   @override
-  String get textoFaixaEs;
+  String
+      get textoFaixaEs; // Barra de créditos (rodapé "Constel Pay" / site). Na tela principal ela
+// nasce transparente sobre a faixa de pagamento; só ganha fundo próprio
+// quando o operador liga `pintarBarraCreditosPrincipal`. No chat ela sempre
+// tem fundo — só a cor é escolhida.
+  @override
+  bool get pintarBarraCreditosPrincipal;
+  @override
+  String? get corBarraCreditosPrincipal;
+  @override
+  String? get corBarraCreditosChat;
   @override
   String get fonte;
   @override
