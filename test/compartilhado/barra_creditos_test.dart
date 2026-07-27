@@ -24,11 +24,6 @@ void main() {
     expect(_material(tester).color, const Color(0xFF1B7F3B));
   });
 
-  testWidgets('sobreposta a barra não pinta fundo próprio', (tester) async {
-    await _montar(tester, const BarraCreditos(sobreCor: Color(0xFF1B7F3B)));
-    expect(_material(tester).color, Colors.transparent);
-  });
-
   testWidgets('o texto ganha contraste conforme a cor de fundo escolhida',
       (tester) async {
     // Fundo claro: o texto precisa escurecer para continuar legível.

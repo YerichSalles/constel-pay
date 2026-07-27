@@ -169,6 +169,31 @@
     "description": "Texto sobreposto ao visor do scanner simulado."
   },
 
+  "homologationBadge": "Homologação",
+  "@homologationBadge": {
+    "description": "Selo que marca recursos disponíveis apenas no ambiente de homologação."
+  },
+  "manualEntryButton": "Digitar código manualmente",
+  "@manualEntryButton": {
+    "description": "Botão do visor de leitura que abre a digitação manual do código (só em homologação)."
+  },
+  "manualEntryTitle": "Digitar código do cartão",
+  "@manualEntryTitle": {
+    "description": "Título do diálogo de digitação manual do código do cartão."
+  },
+  "manualEntryFieldLabel": "Código do cartão",
+  "@manualEntryFieldLabel": {
+    "description": "Rótulo do campo de digitação manual do código do cartão."
+  },
+  "manualEntryConfirm": "Consultar",
+  "@manualEntryConfirm": {
+    "description": "Botão que confirma o código digitado manualmente."
+  },
+  "manualEntryCancel": "Cancelar",
+  "@manualEntryCancel": {
+    "description": "Botão que fecha o diálogo de digitação manual sem consultar."
+  },
+
   "paidLabel": "Pago ✓",
   "@paidLabel": {
     "description": "Rótulo exibido no cartão de comanda quando ela já foi paga."

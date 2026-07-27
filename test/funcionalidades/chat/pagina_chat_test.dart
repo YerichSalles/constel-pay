@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:constel_pay/aplicativo/injecao.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/card_scanner.dart';
+import 'package:constel_pay/funcionalidades/configuracoes/dados/repositorios/repositorio_configuracao_impl.dart';
+import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/configuracao_terminal.dart';
+import 'package:constel_pay/nucleo/configuracao/ambiente.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/controladores/controlador_fluxo_pagamento.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/paginas/pagina_chat.dart';
 import 'package:constel_pay/funcionalidades/leitura_cartao/dados/fontes_dados/fonte_leitura_mock.dart';
@@ -253,4 +256,72 @@ void main() {
 
     expect(find.byType(PublicidadeBarraSuperior), findsOneWidget);
   });
+
+  // A digitação manual do código é atalho de teste: só existe com o terminal
+  // em homologação e com a URL desse ambiente preenchida.
+  testWidgets('em homologacao configurada o chat oferece digitar o codigo',
+      (tester) async {
+    await _montarChatComConfiguracao(
+      tester,
+      const ConfiguracaoTerminal(
+        ambiente: Ambiente.homologacao,
+        urlBaseHomologacao: 'http://localhost:3001',
+      ),
+    );
+    expect(find.text('Digitar código manualmente'), findsOneWidget);
+  });
+
+  testWidgets('em homologacao sem URL o chat nao oferece digitar o codigo',
+      (tester) async {
+    await _montarChatComConfiguracao(
+      tester,
+      const ConfiguracaoTerminal(ambiente: Ambiente.homologacao),
+    );
+    expect(find.text('Digitar código manualmente'), findsNothing);
+  });
+
+  testWidgets('em producao o chat nao oferece digitar o codigo',
+      (tester) async {
+    await _montarChatComConfiguracao(
+      tester,
+      const ConfiguracaoTerminal(
+        ambiente: Ambiente.producao,
+        urlBaseProducao: 'http://localhost:3001',
+        urlBaseHomologacao: 'http://localhost:3001',
+      ),
+    );
+    expect(find.text('Digitar código manualmente'), findsNothing);
+  });
+}
+
+Future<void> _montarChatComConfiguracao(
+    WidgetTester tester, ConfiguracaoTerminal configuracao) async {
+  SharedPreferences.setMockInitialValues({});
+  final preferencias = await SharedPreferences.getInstance();
+  await RepositorioConfiguracaoImpl(preferencias).salvar(configuracao);
+  final roteador = GoRouter(
+    initialLocation: '/chat',
+    routes: [GoRoute(path: '/chat', builder: (_, __) => const PaginaChat())],
+  );
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        provedorSharedPreferences.overrideWithValue(preferencias),
+        provedorAtrasoBot.overrideWithValue(Duration.zero),
+        provedorFonteLeituraMock
+            .overrideWithValue(FonteLeituraMock(atraso: Duration.zero)),
+        provedorFontePagamentoMock
+            .overrideWithValue(FontePagamentoMock(atraso: Duration.zero)),
+      ],
+      child: MaterialApp.router(
+        routerConfig: roteador,
+        locale: const Locale('pt', 'BR'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+      ),
+    ),
+  );
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 50));
+  await tester.pump();
 }

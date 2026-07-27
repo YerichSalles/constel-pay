@@ -156,6 +156,24 @@ class AppLocalizationsEs extends AppLocalizations {
       'Coloca el código de la tarjeta dentro del área';
 
   @override
+  String get homologationBadge => 'Homologación';
+
+  @override
+  String get manualEntryButton => 'Escribir el código manualmente';
+
+  @override
+  String get manualEntryTitle => 'Escribir el código de la tarjeta';
+
+  @override
+  String get manualEntryFieldLabel => 'Código de la tarjeta';
+
+  @override
+  String get manualEntryConfirm => 'Consultar';
+
+  @override
+  String get manualEntryCancel => 'Cancelar';
+
+  @override
   String get paidLabel => 'Pagado ✓';
 
   @override

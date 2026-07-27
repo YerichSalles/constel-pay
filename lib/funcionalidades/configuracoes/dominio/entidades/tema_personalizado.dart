@@ -26,11 +26,8 @@ class TemaPersonalizado with _$TemaPersonalizado {
     @Default(textoFaixaPadrao) String textoFaixa,
     @Default('') String textoFaixaEn,
     @Default('') String textoFaixaEs,
-    // Barra de créditos (rodapé "Constel Pay" / site). Na tela principal ela
-    // nasce transparente sobre a faixa de pagamento; só ganha fundo próprio
-    // quando o operador liga `pintarBarraCreditosPrincipal`. No chat ela sempre
-    // tem fundo — só a cor é escolhida.
-    @Default(false) bool pintarBarraCreditosPrincipal,
+    // Barra de créditos (rodapé "Constel Pay" / site). Sempre tem fundo
+    // próprio, na tela principal e no chat — só a cor é escolhida, por tela.
     String? corBarraCreditosPrincipal,
     String? corBarraCreditosChat,
     @Default('Inter') String fonte,
@@ -46,13 +43,14 @@ class TemaPersonalizado with _$TemaPersonalizado {
   String get corFaixaEfetiva =>
       (corFaixa?.trim().isEmpty ?? true) ? corPrimaria : corFaixa!.trim();
 
-  /// As barras de creditos acompanham a cor principal ate o operador escolher
-  /// uma cor propria, pela mesma razao de [corFaixaEfetiva]: null (ou campo
-  /// limpo) e o que da a heranca, sem uma flag "herdar" extra para manter em
-  /// sincronia.
+  /// As barras de creditos acompanham a cor de quem esta logo acima delas ate
+  /// o operador escolher uma cor propria, pela mesma razao de
+  /// [corFaixaEfetiva]: null (ou campo limpo) e o que da a heranca, sem uma
+  /// flag "herdar" extra para manter em sincronia. Na tela principal quem esta
+  /// acima e a faixa de pagamento, entao as duas bandas se emendam por padrao.
   String get corBarraCreditosPrincipalEfetiva =>
       (corBarraCreditosPrincipal?.trim().isEmpty ?? true)
-          ? corPrimaria
+          ? corFaixaEfetiva
           : corBarraCreditosPrincipal!.trim();
 
   String get corBarraCreditosChatEfetiva =>

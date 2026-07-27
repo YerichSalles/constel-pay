@@ -32,7 +32,6 @@ mixin _$ModeloTemaPersonalizado {
   String get textoFaixa => throw _privateConstructorUsedError;
   String get textoFaixaEn => throw _privateConstructorUsedError;
   String get textoFaixaEs => throw _privateConstructorUsedError;
-  bool get pintarBarraCreditosPrincipal => throw _privateConstructorUsedError;
   String? get corBarraCreditosPrincipal => throw _privateConstructorUsedError;
   String? get corBarraCreditosChat => throw _privateConstructorUsedError;
   String get fonte => throw _privateConstructorUsedError;
@@ -67,7 +66,6 @@ abstract class $ModeloTemaPersonalizadoCopyWith<$Res> {
       String textoFaixa,
       String textoFaixaEn,
       String textoFaixaEs,
-      bool pintarBarraCreditosPrincipal,
       String? corBarraCreditosPrincipal,
       String? corBarraCreditosChat,
       String fonte,
@@ -102,7 +100,6 @@ class _$ModeloTemaPersonalizadoCopyWithImpl<$Res,
     Object? textoFaixa = null,
     Object? textoFaixaEn = null,
     Object? textoFaixaEs = null,
-    Object? pintarBarraCreditosPrincipal = null,
     Object? corBarraCreditosPrincipal = freezed,
     Object? corBarraCreditosChat = freezed,
     Object? fonte = null,
@@ -150,10 +147,6 @@ class _$ModeloTemaPersonalizadoCopyWithImpl<$Res,
           ? _value.textoFaixaEs
           : textoFaixaEs // ignore: cast_nullable_to_non_nullable
               as String,
-      pintarBarraCreditosPrincipal: null == pintarBarraCreditosPrincipal
-          ? _value.pintarBarraCreditosPrincipal
-          : pintarBarraCreditosPrincipal // ignore: cast_nullable_to_non_nullable
-              as bool,
       corBarraCreditosPrincipal: freezed == corBarraCreditosPrincipal
           ? _value.corBarraCreditosPrincipal
           : corBarraCreditosPrincipal // ignore: cast_nullable_to_non_nullable
@@ -198,7 +191,6 @@ abstract class _$$ModeloTemaPersonalizadoImplCopyWith<$Res>
       String textoFaixa,
       String textoFaixaEn,
       String textoFaixaEs,
-      bool pintarBarraCreditosPrincipal,
       String? corBarraCreditosPrincipal,
       String? corBarraCreditosChat,
       String fonte,
@@ -232,7 +224,6 @@ class __$$ModeloTemaPersonalizadoImplCopyWithImpl<$Res>
     Object? textoFaixa = null,
     Object? textoFaixaEn = null,
     Object? textoFaixaEs = null,
-    Object? pintarBarraCreditosPrincipal = null,
     Object? corBarraCreditosPrincipal = freezed,
     Object? corBarraCreditosChat = freezed,
     Object? fonte = null,
@@ -280,10 +271,6 @@ class __$$ModeloTemaPersonalizadoImplCopyWithImpl<$Res>
           ? _value.textoFaixaEs
           : textoFaixaEs // ignore: cast_nullable_to_non_nullable
               as String,
-      pintarBarraCreditosPrincipal: null == pintarBarraCreditosPrincipal
-          ? _value.pintarBarraCreditosPrincipal
-          : pintarBarraCreditosPrincipal // ignore: cast_nullable_to_non_nullable
-              as bool,
       corBarraCreditosPrincipal: freezed == corBarraCreditosPrincipal
           ? _value.corBarraCreditosPrincipal
           : corBarraCreditosPrincipal // ignore: cast_nullable_to_non_nullable
@@ -322,7 +309,6 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
       this.textoFaixa = textoFaixaPadrao,
       this.textoFaixaEn = '',
       this.textoFaixaEs = '',
-      this.pintarBarraCreditosPrincipal = false,
       this.corBarraCreditosPrincipal,
       this.corBarraCreditosChat,
       this.fonte = 'Inter',
@@ -361,9 +347,6 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
   @JsonKey()
   final String textoFaixaEs;
   @override
-  @JsonKey()
-  final bool pintarBarraCreditosPrincipal;
-  @override
   final String? corBarraCreditosPrincipal;
   @override
   final String? corBarraCreditosChat;
@@ -378,7 +361,7 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
 
   @override
   String toString() {
-    return 'ModeloTemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, corTexto: $corTexto, corFaixa: $corFaixa, corTextoFaixa: $corTextoFaixa, textoFaixa: $textoFaixa, textoFaixaEn: $textoFaixaEn, textoFaixaEs: $textoFaixaEs, pintarBarraCreditosPrincipal: $pintarBarraCreditosPrincipal, corBarraCreditosPrincipal: $corBarraCreditosPrincipal, corBarraCreditosChat: $corBarraCreditosChat, fonte: $fonte, logoPath: $logoPath, orientacaoTela: $orientacaoTela)';
+    return 'ModeloTemaPersonalizado(corPrimaria: $corPrimaria, corSecundaria: $corSecundaria, corFundo: $corFundo, corBotoes: $corBotoes, corTexto: $corTexto, corFaixa: $corFaixa, corTextoFaixa: $corTextoFaixa, textoFaixa: $textoFaixa, textoFaixaEn: $textoFaixaEn, textoFaixaEs: $textoFaixaEs, corBarraCreditosPrincipal: $corBarraCreditosPrincipal, corBarraCreditosChat: $corBarraCreditosChat, fonte: $fonte, logoPath: $logoPath, orientacaoTela: $orientacaoTela)';
   }
 
   @override
@@ -406,10 +389,6 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
                 other.textoFaixaEn == textoFaixaEn) &&
             (identical(other.textoFaixaEs, textoFaixaEs) ||
                 other.textoFaixaEs == textoFaixaEs) &&
-            (identical(other.pintarBarraCreditosPrincipal,
-                    pintarBarraCreditosPrincipal) ||
-                other.pintarBarraCreditosPrincipal ==
-                    pintarBarraCreditosPrincipal) &&
             (identical(other.corBarraCreditosPrincipal,
                     corBarraCreditosPrincipal) ||
                 other.corBarraCreditosPrincipal == corBarraCreditosPrincipal) &&
@@ -436,7 +415,6 @@ class _$ModeloTemaPersonalizadoImpl extends _ModeloTemaPersonalizado {
       textoFaixa,
       textoFaixaEn,
       textoFaixaEs,
-      pintarBarraCreditosPrincipal,
       corBarraCreditosPrincipal,
       corBarraCreditosChat,
       fonte,
@@ -472,7 +450,6 @@ abstract class _ModeloTemaPersonalizado extends ModeloTemaPersonalizado {
       final String textoFaixa,
       final String textoFaixaEn,
       final String textoFaixaEs,
-      final bool pintarBarraCreditosPrincipal,
       final String? corBarraCreditosPrincipal,
       final String? corBarraCreditosChat,
       final String fonte,
@@ -505,8 +482,6 @@ abstract class _ModeloTemaPersonalizado extends ModeloTemaPersonalizado {
   String get textoFaixaEn;
   @override
   String get textoFaixaEs;
-  @override
-  bool get pintarBarraCreditosPrincipal;
   @override
   String? get corBarraCreditosPrincipal;
   @override

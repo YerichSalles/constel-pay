@@ -14,9 +14,11 @@ import '../../../../compartilhado/layout/layout_responsivo.dart';
 import '../../../../compartilhado/widgets/barra_creditos.dart';
 import '../../../../compartilhado/widgets/barra_superior.dart';
 import '../../../../compartilhado/widgets/captura_leitor_codigo.dart';
+import '../../../../compartilhado/widgets/dialogo_codigo_manual.dart';
 import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
 import '../../../../compartilhado/widgets/imagem_logo.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../nucleo/configuracao/ambiente.dart';
 import '../../../../nucleo/constantes/constantes_app.dart';
 import '../../../comprovante/apresentacao/componentes/card_comprovante.dart';
 import '../../../pagamento/dominio/entidades/metodo_pagamento.dart';
@@ -50,6 +52,11 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
   /// Leitura por câmera: só no Android e só se o operador tiver ligado nas
   /// configurações. No totem Windows a leitura é sempre pelo leitor físico.
   bool _cameraDisponivel = false;
+
+  /// Digitação manual do código: atalho de teste, liberado só quando o
+  /// terminal está em homologação e com a URL desse ambiente preenchida —
+  /// sem ela a consulta não teria para onde ir.
+  bool _digitacaoManualDisponivel = false;
   Timer? _retornoAutomatico;
 
   @override
@@ -63,6 +70,9 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
           _nomeRestaurante = configuracao.nomeRestaurante;
           _cameraDisponivel = configuracao.leituraPorCamera &&
               defaultTargetPlatform == TargetPlatform.android;
+          _digitacaoManualDisponivel =
+              configuracao.ambiente == Ambiente.homologacao &&
+                  configuracao.urlBaseAtiva.isNotEmpty;
         });
       }
       await ref.read(provedorFluxoPagamento.notifier).iniciar();
@@ -122,6 +132,15 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
     }
   }
 
+  /// Abre a digitação manual do código e consulta como se tivesse vindo do
+  /// leitor. Só é alcançável em homologação.
+  Future<void> _digitarCodigoManual(
+      ControladorFluxoPagamento controlador) async {
+    final codigo = await mostrarDialogoCodigoManual(context);
+    if (codigo == null || !mounted) return;
+    await controlador.consultarPorCodigo(codigo);
+  }
+
   int? _ultimoScannerId(EstadoFluxoPagamento estado) => estado.mensagens
       .lastWhereOrNull((m) => m.tipo == TipoMensagem.scanner)
       ?.id;
@@ -149,6 +168,9 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
           aoLerPorCamera:
               _cameraDisponivel ? controlador.consultarPorCodigo : null,
           cameraAtiva: atual && lendo,
+          aoDigitarManual: _digitacaoManualDisponivel && atual && lendo
+              ? () => _digitarCodigoManual(controlador)
+              : null,
         ));
       case TipoMensagem.metodos:
         return recuado(CardMetodosPagamento(

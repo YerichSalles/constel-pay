@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../compartilhado/widgets/cartao.dart';
 import '../../../../compartilhado/widgets/leitor_camera.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -14,6 +15,7 @@ class CardScanner extends StatefulWidget {
     super.key,
     this.aoLerPorCamera,
     this.cameraAtiva = false,
+    this.aoDigitarManual,
   });
 
   /// Quando informado, o card lê pela câmera em vez de exibir só a animação.
@@ -21,6 +23,10 @@ class CardScanner extends StatefulWidget {
 
   /// Mantém a câmera aberta apenas durante a fase de leitura.
   final bool cameraAtiva;
+
+  /// Quando informado, exibe o atalho de digitação manual do código. Só é
+  /// preenchido em homologação, para testar o consumo sem leitor à mão.
+  final VoidCallback? aoDigitarManual;
 
   @override
   State<CardScanner> createState() => _CardScannerState();
@@ -238,19 +244,80 @@ class _CardScannerState extends State<CardScanner>
     );
   }
 
+  /// Selo que deixa claro que a digitação manual é recurso de homologação, e
+  /// não parte do atendimento normal.
+  Widget _seloHomologacao(AppLocalizations t) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: CoresApp.textoPrincipal.withValues(alpha: .07),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        t.homologationBadge.toUpperCase(),
+        style: const TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
+          letterSpacing: .5,
+          color: CoresApp.textoPrincipal,
+        ),
+      ),
+    );
+  }
+
+  Widget _atalhoDigitacaoManual(Color primaria, AppLocalizations t) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 12),
+        _seloHomologacao(t),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            key: const Key('botao_digitar_codigo_manual'),
+            onPressed: widget.aoDigitarManual,
+            icon: const Icon(Icons.keyboard_alt_outlined, size: 18),
+            label: Text(t.manualEntryButton),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: primaria,
+              side:
+                  BorderSide(color: primaria.withValues(alpha: .4), width: 1.5),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14)),
+              textStyle:
+                  const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final primaria = Theme.of(context).colorScheme.primary;
     final t = AppLocalizations.of(context);
+    final leitura = widget.aoLerPorCamera == null
+        ? _visor(primaria, t)
+        : LeitorCamera(
+            aoLer: widget.aoLerPorCamera!,
+            ativo: widget.cameraAtiva,
+            altura: _alturaVisor,
+            reserva: _visor(primaria, t),
+          );
     return Cartao(
       preenchimento: const EdgeInsets.all(16),
-      filho: widget.aoLerPorCamera == null
-          ? _visor(primaria, t)
-          : LeitorCamera(
-              aoLer: widget.aoLerPorCamera!,
-              ativo: widget.cameraAtiva,
-              altura: _alturaVisor,
-              reserva: _visor(primaria, t),
+      filho: widget.aoDigitarManual == null
+          ? leitura
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                leitura,
+                _atalhoDigitacaoManual(primaria, t),
+              ],
             ),
     );
   }

@@ -155,6 +155,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanPositionHint => 'Position the card code inside the frame';
 
   @override
+  String get homologationBadge => 'Staging';
+
+  @override
+  String get manualEntryButton => 'Enter code manually';
+
+  @override
+  String get manualEntryTitle => 'Enter card code';
+
+  @override
+  String get manualEntryFieldLabel => 'Card code';
+
+  @override
+  String get manualEntryConfirm => 'Look up';
+
+  @override
+  String get manualEntryCancel => 'Cancel';
+
+  @override
   String get paidLabel => 'Paid ✓';
 
   @override

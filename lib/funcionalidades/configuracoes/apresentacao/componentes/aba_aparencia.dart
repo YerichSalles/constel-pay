@@ -254,45 +254,13 @@ class _AbaAparenciaState extends ConsumerState<AbaAparencia>
       filho: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          MergeSemantics(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => _editar(tema.copyWith(
-                  pintarBarraCreditosPrincipal:
-                      !tema.pintarBarraCreditosPrincipal)),
-              child: Row(
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'Pintar a barra na tela principal',
-                      style:
-                          TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                  Switch(
-                    key: const Key('interruptor_barra_creditos_principal'),
-                    value: tema.pintarBarraCreditosPrincipal,
-                    onChanged: (valor) => _editar(
-                        tema.copyWith(pintarBarraCreditosPrincipal: valor)),
-                  ),
-                ],
-              ),
-            ),
+          CampoCor(
+            key: const Key('cor_barra_creditos_principal'),
+            rotulo: 'Cor da barra na tela principal',
+            valorHex: tema.corBarraCreditosPrincipalEfetiva,
+            aoMudar: (hex) =>
+                _editar(tema.copyWith(corBarraCreditosPrincipal: hex)),
           ),
-          const Text(
-            'Desligada, a barra fica transparente sobre a faixa de pagamento.',
-            style: TextStyle(fontSize: 11.5, color: CoresApp.textoSecundario),
-          ),
-          if (tema.pintarBarraCreditosPrincipal) ...[
-            const SizedBox(height: 14),
-            CampoCor(
-              key: const Key('cor_barra_creditos_principal'),
-              rotulo: 'Cor da barra na tela principal',
-              valorHex: tema.corBarraCreditosPrincipalEfetiva,
-              aoMudar: (hex) =>
-                  _editar(tema.copyWith(corBarraCreditosPrincipal: hex)),
-            ),
-          ],
           const SizedBox(height: 14),
           CampoCor(
             key: const Key('cor_barra_creditos_chat'),

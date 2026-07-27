@@ -239,37 +239,21 @@ void main() {
     expect((avatar.decoration as BoxDecoration).color, const Color(0xFF123456));
   });
 
-  testWidgets(
-      'a cor da barra da tela principal só aparece com o interruptor ligado '
-      'e nasce herdando a cor principal', (tester) async {
+  testWidgets('a cor da barra da tela principal nasce herdando a cor principal',
+      (tester) async {
     await _montarAba(tester,
         temaSalvo: const TemaPersonalizado(corPrimaria: '#112233'));
-
-    final interruptor =
-        find.byKey(const Key('interruptor_barra_creditos_principal'));
-    await _rolarAte(tester, interruptor);
-    expect(find.byKey(const Key('cor_barra_creditos_principal')), findsNothing);
-
-    await tester.tap(interruptor);
-    await tester.pumpAndSettle();
 
     await _rolarAte(
         tester, find.byKey(const Key('cor_barra_creditos_principal')));
     final campo = tester.widget<TextFormField>(
         _campoHex(const Key('cor_barra_creditos_principal')));
     expect(campo.controller!.text, '#112233');
-    expect(find.text('Alterações não salvas'), findsOneWidget);
   });
 
   testWidgets('as cores das barras de créditos persistem ao aplicar',
       (tester) async {
     final container = await _montarAba(tester);
-
-    await _rolarAte(
-        tester, find.byKey(const Key('interruptor_barra_creditos_principal')));
-    await tester
-        .tap(find.byKey(const Key('interruptor_barra_creditos_principal')));
-    await tester.pumpAndSettle();
 
     await _rolarAte(
         tester, find.byKey(const Key('cor_barra_creditos_principal')));
@@ -281,14 +265,11 @@ void main() {
         _campoHex(const Key('cor_barra_creditos_chat')), '#C0392B');
     await tester.pumpAndSettle();
 
-    expect(container.read(provedorTema).pintarBarraCreditosPrincipal, isFalse);
-
     await tester.tap(find.text('Aplicar alterações'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
     final salvo = container.read(provedorTema);
-    expect(salvo.pintarBarraCreditosPrincipal, isTrue);
     expect(salvo.corBarraCreditosPrincipal, '#1B7F3B');
     expect(salvo.corBarraCreditosChat, '#C0392B');
   });
@@ -299,13 +280,8 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await _montarAba(tester);
 
-    expect(find.byKey(const Key('previa_barra_creditos')), findsNothing);
-
     await _rolarAte(
-        tester, find.byKey(const Key('interruptor_barra_creditos_principal')));
-    await tester
-        .tap(find.byKey(const Key('interruptor_barra_creditos_principal')));
-    await tester.pumpAndSettle();
+        tester, find.byKey(const Key('cor_barra_creditos_principal')));
     await tester.enterText(
         _campoHex(const Key('cor_barra_creditos_principal')), '#123456');
     await tester.pumpAndSettle();

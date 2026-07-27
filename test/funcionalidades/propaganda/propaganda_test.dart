@@ -1,5 +1,6 @@
 import 'package:constel_pay/aplicativo/injecao.dart';
 import 'package:constel_pay/aplicativo/tema/tema_constel.dart';
+import 'package:constel_pay/compartilhado/widgets/barra_creditos.dart';
 import 'package:constel_pay/compartilhado/widgets/faixa_pagamento.dart';
 import 'package:constel_pay/compartilhado/widgets/seletor_idioma.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/tema_personalizado.dart';
@@ -291,6 +292,68 @@ void main() {
 
     expect(find.text('Tap to pay'), findsOneWidget);
     expect(find.text('Toque para pagar'), findsNothing);
+  });
+
+  // A cor da barra inferior vale sempre na tela principal, sem interruptor —
+  // e a barra fica abaixo da faixa, não sobreposta a ela.
+  testWidgets('a barra de créditos usa a cor configurada e fica sob a faixa',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    final container = ProviderContainer(
+      overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+    );
+    addTearDown(container.dispose);
+    await container.read(provedorTema.notifier).atualizar(
+          const TemaPersonalizado(
+            corPrimaria: '#112233',
+            corFaixa: '#C0392B',
+            corBarraCreditosPrincipal: '#1B7F3B',
+          ),
+        );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: appPropaganda(roteadorPropagandaEChat()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    final material = tester.widget<Material>(find.descendant(
+        of: find.byType(BarraCreditos), matching: find.byType(Material)));
+    expect(material.color, const Color(0xFF1B7F3B));
+
+    final faixa = tester.getRect(find.byType(FaixaPagamento));
+    final barra = tester.getRect(find.byType(BarraCreditos));
+    expect(barra.top, greaterThanOrEqualTo(faixa.bottom));
+  });
+
+  testWidgets('a barra de créditos herda a cor principal quando não escolhida',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferencias = await SharedPreferences.getInstance();
+    final container = ProviderContainer(
+      overrides: [provedorSharedPreferences.overrideWithValue(preferencias)],
+    );
+    addTearDown(container.dispose);
+    await container
+        .read(provedorTema.notifier)
+        .atualizar(const TemaPersonalizado(corPrimaria: '#112233'));
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: appPropaganda(roteadorPropagandaEChat()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    final material = tester.widget<Material>(find.descendant(
+        of: find.byType(BarraCreditos), matching: find.byType(Material)));
+    expect(material.color, const Color(0xFF112233));
   });
 
   testWidgets('a faixa mostra o texto personalizado do idioma atual do cliente',

@@ -19,8 +19,6 @@ _$ModeloTemaPersonalizadoImpl _$$ModeloTemaPersonalizadoImplFromJson(
       textoFaixa: json['textoFaixa'] as String? ?? textoFaixaPadrao,
       textoFaixaEn: json['textoFaixaEn'] as String? ?? '',
       textoFaixaEs: json['textoFaixaEs'] as String? ?? '',
-      pintarBarraCreditosPrincipal:
-          json['pintarBarraCreditosPrincipal'] as bool? ?? false,
       corBarraCreditosPrincipal: json['corBarraCreditosPrincipal'] as String?,
       corBarraCreditosChat: json['corBarraCreditosChat'] as String?,
       fonte: json['fonte'] as String? ?? 'Inter',
@@ -44,7 +42,6 @@ Map<String, dynamic> _$$ModeloTemaPersonalizadoImplToJson(
       'textoFaixa': instance.textoFaixa,
       'textoFaixaEn': instance.textoFaixaEn,
       'textoFaixaEs': instance.textoFaixaEs,
-      'pintarBarraCreditosPrincipal': instance.pintarBarraCreditosPrincipal,
       'corBarraCreditosPrincipal': instance.corBarraCreditosPrincipal,
       'corBarraCreditosChat': instance.corBarraCreditosChat,
       'fonte': instance.fonte,

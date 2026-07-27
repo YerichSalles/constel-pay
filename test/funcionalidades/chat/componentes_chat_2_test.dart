@@ -41,6 +41,26 @@ void main() {
     expect(find.byType(LeitorCamera), findsNothing);
   });
 
+  testWidgets('CardScanner sem aoDigitarManual nao mostra o atalho manual',
+      (tester) async {
+    await tester.pumpWidget(_app(const CardScanner()));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Digitar código manualmente'), findsNothing);
+    expect(find.text('HOMOLOGAÇÃO'), findsNothing);
+  });
+
+  testWidgets(
+      'CardScanner com aoDigitarManual mostra o atalho marcado '
+      'como homologacao e o aciona', (tester) async {
+    var digitou = false;
+    await tester
+        .pumpWidget(_app(CardScanner(aoDigitarManual: () => digitou = true)));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('HOMOLOGAÇÃO'), findsOneWidget);
+    await tester.tap(find.text('Digitar código manualmente'));
+    expect(digitou, isTrue);
+  });
+
   testWidgets(
       'AreaAcoes oferece ler outro cartao mesmo sem contagem de restantes '
       '(caso da API real, que nao informa quantos faltam)', (tester) async {

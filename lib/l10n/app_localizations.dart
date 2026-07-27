@@ -304,6 +304,42 @@ abstract class AppLocalizations {
   /// **'Posicione o código do cartão dentro da área'**
   String get scanPositionHint;
 
+  /// Selo que marca recursos disponíveis apenas no ambiente de homologação.
+  ///
+  /// In pt, this message translates to:
+  /// **'Homologação'**
+  String get homologationBadge;
+
+  /// Botão do visor de leitura que abre a digitação manual do código (só em homologação).
+  ///
+  /// In pt, this message translates to:
+  /// **'Digitar código manualmente'**
+  String get manualEntryButton;
+
+  /// Título do diálogo de digitação manual do código do cartão.
+  ///
+  /// In pt, this message translates to:
+  /// **'Digitar código do cartão'**
+  String get manualEntryTitle;
+
+  /// Rótulo do campo de digitação manual do código do cartão.
+  ///
+  /// In pt, this message translates to:
+  /// **'Código do cartão'**
+  String get manualEntryFieldLabel;
+
+  /// Botão que confirma o código digitado manualmente.
+  ///
+  /// In pt, this message translates to:
+  /// **'Consultar'**
+  String get manualEntryConfirm;
+
+  /// Botão que fecha o diálogo de digitação manual sem consultar.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cancelar'**
+  String get manualEntryCancel;
+
   /// Rótulo exibido no cartão de comanda quando ela já foi paga.
   ///
   /// In pt, this message translates to:

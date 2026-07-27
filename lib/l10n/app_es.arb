@@ -37,6 +37,13 @@
 
   "scanPositionHint": "Coloca el código de la tarjeta dentro del área",
 
+  "homologationBadge": "Homologación",
+  "manualEntryButton": "Escribir el código manualmente",
+  "manualEntryTitle": "Escribir el código de la tarjeta",
+  "manualEntryFieldLabel": "Código de la tarjeta",
+  "manualEntryConfirm": "Consultar",
+  "manualEntryCancel": "Cancelar",
+
   "paidLabel": "Pagado ✓",
   "subtotalLabel": "Subtotal",
   "serviceFeeLabel": "Tarifa de servicio ({percent})",

@@ -73,7 +73,6 @@ void main() {
       final repositorio =
           RepositorioTemaImpl(await SharedPreferences.getInstance());
       const tema = TemaPersonalizado(
-        pintarBarraCreditosPrincipal: true,
         corBarraCreditosPrincipal: '#1B7F3B',
         corBarraCreditosChat: '#C0392B',
       );
@@ -91,7 +90,6 @@ void main() {
       final repositorio =
           RepositorioTemaImpl(await SharedPreferences.getInstance());
       final tema = await repositorio.obter();
-      expect(tema.pintarBarraCreditosPrincipal, isFalse);
       expect(tema.corBarraCreditosPrincipalEfetiva, '#C0392B');
       expect(tema.corBarraCreditosChatEfetiva, '#C0392B');
     });
@@ -112,6 +110,17 @@ void main() {
       expect(propria.corBarraCreditosChatEfetiva, '#112233');
     });
 
+    // Na tela principal a barra continua a faixa: sem cor propria ela segue a
+    // cor da faixa, e nao a primaria, para as duas bandas se emendarem.
+    test('sem cor propria, a barra da tela principal acompanha a faixa', () {
+      const tema = TemaPersonalizado(
+        corPrimaria: '#112233',
+        corFaixa: '#C0392B',
+      );
+      expect(tema.corBarraCreditosPrincipalEfetiva, '#C0392B');
+      expect(tema.corBarraCreditosChatEfetiva, '#112233');
+    });
+
     test('campo limpo ou so com espacos volta a herdar a primaria', () {
       const vazias = TemaPersonalizado(
         corPrimaria: '#FFD166',
@@ -120,10 +129,6 @@ void main() {
       );
       expect(vazias.corBarraCreditosPrincipalEfetiva, '#FFD166');
       expect(vazias.corBarraCreditosChatEfetiva, '#FFD166');
-    });
-
-    test('a barra da tela principal nasce sem pintura', () {
-      expect(const TemaPersonalizado().pintarBarraCreditosPrincipal, isFalse);
     });
   });
 

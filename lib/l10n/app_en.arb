@@ -37,6 +37,13 @@
 
   "scanPositionHint": "Position the card code inside the frame",
 
+  "homologationBadge": "Staging",
+  "manualEntryButton": "Enter code manually",
+  "manualEntryTitle": "Enter card code",
+  "manualEntryFieldLabel": "Card code",
+  "manualEntryConfirm": "Look up",
+  "manualEntryCancel": "Cancel",
+
   "paidLabel": "Paid ✓",
   "subtotalLabel": "Subtotal",
   "serviceFeeLabel": "Service fee ({percent})",

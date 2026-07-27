@@ -156,6 +156,24 @@ class AppLocalizationsPt extends AppLocalizations {
   String get scanPositionHint => 'Posicione o código do cartão dentro da área';
 
   @override
+  String get homologationBadge => 'Homologação';
+
+  @override
+  String get manualEntryButton => 'Digitar código manualmente';
+
+  @override
+  String get manualEntryTitle => 'Digitar código do cartão';
+
+  @override
+  String get manualEntryFieldLabel => 'Código do cartão';
+
+  @override
+  String get manualEntryConfirm => 'Consultar';
+
+  @override
+  String get manualEntryCancel => 'Cancelar';
+
+  @override
   String get paidLabel => 'Pago ✓';
 
   @override

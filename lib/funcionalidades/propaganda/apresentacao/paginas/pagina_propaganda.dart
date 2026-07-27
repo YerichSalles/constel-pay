@@ -133,33 +133,32 @@ class _PaginaPropagandaState extends ConsumerState<PaginaPropaganda> {
     final textoFaixa = tema.textoFaixaParaIdioma(
         idioma, AppLocalizations.of(context).tapToPay);
 
-    // A barra de créditos sobrepõe a base da faixa sem empurrá-la para cima:
-    // a mensagem fica centralizada na banda inteira do rodapé e os créditos,
-    // pequenos, moram nos cantos. Sobreposta, a barra não pinta fundo próprio
-    // (sobreCor) para não decepar os descendentes da mensagem — a menos que o
-    // operador peça uma cor para ela nas configurações de aparência.
+    // A barra de créditos fica logo abaixo da faixa, com a cor escolhida nas
+    // configurações de aparência (por padrão a mesma cor principal, então as
+    // duas bandas se emendam). Abaixo, e não sobreposta, para não decepar os
+    // descendentes da mensagem quando as cores forem diferentes.
+    final creditos = BarraCreditos(
+        corFundo: TemaConstel.corDeHex(
+            tema.corBarraCreditosPrincipalEfetiva, primaria));
     final Widget rodape;
     if (estado.carregando) {
-      rodape = widget.preview ? const SizedBox.shrink() : const BarraCreditos();
+      rodape = widget.preview ? const SizedBox.shrink() : creditos;
     } else {
-      final corFaixa = TemaConstel.corDeHex(tema.corFaixaEfetiva, primaria);
       final faixa = FaixaPagamento(
         texto: textoFaixa,
-        corFundo: corFaixa,
+        corFundo: TemaConstel.corDeHex(tema.corFaixaEfetiva, primaria),
         corTexto: TemaConstel.corDeHex(tema.corTextoFaixa, Colors.white),
         fonte: tema.fonte,
       );
-      final creditos = tema.pintarBarraCreditosPrincipal
-          ? BarraCreditos(
-              corFundo: TemaConstel.corDeHex(
-                  tema.corBarraCreditosPrincipalEfetiva, primaria))
-          : BarraCreditos(sobreCor: corFaixa);
+      // Com a barra embaixo, quem reserva o recorte inferior do sistema é ela;
+      // a faixa deixa de reservar para o espaço não ser contado duas vezes.
       rodape = widget.preview
           ? faixa
-          : Stack(
-              alignment: Alignment.bottomCenter,
-              children: [faixa, creditos],
-            );
+          : Column(mainAxisSize: MainAxisSize.min, children: [
+              MediaQuery.removePadding(
+                  context: context, removeBottom: true, child: faixa),
+              creditos,
+            ]);
     }
 
     final conteudo = Column(
