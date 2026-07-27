@@ -29,6 +29,21 @@ abstract final class ServicoJanelaTotem {
     }
   }
 
+  /// Executa [acao] com o "sempre no topo" suspenso no Windows, para que um
+  /// diálogo nativo do sistema (como o seletor de arquivos) apareça na frente
+  /// do app em vez de ficar preso atrás da janela do totem. Restaura o modo
+  /// totem ao final, mesmo se [acao] falhar. Nas demais plataformas só executa
+  /// a ação.
+  static Future<T> comSempreNoTopoSuspenso<T>(Future<T> Function() acao) async {
+    if (!_ehWindows) return acao();
+    await definirSempreNoTopoWindows(false);
+    try {
+      return await acao();
+    } finally {
+      await definirSempreNoTopoWindows(true);
+    }
+  }
+
   /// Android: `immersiveSticky` oculta as barras do sistema e as reexibe só
   /// temporariamente quando o usuário desliza a partir da borda, voltando a
   /// escondê-las sozinho — adequado a um terminal de autoatendimento.

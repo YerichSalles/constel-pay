@@ -27,3 +27,15 @@ Future<void> configurarJanelaWindowsTotem() async {
     await windowManager.focus();
   });
 }
+
+/// Liga/desliga o "sempre no topo" da janela do totem no Windows. Diálogos
+/// nativos do sistema (ex.: seletor de arquivos) não são topmost: com a
+/// janela sempre no topo eles abrem ATRÁS do app, que fica bloqueado pelo
+/// modal invisível. Suspender o topo enquanto o diálogo está aberto deixa
+/// ele vir para a frente; ao religar, o foco volta para o app.
+Future<void> definirSempreNoTopoWindows(bool ativo) async {
+  await windowManager.setAlwaysOnTop(ativo);
+  if (ativo) {
+    await windowManager.focus();
+  }
+}

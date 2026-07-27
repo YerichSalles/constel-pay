@@ -4,6 +4,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../nucleo/janela/servico_janela_totem.dart';
+
 const Uuid _uuid = Uuid();
 
 /// Resultado da seleção: caminhos copiados + indicação de falha parcial.
@@ -49,15 +51,17 @@ Future<ResultadoSelecaoMidia> escolherECopiarMidias({
   required List<String> extensoes,
   bool multiplas = true,
 }) async {
-  // lockParentWindow: no Windows o pickFiles bloqueia a UI e, sem janela
-  // pai, o diálogo nativo pode abrir ATRÁS do app (quase tela cheia no
-  // totem) — o app parece congelado para sempre. Preso à janela pai, o
-  // diálogo vem modal e na frente.
-  final resultado = await FilePicker.pickFiles(
-    allowMultiple: multiplas,
-    type: FileType.custom,
-    allowedExtensions: extensoes,
-    lockParentWindow: true,
+  // No Windows o diálogo nativo não é topmost: com a janela do totem sempre
+  // no topo, ele abre ATRÁS do app, que fica bloqueado pelo modal invisível.
+  // Suspender o "sempre no topo" enquanto o diálogo está aberto o traz para
+  // a frente; lockParentWindow o mantém modal, preso à janela do app.
+  final resultado = await ServicoJanelaTotem.comSempreNoTopoSuspenso(
+    () => FilePicker.pickFiles(
+      allowMultiple: multiplas,
+      type: FileType.custom,
+      allowedExtensions: extensoes,
+      lockParentWindow: true,
+    ),
   );
   final caminhos =
       resultado?.files.map((f) => f.path).whereType<String>().toList() ??

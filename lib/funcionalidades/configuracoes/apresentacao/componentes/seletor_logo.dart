@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../../../aplicativo/injecao.dart';
 import '../../../../aplicativo/tema/cores_app.dart';
+import '../../../../nucleo/janela/servico_janela_totem.dart';
 import '../../../../compartilhado/feedback/snackbar_padrao.dart';
 import '../../../../compartilhado/widgets/botao_secundario.dart';
 import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
@@ -17,9 +18,14 @@ class SeletorLogo extends ConsumerWidget {
   const SeletorLogo({super.key});
 
   Future<void> _escolher(BuildContext context, WidgetRef ref) async {
-    final resultado = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: extensoesLogoAceitas,
+    // Mesma mecânica da seleção de mídias: sem o "sempre no topo" suspenso,
+    // o diálogo nativo abre atrás do totem e o app fica bloqueado.
+    final resultado = await ServicoJanelaTotem.comSempreNoTopoSuspenso(
+      () => FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: extensoesLogoAceitas,
+        lockParentWindow: true,
+      ),
     );
     final caminhoOrigem = resultado?.files.single.path;
     if (caminhoOrigem == null) return;
