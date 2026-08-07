@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -36,11 +36,17 @@ class _AbaComunicacaoState extends ConsumerState<AbaComunicacao> {
   final _urlNuvemHomologacao = TextEditingController();
   Ambiente _ambiente = Ambiente.homologacao;
   bool _leituraPorCamera = false;
+  bool _leituraPorNfc = false;
   bool _preenchido = false;
 
   /// A leitura por câmera só existe no Android; no totem Windows a leitura é
   /// sempre pelo leitor físico, então o toggle nem aparece.
   bool get _suportaCamera => defaultTargetPlatform == TargetPlatform.android;
+
+  /// Mesmo critério da câmera: o toggle aparece no Android independente da
+  /// build ter ou não a antena da adquirente embarcada — sem leitor, o
+  /// gateway já reporta indisponível em runtime.
+  bool get _suportaNfc => defaultTargetPlatform == TargetPlatform.android;
 
   @override
   void initState() {
@@ -89,6 +95,7 @@ class _AbaComunicacaoState extends ConsumerState<AbaComunicacao> {
           identificadorDispositivo: _identificador.text,
           idDispositivo: _idDispositivo.text,
           leituraPorCamera: _leituraPorCamera,
+          leituraPorNfc: _leituraPorNfc,
         );
   }
 
@@ -146,6 +153,36 @@ class _AbaComunicacaoState extends ConsumerState<AbaComunicacao> {
                   value: _leituraPorCamera,
                   onChanged: (valor) =>
                       setState(() => _leituraPorCamera = valor),
+                ),
+              ],
+            ),
+          ],
+          if (_suportaNfc) ...[
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Ler cartão por NFC',
+                          style: TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w600)),
+                      SizedBox(height: 2),
+                      Text(
+                        'Para maquininhas sem leitor de código de barras nem '
+                        'câmera. Só funciona com a adquirente embarcada.',
+                        style: TextStyle(
+                            fontSize: 11.5, color: CoresApp.textoSecundario),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Switch(
+                  key: const Key('interruptor_leitura_nfc'),
+                  value: _leituraPorNfc,
+                  onChanged: (valor) => setState(() => _leituraPorNfc = valor),
                 ),
               ],
             ),
@@ -278,6 +315,7 @@ class _AbaComunicacaoState extends ConsumerState<AbaComunicacao> {
       _urlNuvemHomologacao.text = estado.configuracao.urlNuvemHomologacao;
       _ambiente = estado.configuracao.ambiente;
       _leituraPorCamera = estado.configuracao.leituraPorCamera;
+      _leituraPorNfc = estado.configuracao.leituraPorNfc;
       _preenchido = true;
     }
 

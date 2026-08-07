@@ -18,6 +18,7 @@ class AreaAcoes extends StatelessWidget {
     required this.aoNovaOperacao,
     required this.aoTentarNovamente,
     required this.aoContinuarComCartoes,
+    required this.aoTentarEncerrarNovamente,
   });
 
   final EstadoFluxoPagamento estado;
@@ -28,6 +29,7 @@ class AreaAcoes extends StatelessWidget {
   final VoidCallback aoNovaOperacao;
   final VoidCallback aoTentarNovamente;
   final VoidCallback aoContinuarComCartoes;
+  final VoidCallback aoTentarEncerrarNovamente;
 
   List<Widget> _chips(AppLocalizations t) {
     if (estado.digitando) return const [];
@@ -68,6 +70,15 @@ class AreaAcoes extends StatelessWidget {
                     t.continueWithAddedCardsCount(estado.selecionados.length),
                 aoTocar: aoContinuarComCartoes,
                 primario: true),
+        ];
+      case EtapaFluxo.falhaAposCobranca:
+        // Cliente já foi debitado: nunca oferecer escolher método de novo,
+        // só repetir o encerramento.
+        return [
+          ChipAcao(
+              rotulo: t.retryClosingButton,
+              aoTocar: aoTentarEncerrarNovamente,
+              primario: true),
         ];
       case EtapaFluxo.sucessoComRestante:
         return [

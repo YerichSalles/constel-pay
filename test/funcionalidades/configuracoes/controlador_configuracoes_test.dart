@@ -192,6 +192,32 @@ void main() {
     expect(const ConfiguracaoTerminal().leituraPorCamera, isFalse);
   });
 
+  test('salvarComunicacao grava e persiste a leitura por NFC', () async {
+    await controlador.salvarComunicacao(
+      usuario: 'operador',
+      senha: 's3nh4',
+      ambiente: Ambiente.homologacao,
+      urlProducao: '',
+      urlHomologacao: '',
+      leituraPorNfc: true,
+    );
+    expect((await repositorioConfiguracao.obter()).leituraPorNfc, isTrue);
+
+    // Omitir o campo preserva o valor salvo, igual à câmera.
+    await controlador.salvarComunicacao(
+      usuario: 'operador',
+      senha: 's3nh4',
+      ambiente: Ambiente.homologacao,
+      urlProducao: '',
+      urlHomologacao: '',
+    );
+    expect((await repositorioConfiguracao.obter()).leituraPorNfc, isTrue);
+  });
+
+  test('leitura por NFC vem desligada por padrão', () async {
+    expect(const ConfiguracaoTerminal().leituraPorNfc, isFalse);
+  });
+
   test('salvarComunicacao invalida a sessão de nuvem gravada', () async {
     repositorioSessao.salva = _sessao();
     await controlador.salvarComunicacao(

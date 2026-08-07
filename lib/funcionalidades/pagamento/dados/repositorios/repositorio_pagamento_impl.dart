@@ -4,12 +4,12 @@ import '../../dominio/entidades/dados_pix.dart';
 import '../../dominio/entidades/pagamento.dart';
 import '../../dominio/entidades/status_pagamento.dart';
 import '../../dominio/repositorios/repositorio_pagamento.dart';
-import '../fontes_dados/fonte_pagamento_mock.dart';
+import '../fontes_dados/fonte_pagamento.dart';
 
 class RepositorioPagamentoImpl implements RepositorioPagamento {
   RepositorioPagamentoImpl(this._fonte);
 
-  final FontePagamentoMock _fonte;
+  final FontePagamento _fonte;
 
   @override
   Future<Resultado<DadosPix>> gerarPix({

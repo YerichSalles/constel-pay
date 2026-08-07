@@ -304,6 +304,12 @@ abstract class AppLocalizations {
   /// **'Posicione o código do cartão dentro da área'**
   String get scanPositionHint;
 
+  /// Texto sobreposto ao visor de leitura por NFC.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aproxime o cartão do leitor'**
+  String get nfcApproachCardHint;
+
   /// Selo que marca recursos disponíveis apenas no ambiente de homologação.
   ///
   /// In pt, this message translates to:
@@ -532,6 +538,24 @@ abstract class AppLocalizations {
   /// **'Ocorreu um erro inesperado.'**
   String get errorUnknown;
 
+  /// Mensagem de FalhaTerminalPagamento. Nada foi cobrado: repetir é seguro.
+  ///
+  /// In pt, this message translates to:
+  /// **'A maquininha não respondeu. Chame o atendente e tente novamente.'**
+  String get errorPaymentTerminal;
+
+  /// Mensagem de FalhaPagamentoIndeterminado. A cobrança pode ter ocorrido: nunca oferecer repetição automática.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível confirmar o pagamento. Chame o atendente antes de tentar de novo.'**
+  String get errorPaymentUndetermined;
+
+  /// Orientação exibida quando a cobrança passa para o terminal físico da adquirente.
+  ///
+  /// In pt, this message translates to:
+  /// **'Siga as instruções na maquininha para concluir o pagamento.'**
+  String get terminalFollowInstructions;
+
   /// Rótulo do método de pagamento Pix.
   ///
   /// In pt, this message translates to:
@@ -717,6 +741,24 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Não foi possível encerrar a conta'**
   String get closingErrorTitle;
+
+  /// Falado ao cliente no totem quando o encerramento falha DEPOIS do pagamento aprovado: o pagamento dele deu certo, só o fechamento da comanda não concluiu.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pagamento aprovado! Só falta fechar a conta'**
+  String get closingErrorAlreadyChargedTitle;
+
+  /// Tranquiliza o cliente de que não haverá nova cobrança e indica a ação seguinte.
+  ///
+  /// In pt, this message translates to:
+  /// **'Seu pagamento foi concluído e não será cobrado de novo. Toque abaixo para finalizar.'**
+  String get closingErrorAlreadyChargedSubtitle;
+
+  /// Ação que repete só o fechamento da comanda, sem novo pagamento.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tentar encerrar novamente'**
+  String get retryClosingButton;
 }
 
 class _AppLocalizationsDelegate

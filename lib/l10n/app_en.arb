@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "en",
 
   "welcomeMessage": "Hello! Welcome. I'll help you pay your bill in just a few seconds. 😊",
@@ -36,6 +36,7 @@
   "totalBarServiceSuffix": " · includes service",
 
   "scanPositionHint": "Position the card code inside the frame",
+  "nfcApproachCardHint": "Bring the card close to the reader",
 
   "homologationBadge": "Staging",
   "manualEntryButton": "Enter code manually",
@@ -84,6 +85,9 @@
   "errorServer": "Error communicating with the server.",
   "errorUnauthorized": "Unauthorized access. Check your username and password.",
   "errorUnknown": "An unexpected error occurred.",
+  "errorPaymentTerminal": "The card machine did not respond. Please call an attendant and try again.",
+  "terminalFollowInstructions": "Follow the instructions on the card machine to complete the payment.",
+  "errorPaymentUndetermined": "We could not confirm the payment. Please call an attendant before trying again.",
 
   "paymentMethodPix": "Pix",
   "paymentMethodCredit": "Credit",
@@ -119,5 +123,8 @@
   "closingPreparing": "Preparing closure…",
   "closingGeneratingInvoice": "Generating invoice…",
   "closingConfirming": "Confirming closure…",
-  "closingErrorTitle": "We couldn't close your bill"
+  "closingErrorTitle": "We couldn't close your bill",
+  "closingErrorAlreadyChargedTitle": "Payment approved! We just need to close your bill",
+  "closingErrorAlreadyChargedSubtitle": "Your payment went through and you won't be charged again. Tap below to finish.",
+  "retryClosingButton": "Retry closing"
 }

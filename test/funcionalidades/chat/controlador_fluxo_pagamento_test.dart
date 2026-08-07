@@ -1,4 +1,4 @@
-import 'package:constel_pay/funcionalidades/chat/apresentacao/controladores/controlador_fluxo_pagamento.dart';
+﻿import 'package:constel_pay/funcionalidades/chat/apresentacao/controladores/controlador_fluxo_pagamento.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/controladores/estado_fluxo_pagamento.dart';
 import 'package:constel_pay/funcionalidades/chat/dominio/entidades/tipo_mensagem.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/configuracao_terminal.dart';
@@ -9,7 +9,7 @@ import 'package:constel_pay/funcionalidades/leitura_cartao/dados/fontes_dados/fo
 import 'package:constel_pay/funcionalidades/leitura_cartao/dominio/entidades/atendimento.dart';
 import 'package:constel_pay/funcionalidades/leitura_cartao/dados/repositorios/repositorio_leitura_impl.dart';
 import 'package:constel_pay/funcionalidades/leitura_cartao/dominio/casos_uso/caso_uso_ler_cartao.dart';
-import 'package:constel_pay/funcionalidades/pagamento/dados/fontes_dados/fonte_pagamento_mock.dart';
+import 'package:constel_pay/funcionalidades/pagamento/dados/fontes_dados/gateway_pagamento_mock.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dados/repositorios/repositorio_pagamento_impl.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/casos_uso/caso_uso_gerar_pix.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/casos_uso/caso_uso_processar_pagamento.dart';
@@ -92,7 +92,7 @@ const _atendimento502 = Atendimento(
 /// padrão pt-BR usado no `setUp` principal.
 ControladorFluxoPagamento _criarControlador(Locale locale) {
   final fonteLeitura = FonteLeituraMock(atraso: Duration.zero);
-  final fontePagamento = FontePagamentoMock(atraso: Duration.zero);
+  final fontePagamento = GatewayPagamentoMock(atraso: Duration.zero);
   final repositorioLeitura = RepositorioLeituraImpl(fonteLeitura);
   final repositorioPagamento = RepositorioPagamentoImpl(fontePagamento);
   return ControladorFluxoPagamento(
@@ -110,7 +110,7 @@ ControladorFluxoPagamento _criarControlador(Locale locale) {
 }
 
 void main() {
-  late FontePagamentoMock fontePagamento;
+  late GatewayPagamentoMock fontePagamento;
   late RepositorioLeituraImpl repositorioLeitura;
   late ControladorFluxoPagamento controlador;
   late _FonteConsumoFake fonteConsumo;
@@ -118,7 +118,7 @@ void main() {
 
   setUp(() {
     final fonteLeitura = FonteLeituraMock(atraso: Duration.zero);
-    fontePagamento = FontePagamentoMock(atraso: Duration.zero);
+    fontePagamento = GatewayPagamentoMock(atraso: Duration.zero);
     repositorioLeitura = RepositorioLeituraImpl(fonteLeitura);
     final repositorioPagamento = RepositorioPagamentoImpl(fontePagamento);
     fonteConsumo = _FonteConsumoFake(const Sucesso([_atendimento502]));

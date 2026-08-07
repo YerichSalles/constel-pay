@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../aplicativo/injecao.dart';
@@ -6,6 +6,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../nucleo/erros/falha.dart';
 import '../../../../nucleo/erros/resultado.dart';
 import '../../../../nucleo/formatadores/formatador_moeda.dart';
+import '../../../../nucleo/utils/registrador.dart';
 import '../../../comprovante/dominio/entidades/comprovante.dart';
 import '../../../configuracoes/dominio/repositorios/repositorio_configuracao.dart';
 import '../../../encerramento/dominio/casos_uso/caso_uso_encerrar_atendimentos.dart';
@@ -15,11 +16,14 @@ import '../../../leitura_cartao/dados/adaptadores/adaptador_atendimento.dart';
 import '../../../leitura_cartao/dados/fontes_dados/fonte_consumo_atendimento.dart';
 import '../../../leitura_cartao/dados/fontes_dados/fonte_recurso_item.dart';
 import '../../../leitura_cartao/dominio/casos_uso/caso_uso_ler_cartao.dart';
+import '../../../leitura_cartao/dominio/entidades/cartao_consumo.dart';
 import '../../../leitura_cartao/dominio/repositorios/repositorio_leitura.dart';
 import '../../../pagamento/dominio/casos_uso/caso_uso_gerar_pix.dart';
+import '../../../pagamento/dominio/casos_uso/caso_uso_iniciar_pagamento.dart';
 import '../../../pagamento/dominio/casos_uso/caso_uso_processar_pagamento.dart';
 import '../../../pagamento/dominio/entidades/metodo_pagamento.dart';
 import '../../../pagamento/dominio/entidades/pagamento.dart';
+import '../../../pagamento/dominio/entidades/resultado_transacao.dart';
 import '../../../pagamento/dominio/entidades/status_pagamento.dart';
 import '../../dominio/entidades/mensagem.dart';
 import '../../dominio/entidades/tipo_mensagem.dart';
@@ -37,10 +41,12 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     FonteConsumoAtendimento? fonteConsumoAtendimento,
     FonteRecursoItem? fonteRecursoItem,
     CasoUsoEncerrarAtendimentos? casoUsoEncerrar,
+    CasoUsoIniciarPagamento? casoUsoIniciarPagamento,
     this.atrasoBot = const Duration(milliseconds: 650),
   })  : _casoUsoLerCartao = casoUsoLerCartao,
         _repositorioLeitura = repositorioLeitura,
         _casoUsoGerarPix = casoUsoGerarPix,
+        _casoUsoIniciarPagamento = casoUsoIniciarPagamento,
         _casoUsoProcessarPagamento = casoUsoProcessarPagamento,
         _repositorioConfiguracao = repositorioConfiguracao,
         _obterTraducoes = obterTraducoes,
@@ -54,6 +60,10 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
   final FonteConsumoAtendimento? _fonteConsumoAtendimento;
   final FonteRecursoItem? _fonteRecursoItem;
   final CasoUsoGerarPix _casoUsoGerarPix;
+
+  /// Cobrança na maquininha. Nulo quando a build não tem adquirente
+  /// embarcada — aí só existe o PIX por QR Code na tela.
+  final CasoUsoIniciarPagamento? _casoUsoIniciarPagamento;
   final CasoUsoProcessarPagamento _casoUsoProcessarPagamento;
   final RepositorioConfiguracao _repositorioConfiguracao;
   final AppLocalizations Function() _obterTraducoes;
@@ -65,6 +75,11 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
   int _proximoIdMensagem = 1;
   String? _chaveIdempotencia;
   Comprovante? _ultimoComprovante;
+
+  /// Dados da última cobrança aprovada na maquininha cujo encerramento
+  /// falhou. Só `tentarEncerrarNovamente` os usa — NUNCA para cobrar de
+  /// novo, apenas para repetir o encerramento com o mesmo pagamento.
+  _PagamentoParaRetry? _pagamentoParaRetry;
 
   // ---- auxiliares ----
 
@@ -100,6 +115,8 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
       FalhaServidor() => t.errorServer,
       FalhaNaoAutorizado() => t.errorUnauthorized,
       FalhaValidacao() => falha.mensagem,
+      FalhaTerminalPagamento() => t.errorPaymentTerminal,
+      FalhaPagamentoIndeterminado() => t.errorPaymentUndetermined,
       FalhaDesconhecida() => t.errorUnknown,
     };
   }
@@ -358,6 +375,15 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     if (state.etapa != EtapaFluxo.escolhaMetodo || state.digitando) return;
     _adicionar(_mensagem(TipoMensagem.texto,
         lado: LadoMensagem.cliente, texto: _rotuloMetodo(metodo)));
+    state = state.copyWith(metodoSelecionado: metodo);
+
+    // Quem decide o caminho é a adquirente embarcada nesta build: se ela cobra
+    // o método, a autorização acontece na maquininha. Sem adquirente, o PIX
+    // segue pelo QR Code na tela e o cartão continua indisponível.
+    if (_metodosDoTerminal.contains(metodo)) {
+      await _cobrarNoTerminal(metodo);
+      return;
+    }
     if (metodo != MetodoPagamento.pix) {
       await _bot(() {
         _adicionar(_mensagem(TipoMensagem.texto,
@@ -365,6 +391,13 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
       });
       return;
     }
+    await _apresentarPixNaTela();
+  }
+
+  Set<MetodoPagamento> get _metodosDoTerminal =>
+      _casoUsoIniciarPagamento?.metodosSuportados ?? const {};
+
+  Future<void> _apresentarPixNaTela() async {
     state = state.copyWith(digitando: true, copiado: false);
     final resultado = await _casoUsoGerarPix.executar(
       chaveIdempotencia: _chaveIdempotencia!,
@@ -387,27 +420,74 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     );
   }
 
+  /// Cobrança na maquininha da adquirente.
+  ///
+  /// A validação do encerramento roda ANTES de mandar cobrar: um impedimento
+  /// descoberto depois deixaria o cliente debitado com a comanda aberta.
+  Future<void> _cobrarNoTerminal(MetodoPagamento metodo) async {
+    state = state.copyWith(digitando: true, copiado: false);
+    final selecionados = state.selecionados;
+    if (!await _liberadoParaCobrar(metodo, selecionados)) return;
+
+    final configuracao = await _repositorioConfiguracao.obter();
+    if (!mounted) return;
+    state = state.copyWith(etapa: EtapaFluxo.processando);
+    _adicionar(_mensagem(TipoMensagem.texto,
+        emoji: '💳', texto: _obterTraducoes().terminalFollowInstructions));
+
+    final resultado = await _casoUsoIniciarPagamento!.executar(
+      chaveIdempotencia: _chaveIdempotencia!,
+      valorCentavos: state.totalCentavos,
+      metodo: metodo,
+    );
+    if (!mounted) return;
+
+    switch (resultado) {
+      case Erro(:final falha):
+        state =
+            state.copyWith(digitando: false, etapa: EtapaFluxo.escolhaMetodo);
+        _adicionar(_mensagem(TipoMensagem.texto,
+            emoji: '⚠️', texto: _mensagemFalha(falha)));
+      // A chave de idempotência é PRESERVADA de propósito: se a cobrança
+      // ficou indeterminada, uma nova tentativa precisa chegar à adquirente
+      // com a mesma chave, senão vira débito em duplicidade.
+      case Sucesso(valor: final transacao):
+        if (transacao.status != StatusPagamento.aprovado) {
+          state =
+              state.copyWith(digitando: false, etapa: EtapaFluxo.escolhaMetodo);
+          _adicionar(_mensagem(TipoMensagem.texto,
+              emoji: '❌',
+              texto: _obterTraducoes().paymentNotApproved(
+                  _rotuloStatus(transacao.status).toLowerCase()),
+              subtexto: transacao.mensagemOperador.isEmpty
+                  ? null
+                  : transacao.mensagemOperador));
+          return;
+        }
+        // Diagnóstico: nsu/autorização/atk não são credenciais — são
+        // identificadores da transação que a própria Stone devolveu ao
+        // app pelo deep link. Nunca logar dados de cartão.
+        registrador.i('Transação aprovada no terminal '
+            '(nsu=${transacao.nsu}, atk=${transacao.tokenTransacao}).');
+        await _concluirPagamento(
+          metodo: metodo,
+          pagamentoId: _chaveIdempotencia!,
+          totalCentavos: transacao.valorCentavos,
+          selecionados: selecionados,
+          nomeRestaurante: configuracao.nomeRestaurante,
+          transacaoEletronica: transacao,
+        );
+    }
+  }
+
   void marcarCopiado() => state = state.copyWith(copiado: true);
 
   Future<void> confirmarPagamentoPix() async {
     if (state.etapa != EtapaFluxo.pixAguardando || state.digitando) return;
-    state = state.copyWith(digitando: true);
+    state =
+        state.copyWith(digitando: true, metodoSelecionado: MetodoPagamento.pix);
     final selecionados = state.selecionados;
-
-    // Impedimento conhecido do encerramento (config incompleta, pendência
-    // conflitante, mistura com demonstração) precisa barrar ANTES da
-    // cobrança — não depois do dinheiro debitado.
-    final impedimento = await _encerramento.validarAntesDoPagamento(
-        selecionados: selecionados, metodo: MetodoPagamento.pix);
-    if (!mounted) return;
-    if (impedimento != null) {
-      state = state.copyWith(digitando: false);
-      _adicionar(_mensagem(TipoMensagem.texto,
-          emoji: '⚠️',
-          texto: _obterTraducoes().closingErrorTitle,
-          subtexto: _mensagemFalha(impedimento)));
-      return;
-    }
+    if (!await _liberadoParaCobrar(MetodoPagamento.pix, selecionados)) return;
 
     state = state.copyWith(etapa: EtapaFluxo.processando);
     final agora = DateTime.now();
@@ -434,72 +514,174 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
             emoji: '⚠️', texto: _mensagemFalha(falha)));
         state = state.copyWith(etapa: EtapaFluxo.pixAguardando);
       case Sucesso(valor: final aprovado):
-        final t = _obterTraducoes();
         if (aprovado.status != StatusPagamento.aprovado) {
           state = state.copyWith(digitando: false);
           _adicionar(_mensagem(TipoMensagem.texto,
               emoji: '❌',
-              texto: t.paymentNotApproved(
+              texto: _obterTraducoes().paymentNotApproved(
                   _rotuloStatus(aprovado.status).toLowerCase())));
           state = state.copyWith(etapa: EtapaFluxo.pixAguardando);
           return;
         }
-
-        // Encerramento financeiro real (ação 10 → fatura → ação 30) quando
-        // as comandas vieram da API. Só depois da ação 30 confirmada os
-        // cartões são dados como pagos; erro mantém a comanda aberta e
-        // permite tentar de novo — a pendência preserva o identificador.
-        final encerramento = await _encerramento.encerrar(
-          selecionados: selecionados,
+        await _concluirPagamento(
           metodo: MetodoPagamento.pix,
-          aoMudarFase: _mensagemDeFase,
-        );
-        if (!mounted) return;
-        state = state.copyWith(digitando: false);
-        if (encerramento is Erro<ResultadoEncerramento>) {
-          _adicionar(_mensagem(TipoMensagem.texto,
-              emoji: '⚠️',
-              texto: t.closingErrorTitle,
-              subtexto: _mensagemFalha(encerramento.falha)));
-          state = state.copyWith(etapa: EtapaFluxo.pixAguardando);
-          return;
-        }
-
-        final nomes = selecionados.map((c) => c.nome).toList();
-        final cartoesAtualizados = state.cartoes
-            .map((c) => c.selecionado && !c.pago
-                ? c.copyWith(pago: true, selecionado: false)
-                : c)
-            .toList();
-        state = state.copyWith(cartoes: cartoesAtualizados);
-        _adicionar(_mensagem(TipoMensagem.sucesso, dados: {
-          'valorCentavos': aprovado.totalCentavos,
-          'comandas': nomes
-        }));
-        _ultimoComprovante = Comprovante(
-          id: _uuid.v4(),
           pagamentoId: aprovado.id,
-          valorCentavos: aprovado.totalCentavos,
-          metodo: aprovado.metodo,
-          comandas: nomes,
-          dataHora: DateTime.now(),
+          totalCentavos: aprovado.totalCentavos,
+          selecionados: selecionados,
           nomeRestaurante: configuracao.nomeRestaurante,
+          etapaDeRetornoNaFalha: EtapaFluxo.pixAguardando,
         );
-        _chaveIdempotencia = null;
-        final restantes = state.cartoesRestantes;
-        if (restantes > 0) {
-          _adicionar(_mensagem(TipoMensagem.texto,
-              emoji: '🧾', texto: t.remainingCardsQuestion(restantes)));
-          state = state.copyWith(etapa: EtapaFluxo.sucessoComRestante);
-        } else {
-          _adicionar(_mensagem(TipoMensagem.texto,
-              emoji: '🥳', texto: t.allCardsSettled));
-          state = state.copyWith(etapa: EtapaFluxo.sucessoCompleto);
-          // Tudo quitado: nada mais depende do cliente — segue sozinho para
-          // o agradecimento e o comprovante, sem exigir toque em "Encerrar".
-          await encerrar(automatico: true);
-        }
     }
+  }
+
+  /// Impedimento conhecido do encerramento (config incompleta, pendência
+  /// conflitante, mistura com demonstração) precisa barrar ANTES da cobrança —
+  /// não depois do dinheiro debitado.
+  Future<bool> _liberadoParaCobrar(
+      MetodoPagamento metodo, List<CartaoConsumo> selecionados) async {
+    final impedimento = await _encerramento.validarAntesDoPagamento(
+        selecionados: selecionados, metodo: metodo);
+    if (!mounted) return false;
+    if (impedimento == null) return true;
+    state = state.copyWith(digitando: false);
+    _adicionar(_mensagem(TipoMensagem.texto,
+        emoji: '⚠️',
+        texto: _obterTraducoes().closingErrorTitle,
+        subtexto: _mensagemFalha(impedimento)));
+    return false;
+  }
+
+  /// Pagamento aprovado: encerramento financeiro real, comprovante e avanço
+  /// do fluxo. Idêntico para qualquer método — o que muda é só como o cliente
+  /// autorizou antes de chegar aqui.
+  Future<void> _concluirPagamento({
+    required MetodoPagamento metodo,
+    required String pagamentoId,
+    required int totalCentavos,
+    required List<CartaoConsumo> selecionados,
+    required String nomeRestaurante,
+    EtapaFluxo etapaDeRetornoNaFalha = EtapaFluxo.escolhaMetodo,
+    ResultadoTransacao? transacaoEletronica,
+  }) async {
+    final t = _obterTraducoes();
+
+    // Encerramento financeiro real (ação 10 → fatura → ação 30) quando as
+    // comandas vieram da API. Só depois da ação 30 confirmada os cartões são
+    // dados como pagos; erro mantém a comanda aberta e permite tentar de
+    // novo — a pendência preserva o identificador.
+    final encerramento = await _encerramento.encerrar(
+      selecionados: selecionados,
+      metodo: metodo,
+      aoMudarFase: _mensagemDeFase,
+      transacaoEletronica: transacaoEletronica,
+    );
+    if (!mounted) return;
+    state = state.copyWith(digitando: false);
+    if (encerramento is Erro<ResultadoEncerramento>) {
+      if (transacaoEletronica != null) {
+        // Cobrado na maquininha: NUNCA volta para escolher método de novo
+        // (cobraria duas vezes). Só oferece repetir o encerramento.
+        // O motivo técnico da recusa fica no Diagnóstico, não na tela: quem
+        // está no totem é o cliente, e "erro no servidor" não o ajuda em nada.
+        registrador.w('Encerramento falhou após pagamento aprovado: '
+            '${encerramento.falha.mensagem}');
+        _falharAposCobranca(
+          t: t,
+          metodo: metodo,
+          pagamentoId: pagamentoId,
+          totalCentavos: totalCentavos,
+          selecionados: selecionados,
+          nomeRestaurante: nomeRestaurante,
+          transacaoEletronica: transacaoEletronica,
+        );
+        return;
+      }
+      _adicionar(_mensagem(TipoMensagem.texto,
+          emoji: '⚠️',
+          texto: t.closingErrorTitle,
+          subtexto: _mensagemFalha(encerramento.falha)));
+      state = state.copyWith(etapa: etapaDeRetornoNaFalha);
+      return;
+    }
+    _pagamentoParaRetry = null;
+
+    final nomes = selecionados.map((c) => c.nome).toList();
+    final cartoesAtualizados = state.cartoes
+        .map((c) => c.selecionado && !c.pago
+            ? c.copyWith(pago: true, selecionado: false)
+            : c)
+        .toList();
+    state = state.copyWith(cartoes: cartoesAtualizados);
+    _adicionar(_mensagem(TipoMensagem.sucesso,
+        dados: {'valorCentavos': totalCentavos, 'comandas': nomes}));
+    _ultimoComprovante = Comprovante(
+      id: _uuid.v4(),
+      pagamentoId: pagamentoId,
+      valorCentavos: totalCentavos,
+      metodo: metodo,
+      comandas: nomes,
+      dataHora: DateTime.now(),
+      nomeRestaurante: nomeRestaurante,
+    );
+    _chaveIdempotencia = null;
+    final restantes = state.cartoesRestantes;
+    if (restantes > 0) {
+      _adicionar(_mensagem(TipoMensagem.texto,
+          emoji: '🧾', texto: t.remainingCardsQuestion(restantes)));
+      state = state.copyWith(etapa: EtapaFluxo.sucessoComRestante);
+    } else {
+      _adicionar(
+          _mensagem(TipoMensagem.texto, emoji: '🥳', texto: t.allCardsSettled));
+      state = state.copyWith(etapa: EtapaFluxo.sucessoCompleto);
+      // Tudo quitado: nada mais depende do cliente — segue sozinho para o
+      // agradecimento e o comprovante, sem exigir toque em "Encerrar".
+      await encerrar(automatico: true);
+    }
+  }
+
+  /// Pagamento aprovado com o encerramento pendente: guarda os dados da
+  /// transação para `tentarEncerrarNovamente` e avisa o cliente sem oferecer
+  /// voltar à escolha de método (pagaria de novo).
+  void _falharAposCobranca({
+    required AppLocalizations t,
+    required MetodoPagamento metodo,
+    required String pagamentoId,
+    required int totalCentavos,
+    required List<CartaoConsumo> selecionados,
+    required String nomeRestaurante,
+    required ResultadoTransacao transacaoEletronica,
+  }) {
+    _pagamentoParaRetry = _PagamentoParaRetry(
+      metodo: metodo,
+      pagamentoId: pagamentoId,
+      totalCentavos: totalCentavos,
+      selecionados: selecionados,
+      nomeRestaurante: nomeRestaurante,
+      transacaoEletronica: transacaoEletronica,
+    );
+    _adicionar(_mensagem(TipoMensagem.texto,
+        emoji: '✅',
+        texto: t.closingErrorAlreadyChargedTitle,
+        subtexto: t.closingErrorAlreadyChargedSubtitle));
+    state = state.copyWith(etapa: EtapaFluxo.falhaAposCobranca);
+  }
+
+  /// Repete SÓ o encerramento financeiro de uma cobrança já aprovada na
+  /// maquininha — nunca cobra de novo.
+  Future<void> tentarEncerrarNovamente() async {
+    final pendente = _pagamentoParaRetry;
+    if (state.etapa != EtapaFluxo.falhaAposCobranca || pendente == null) {
+      return;
+    }
+    state = state.copyWith(etapa: EtapaFluxo.processando);
+    await _concluirPagamento(
+      metodo: pendente.metodo,
+      pagamentoId: pendente.pagamentoId,
+      totalCentavos: pendente.totalCentavos,
+      selecionados: pendente.selecionados,
+      nomeRestaurante: pendente.nomeRestaurante,
+      transacaoEletronica: pendente.transacaoEletronica,
+    );
   }
 
   /// Mensagem de progresso de cada fase do encerramento financeiro.
@@ -564,6 +746,7 @@ class ControladorFluxoPagamento extends StateNotifier<EstadoFluxoPagamento> {
     _proximoIdMensagem = 1;
     _chaveIdempotencia = null;
     _ultimoComprovante = null;
+    _pagamentoParaRetry = null;
     _encerramento.limpar();
     state = const EstadoFluxoPagamento();
   }
@@ -582,6 +765,27 @@ final provedorFluxoPagamento =
     fonteConsumoAtendimento: ref.watch(provedorFonteConsumoAtendimento),
     fonteRecursoItem: ref.watch(provedorFonteRecursoItem),
     casoUsoEncerrar: ref.watch(provedorCasoUsoEncerrarAtendimentos),
+    casoUsoIniciarPagamento: ref.watch(provedorCasoUsoIniciarPagamento),
     atrasoBot: ref.watch(provedorAtrasoBot),
   );
 });
+
+/// Dados suficientes para repetir SÓ o encerramento financeiro — nunca a
+/// cobrança no terminal, que já foi aprovada.
+class _PagamentoParaRetry {
+  const _PagamentoParaRetry({
+    required this.metodo,
+    required this.pagamentoId,
+    required this.totalCentavos,
+    required this.selecionados,
+    required this.nomeRestaurante,
+    required this.transacaoEletronica,
+  });
+
+  final MetodoPagamento metodo;
+  final String pagamentoId;
+  final int totalCentavos;
+  final List<CartaoConsumo> selecionados;
+  final String nomeRestaurante;
+  final ResultadoTransacao transacaoEletronica;
+}

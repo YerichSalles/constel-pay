@@ -25,6 +25,12 @@ mixin _$ConfiguracaoTerminal {
   /// sistema como teclado comum e só dá sinal quando digita — por isso a
   /// escolha é do operador, por dispositivo.
   bool get leituraPorCamera => throw _privateConstructorUsedError;
+
+  /// Liga a leitura pela antena NFC da maquininha, para terminais sem
+  /// leitor de código de barras nem câmera (ex.: maquininhas de mão). Só
+  /// funciona na build com adquirente embarcada — o mesmo motivo pelo qual
+  /// é configurável em vez de detectado sozinho.
+  bool get leituraPorNfc => throw _privateConstructorUsedError;
   Ambiente get ambiente =>
       throw _privateConstructorUsedError; // URLs da API local (consumo do cartão no estabelecimento).
   String get urlBaseProducao => throw _privateConstructorUsedError;
@@ -51,6 +57,7 @@ abstract class $ConfiguracaoTerminalCopyWith<$Res> {
       String identificadorDispositivo,
       String idDispositivo,
       bool leituraPorCamera,
+      bool leituraPorNfc,
       Ambiente ambiente,
       String urlBaseProducao,
       String urlBaseHomologacao,
@@ -78,6 +85,7 @@ class _$ConfiguracaoTerminalCopyWithImpl<$Res,
     Object? identificadorDispositivo = null,
     Object? idDispositivo = null,
     Object? leituraPorCamera = null,
+    Object? leituraPorNfc = null,
     Object? ambiente = null,
     Object? urlBaseProducao = null,
     Object? urlBaseHomologacao = null,
@@ -100,6 +108,10 @@ class _$ConfiguracaoTerminalCopyWithImpl<$Res,
       leituraPorCamera: null == leituraPorCamera
           ? _value.leituraPorCamera
           : leituraPorCamera // ignore: cast_nullable_to_non_nullable
+              as bool,
+      leituraPorNfc: null == leituraPorNfc
+          ? _value.leituraPorNfc
+          : leituraPorNfc // ignore: cast_nullable_to_non_nullable
               as bool,
       ambiente: null == ambiente
           ? _value.ambiente
@@ -138,6 +150,7 @@ abstract class _$$ConfiguracaoTerminalImplCopyWith<$Res>
       String identificadorDispositivo,
       String idDispositivo,
       bool leituraPorCamera,
+      bool leituraPorNfc,
       Ambiente ambiente,
       String urlBaseProducao,
       String urlBaseHomologacao,
@@ -162,6 +175,7 @@ class __$$ConfiguracaoTerminalImplCopyWithImpl<$Res>
     Object? identificadorDispositivo = null,
     Object? idDispositivo = null,
     Object? leituraPorCamera = null,
+    Object? leituraPorNfc = null,
     Object? ambiente = null,
     Object? urlBaseProducao = null,
     Object? urlBaseHomologacao = null,
@@ -184,6 +198,10 @@ class __$$ConfiguracaoTerminalImplCopyWithImpl<$Res>
       leituraPorCamera: null == leituraPorCamera
           ? _value.leituraPorCamera
           : leituraPorCamera // ignore: cast_nullable_to_non_nullable
+              as bool,
+      leituraPorNfc: null == leituraPorNfc
+          ? _value.leituraPorNfc
+          : leituraPorNfc // ignore: cast_nullable_to_non_nullable
               as bool,
       ambiente: null == ambiente
           ? _value.ambiente
@@ -217,6 +235,7 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
       this.identificadorDispositivo = 'TERMINAL-01',
       this.idDispositivo = '',
       this.leituraPorCamera = false,
+      this.leituraPorNfc = false,
       this.ambiente = Ambiente.homologacao,
       this.urlBaseProducao = '',
       this.urlBaseHomologacao = '',
@@ -241,6 +260,14 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
   @override
   @JsonKey()
   final bool leituraPorCamera;
+
+  /// Liga a leitura pela antena NFC da maquininha, para terminais sem
+  /// leitor de código de barras nem câmera (ex.: maquininhas de mão). Só
+  /// funciona na build com adquirente embarcada — o mesmo motivo pelo qual
+  /// é configurável em vez de detectado sozinho.
+  @override
+  @JsonKey()
+  final bool leituraPorNfc;
   @override
   @JsonKey()
   final Ambiente ambiente;
@@ -261,7 +288,7 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
 
   @override
   String toString() {
-    return 'ConfiguracaoTerminal(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, idDispositivo: $idDispositivo, leituraPorCamera: $leituraPorCamera, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, urlNuvemProducao: $urlNuvemProducao, urlNuvemHomologacao: $urlNuvemHomologacao)';
+    return 'ConfiguracaoTerminal(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, idDispositivo: $idDispositivo, leituraPorCamera: $leituraPorCamera, leituraPorNfc: $leituraPorNfc, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, urlNuvemProducao: $urlNuvemProducao, urlNuvemHomologacao: $urlNuvemHomologacao)';
   }
 
   @override
@@ -278,6 +305,8 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
                 other.idDispositivo == idDispositivo) &&
             (identical(other.leituraPorCamera, leituraPorCamera) ||
                 other.leituraPorCamera == leituraPorCamera) &&
+            (identical(other.leituraPorNfc, leituraPorNfc) ||
+                other.leituraPorNfc == leituraPorNfc) &&
             (identical(other.ambiente, ambiente) ||
                 other.ambiente == ambiente) &&
             (identical(other.urlBaseProducao, urlBaseProducao) ||
@@ -297,6 +326,7 @@ class _$ConfiguracaoTerminalImpl extends _ConfiguracaoTerminal {
       identificadorDispositivo,
       idDispositivo,
       leituraPorCamera,
+      leituraPorNfc,
       ambiente,
       urlBaseProducao,
       urlBaseHomologacao,
@@ -320,6 +350,7 @@ abstract class _ConfiguracaoTerminal extends ConfiguracaoTerminal {
       final String identificadorDispositivo,
       final String idDispositivo,
       final bool leituraPorCamera,
+      final bool leituraPorNfc,
       final Ambiente ambiente,
       final String urlBaseProducao,
       final String urlBaseHomologacao,
@@ -340,6 +371,13 @@ abstract class _ConfiguracaoTerminal extends ConfiguracaoTerminal {
   /// escolha é do operador, por dispositivo.
   @override
   bool get leituraPorCamera;
+
+  /// Liga a leitura pela antena NFC da maquininha, para terminais sem
+  /// leitor de código de barras nem câmera (ex.: maquininhas de mão). Só
+  /// funciona na build com adquirente embarcada — o mesmo motivo pelo qual
+  /// é configurável em vez de detectado sozinho.
+  @override
+  bool get leituraPorNfc;
   @override
   Ambiente
       get ambiente; // URLs da API local (consumo do cartão no estabelecimento).

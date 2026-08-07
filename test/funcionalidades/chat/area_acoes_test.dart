@@ -39,6 +39,7 @@ Widget _montar(EstadoFluxoPagamento estado,
         aoNovaOperacao: () {},
         aoTentarNovamente: aoTentarNovamente ?? () {},
         aoContinuarComCartoes: aoContinuarComCartoes ?? () {},
+        aoTentarEncerrarNovamente: () {},
       ),
     ),
   );

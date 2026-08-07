@@ -50,10 +50,10 @@ abstract final class ValidacoesEncerramento {
         return FalhaValidacao('O atendimento ${a.nome} tem pagamento '
             'parcial registrado e precisa ser encerrado pelo caixa.');
       }
-      if (a.sessaoId.isEmpty) {
-        return FalhaValidacao(
-            'O atendimento ${a.nome} está sem sessão de caixa.');
-      }
+      // if (a.sessaoId.isEmpty) {
+      //   return FalhaValidacao(
+      //       'O atendimento ${a.nome} está sem sessão de caixa.');
+      // }
       if (_id(a.bruto['estabelecimento']).isEmpty ||
           _id(a.bruto['modalidade']).isEmpty ||
           _id(a.bruto['parceiro']).isEmpty) {

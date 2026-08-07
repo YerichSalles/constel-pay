@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../aplicativo/injecao.dart';
 import '../../funcionalidades/chat/apresentacao/controladores/controlador_fluxo_pagamento.dart';
+import '../../funcionalidades/chat/apresentacao/controladores/estado_fluxo_pagamento.dart';
 import '../../l10n/app_localizations.dart';
 import '../../nucleo/constantes/constantes_app.dart';
 
@@ -24,6 +25,11 @@ class DetectorInatividade extends ConsumerStatefulWidget {
 class _DetectorInatividadeState extends ConsumerState<DetectorInatividade> {
   Timer? _temporizador;
   bool _avisoAberto = false;
+
+  /// A cobrança na maquininha pode levar mais que o tempo de inatividade
+  /// (o app da Stone fica em primeiro plano até 2m30s). Pausado aqui, a
+  /// inatividade nunca descarta uma operação com dinheiro já em jogo.
+  bool _pausadoPorCobranca = false;
 
   @override
   void initState() {
@@ -95,9 +101,22 @@ class _DetectorInatividadeState extends ConsumerState<DetectorInatividade> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(
+      provedorFluxoPagamento.select((estado) => estado.etapa),
+      (_, etapa) {
+        final pausar = etapa == EtapaFluxo.processando;
+        if (pausar == _pausadoPorCobranca) return;
+        _pausadoPorCobranca = pausar;
+        if (pausar) {
+          _temporizador?.cancel();
+        } else if (!_avisoAberto) {
+          _reiniciar();
+        }
+      },
+    );
     return Listener(
       onPointerDown: (_) {
-        if (!_avisoAberto) _reiniciar();
+        if (!_avisoAberto && !_pausadoPorCobranca) _reiniciar();
       },
       behavior: HitTestBehavior.translucent,
       child: widget.filho,

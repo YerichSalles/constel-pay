@@ -24,6 +24,7 @@ mixin _$ModeloConfiguracao {
   String get identificadorDispositivo => throw _privateConstructorUsedError;
   String get idDispositivo => throw _privateConstructorUsedError;
   bool get leituraPorCamera => throw _privateConstructorUsedError;
+  bool get leituraPorNfc => throw _privateConstructorUsedError;
   Ambiente get ambiente => throw _privateConstructorUsedError;
   String get urlBaseProducao => throw _privateConstructorUsedError;
   String get urlBaseHomologacao => throw _privateConstructorUsedError;
@@ -51,6 +52,7 @@ abstract class $ModeloConfiguracaoCopyWith<$Res> {
       String identificadorDispositivo,
       String idDispositivo,
       bool leituraPorCamera,
+      bool leituraPorNfc,
       Ambiente ambiente,
       String urlBaseProducao,
       String urlBaseHomologacao,
@@ -77,6 +79,7 @@ class _$ModeloConfiguracaoCopyWithImpl<$Res, $Val extends ModeloConfiguracao>
     Object? identificadorDispositivo = null,
     Object? idDispositivo = null,
     Object? leituraPorCamera = null,
+    Object? leituraPorNfc = null,
     Object? ambiente = null,
     Object? urlBaseProducao = null,
     Object? urlBaseHomologacao = null,
@@ -99,6 +102,10 @@ class _$ModeloConfiguracaoCopyWithImpl<$Res, $Val extends ModeloConfiguracao>
       leituraPorCamera: null == leituraPorCamera
           ? _value.leituraPorCamera
           : leituraPorCamera // ignore: cast_nullable_to_non_nullable
+              as bool,
+      leituraPorNfc: null == leituraPorNfc
+          ? _value.leituraPorNfc
+          : leituraPorNfc // ignore: cast_nullable_to_non_nullable
               as bool,
       ambiente: null == ambiente
           ? _value.ambiente
@@ -137,6 +144,7 @@ abstract class _$$ModeloConfiguracaoImplCopyWith<$Res>
       String identificadorDispositivo,
       String idDispositivo,
       bool leituraPorCamera,
+      bool leituraPorNfc,
       Ambiente ambiente,
       String urlBaseProducao,
       String urlBaseHomologacao,
@@ -161,6 +169,7 @@ class __$$ModeloConfiguracaoImplCopyWithImpl<$Res>
     Object? identificadorDispositivo = null,
     Object? idDispositivo = null,
     Object? leituraPorCamera = null,
+    Object? leituraPorNfc = null,
     Object? ambiente = null,
     Object? urlBaseProducao = null,
     Object? urlBaseHomologacao = null,
@@ -183,6 +192,10 @@ class __$$ModeloConfiguracaoImplCopyWithImpl<$Res>
       leituraPorCamera: null == leituraPorCamera
           ? _value.leituraPorCamera
           : leituraPorCamera // ignore: cast_nullable_to_non_nullable
+              as bool,
+      leituraPorNfc: null == leituraPorNfc
+          ? _value.leituraPorNfc
+          : leituraPorNfc // ignore: cast_nullable_to_non_nullable
               as bool,
       ambiente: null == ambiente
           ? _value.ambiente
@@ -216,6 +229,7 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
       required this.identificadorDispositivo,
       this.idDispositivo = '',
       this.leituraPorCamera = false,
+      this.leituraPorNfc = false,
       required this.ambiente,
       required this.urlBaseProducao,
       required this.urlBaseHomologacao,
@@ -237,6 +251,9 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
   @JsonKey()
   final bool leituraPorCamera;
   @override
+  @JsonKey()
+  final bool leituraPorNfc;
+  @override
   final Ambiente ambiente;
   @override
   final String urlBaseProducao;
@@ -251,7 +268,7 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
 
   @override
   String toString() {
-    return 'ModeloConfiguracao(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, idDispositivo: $idDispositivo, leituraPorCamera: $leituraPorCamera, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, urlNuvemProducao: $urlNuvemProducao, urlNuvemHomologacao: $urlNuvemHomologacao)';
+    return 'ModeloConfiguracao(nomeRestaurante: $nomeRestaurante, identificadorDispositivo: $identificadorDispositivo, idDispositivo: $idDispositivo, leituraPorCamera: $leituraPorCamera, leituraPorNfc: $leituraPorNfc, ambiente: $ambiente, urlBaseProducao: $urlBaseProducao, urlBaseHomologacao: $urlBaseHomologacao, urlNuvemProducao: $urlNuvemProducao, urlNuvemHomologacao: $urlNuvemHomologacao)';
   }
 
   @override
@@ -268,6 +285,8 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
                 other.idDispositivo == idDispositivo) &&
             (identical(other.leituraPorCamera, leituraPorCamera) ||
                 other.leituraPorCamera == leituraPorCamera) &&
+            (identical(other.leituraPorNfc, leituraPorNfc) ||
+                other.leituraPorNfc == leituraPorNfc) &&
             (identical(other.ambiente, ambiente) ||
                 other.ambiente == ambiente) &&
             (identical(other.urlBaseProducao, urlBaseProducao) ||
@@ -288,6 +307,7 @@ class _$ModeloConfiguracaoImpl extends _ModeloConfiguracao {
       identificadorDispositivo,
       idDispositivo,
       leituraPorCamera,
+      leituraPorNfc,
       ambiente,
       urlBaseProducao,
       urlBaseHomologacao,
@@ -317,6 +337,7 @@ abstract class _ModeloConfiguracao extends ModeloConfiguracao {
       required final String identificadorDispositivo,
       final String idDispositivo,
       final bool leituraPorCamera,
+      final bool leituraPorNfc,
       required final Ambiente ambiente,
       required final String urlBaseProducao,
       required final String urlBaseHomologacao,
@@ -335,6 +356,8 @@ abstract class _ModeloConfiguracao extends ModeloConfiguracao {
   String get idDispositivo;
   @override
   bool get leituraPorCamera;
+  @override
+  bool get leituraPorNfc;
   @override
   Ambiente get ambiente;
   @override

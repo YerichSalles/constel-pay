@@ -4,6 +4,10 @@ import 'valores_fatura.dart';
 /// faturamento do método escolhido — nunca de IDs fixos no código.
 /// À vista: 1 parcela, `subtotal` = total da fatura, `total` = valor
 /// recebido aplicado, `pago`/`saldo` zerados no envio (o retaguarda calcula).
+///
+/// `faturaPagamentoEletronico` só vem preenchido quando a cobrança passou
+/// pela maquininha (crédito, débito ou PIX-maquineta) — dinheiro e PIX por
+/// QR Code na tela continuam sem transação eletrônica, como sempre.
 class RequisicaoFaturaPagamento {
   const RequisicaoFaturaPagamento({
     this.sequencial = 1,
@@ -15,6 +19,7 @@ class RequisicaoFaturaPagamento {
     required this.subtotalCentavos,
     this.trocoCentavos = 0,
     required this.totalCentavos,
+    this.faturaPagamentoEletronico,
   });
 
   final int sequencial;
@@ -26,6 +31,7 @@ class RequisicaoFaturaPagamento {
   final int subtotalCentavos;
   final int trocoCentavos;
   final int totalCentavos;
+  final Map<String, dynamic>? faturaPagamentoEletronico;
 
   Map<String, dynamic> paraJson() => {
         'sequencial': sequencial,
@@ -41,7 +47,7 @@ class RequisicaoFaturaPagamento {
         'saldo': 0.0,
         'referenciaClasse': 0,
         'adiantamento': null,
-        'online': false,
-        'faturaPagamentoEletronico': null,
+        'online': faturaPagamentoEletronico != null,
+        'faturaPagamentoEletronico': faturaPagamentoEletronico,
       };
 }
