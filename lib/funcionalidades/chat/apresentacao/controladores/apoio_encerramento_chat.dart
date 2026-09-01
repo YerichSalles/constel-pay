@@ -6,6 +6,7 @@ import '../../../encerramento/dominio/entidades/resultado_encerramento.dart';
 import '../../../leitura_cartao/dominio/entidades/atendimento.dart';
 import '../../../leitura_cartao/dominio/entidades/cartao_consumo.dart';
 import '../../../pagamento/dominio/entidades/metodo_pagamento.dart';
+import '../../../pagamento/dominio/entidades/resultado_transacao.dart';
 
 /// Ponte entre o fluxo do chat e o encerramento financeiro: guarda os
 /// `Atendimento` completos das comandas lidas na API (o `CartaoConsumo` da UI
@@ -57,6 +58,7 @@ class ApoioEncerramentoChat {
     required List<CartaoConsumo> selecionados,
     required MetodoPagamento metodo,
     void Function(FaseEncerramento fase)? aoMudarFase,
+    ResultadoTransacao? transacaoEletronica,
   }) async {
     final casoUso = _casoUso;
     if (casoUso == null) return null;
@@ -71,6 +73,7 @@ class ApoioEncerramentoChat {
       atendimentos: reais,
       metodo: metodo,
       aoMudarFase: aoMudarFase,
+      transacaoEletronica: transacaoEletronica,
     );
   }
 

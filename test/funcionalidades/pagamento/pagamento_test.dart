@@ -1,4 +1,4 @@
-import 'package:constel_pay/funcionalidades/pagamento/dados/fontes_dados/fonte_pagamento_mock.dart';
+﻿import 'package:constel_pay/funcionalidades/pagamento/dados/fontes_dados/gateway_pagamento_mock.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dados/repositorios/repositorio_pagamento_impl.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/casos_uso/caso_uso_gerar_pix.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/casos_uso/caso_uso_processar_pagamento.dart';
@@ -31,11 +31,11 @@ Pagamento _pagamento(
     );
 
 void main() {
-  late FontePagamentoMock fonte;
+  late GatewayPagamentoMock fonte;
   late RepositorioPagamentoImpl repositorio;
 
   setUp(() {
-    fonte = FontePagamentoMock(atraso: Duration.zero);
+    fonte = GatewayPagamentoMock(atraso: Duration.zero);
     repositorio = RepositorioPagamentoImpl(fonte);
   });
 

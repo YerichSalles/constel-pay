@@ -11,6 +11,7 @@ import '../../../leitura_cartao/dados/fontes_dados/fonte_consumo_atendimento.dar
 import '../../../leitura_cartao/dados/modelos/resposta_consumo_atendimento.dart';
 import '../../../leitura_cartao/dominio/entidades/atendimento.dart';
 import '../../../pagamento/dominio/entidades/metodo_pagamento.dart';
+import '../../../pagamento/dominio/entidades/resultado_transacao.dart';
 import '../../dados/adaptadores/mapeador_fatura.dart';
 import '../../dados/adaptadores/resolvedor_configuracao_faturamento.dart';
 import '../../dados/fontes_dados/fonte_dispositivo.dart';
@@ -123,6 +124,7 @@ class CasoUsoEncerrarAtendimentos {
     required MetodoPagamento metodo,
     int? valorRecebidoCentavos,
     void Function(FaseEncerramento fase)? aoMudarFase,
+    ResultadoTransacao? transacaoEletronica,
   }) async {
     if (_emAndamento) {
       return const Erro(
@@ -135,6 +137,7 @@ class CasoUsoEncerrarAtendimentos {
         metodo: metodo,
         valorRecebidoCentavos: valorRecebidoCentavos,
         aoMudarFase: aoMudarFase ?? (_) {},
+        transacaoEletronica: transacaoEletronica,
       );
       if (resultado is Erro<ResultadoEncerramento>) {
         aoMudarFase?.call(FaseEncerramento.erro);
@@ -157,6 +160,7 @@ class CasoUsoEncerrarAtendimentos {
     required MetodoPagamento metodo,
     required int? valorRecebidoCentavos,
     required void Function(FaseEncerramento fase) aoMudarFase,
+    ResultadoTransacao? transacaoEletronica,
   }) async {
     final configuracao = await _resolverConfiguracao(atendimentos, metodo);
 
@@ -167,7 +171,8 @@ class CasoUsoEncerrarAtendimentos {
     final existente = await _pendenteEnvolvendo(ids);
     if (existente != null) {
       if (_mesmoConjunto(existente.atendimentoIds, ids)) {
-        return _retomar(existente, configuracao, aoMudarFase);
+        return _retomar(existente, configuracao, aoMudarFase,
+            transacaoEletronica: transacaoEletronica);
       }
       if (existente.etapa == EtapaTransacao.preparacaoEnviada) {
         // Nenhum dado financeiro criado: a tentativa antiga é descartada e
@@ -208,7 +213,7 @@ class CasoUsoEncerrarAtendimentos {
 
     return _prosseguirDaPreparacao(
         pendente, atendimentos, configuracao!, metodo,
-        aoMudarFase: aoMudarFase);
+        aoMudarFase: aoMudarFase, transacaoEletronica: transacaoEletronica);
   }
 
   /// Ação 10 em diante, para operações novas ou retomadas na preparação.
@@ -218,6 +223,7 @@ class CasoUsoEncerrarAtendimentos {
     ConfiguracaoFaturamento configuracao,
     MetodoPagamento metodo, {
     required void Function(FaseEncerramento fase) aoMudarFase,
+    ResultadoTransacao? transacaoEletronica,
   }) async {
     aoMudarFase(FaseEncerramento.preparandoEncerramento);
     final inicio = await _fonteEncerramento
@@ -239,6 +245,7 @@ class CasoUsoEncerrarAtendimentos {
       momentoUtc: _relogio.agoraUtc(),
       dataOperacional: _relogio.dataOperacional(),
       trocoCentavos: pendente.trocoCentavos,
+      transacaoEletronica: transacaoEletronica,
     );
     final faturaJson = requisicao.paraJson();
 
@@ -273,8 +280,13 @@ class CasoUsoEncerrarAtendimentos {
         // identificador). Num REENVIO pós-timeout a rejeição pode ser efeito
         // do primeiro POST ainda em processamento — a pendência fica para
         // reconciliar. Incerteza (timeout/rede/corpo ilegível) sempre
-        // mantém a pendência.
-        if (primeiroEnvio && !_incerta(falha)) {
+        // mantém a pendência. `FalhaServidor` também mantém quando o
+        // pagamento já foi capturado na maquininha (crédito/débito/PIX): o
+        // cliente foi debitado, então perder a pendência aqui apagaria o
+        // único registro local dessa cobrança.
+        if (primeiroEnvio &&
+            !_incerta(falha) &&
+            !(falha is FalhaServidor && _transacaoJaCapturada(pendente))) {
           await _pendentes.remover(pendente.identificador);
         }
         return Erro(falha);
@@ -333,8 +345,9 @@ class CasoUsoEncerrarAtendimentos {
   Future<Resultado<ResultadoEncerramento>> _retomar(
     TransacaoPendente pendente,
     ConfiguracaoFaturamento? configuracao,
-    void Function(FaseEncerramento fase) aoMudarFase,
-  ) async {
+    void Function(FaseEncerramento fase) aoMudarFase, {
+    ResultadoTransacao? transacaoEletronica,
+  }) async {
     switch (pendente.etapa) {
       case EtapaTransacao.preparacaoEnviada:
         // Fatura ainda não montada: refaz da ação 10 com o MESMO
@@ -355,7 +368,7 @@ class CasoUsoEncerrarAtendimentos {
             RespostaConsumoAtendimento.paraLista(pendente.atendimentosBrutos);
         return _prosseguirDaPreparacao(
             pendente, atendimentos, configuracao, metodo,
-            aoMudarFase: aoMudarFase);
+            aoMudarFase: aoMudarFase, transacaoEletronica: transacaoEletronica);
       case EtapaTransacao.faturaEnviada:
         return _reconciliarFatura(pendente, aoMudarFase);
       case EtapaTransacao.faturaCriada:
@@ -608,7 +621,19 @@ class CasoUsoEncerrarAtendimentos {
   /// Incerteza de entrega: o pedido pode ter chegado ao servidor mesmo sem
   /// resposta. Exige reconciliação em vez de nova tentativa cega.
   bool _incerta(Falha falha) =>
-      falha is FalhaTimeout || falha is FalhaRede || falha is FalhaDesconhecida;
+      falha is FalhaTimeout ||
+      falha is FalhaRede ||
+      falha is FalhaPagamentoIndeterminado ||
+      falha is FalhaDesconhecida;
+
+  /// O payload congelado já carrega `online: true` quando a cobrança passou
+  /// pela maquininha — não precisa de um campo novo na pendência para saber.
+  bool _transacaoJaCapturada(TransacaoPendente pendente) {
+    final pagamentos = pendente.faturaJson['faturaPagamentos'];
+    if (pagamentos is! List || pagamentos.isEmpty) return false;
+    final primeiro = pagamentos.first;
+    return primeiro is Map && primeiro['online'] == true;
+  }
 
   int _totalCentavos(List<Atendimento> atendimentos) =>
       atendimentos.fold(0, (soma, a) => soma + a.totalCentavos);

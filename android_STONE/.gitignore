@@ -1,0 +1,21 @@
+gradle-wrapper.jar
+/.gradle
+/captures/
+/gradlew
+/gradlew.bat
+/local.properties
+GeneratedPluginRegistrant.java
+.cxx/
+.kotlin/
+build/
+
+# Remember to never publicly share your keystore.
+# See https://flutter.dev/to/reference-keystore
+key.properties
+**/*.keystore
+**/*.jks
+
+# EXCECAO CONSCIENTE (divida registrada no README): os certificados de
+# homologacao da Stone sao versionados aqui para destravar a implementacao.
+# Precisam sair do repositorio antes de qualquer distribuicao real.
+!certificado/**

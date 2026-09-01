@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+﻿import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -14,14 +14,23 @@ import '../funcionalidades/autenticacao/dominio/repositorios/repositorio_sessao_
 import '../funcionalidades/leitura_cartao/dados/fontes_dados/fonte_consumo_atendimento.dart';
 import '../funcionalidades/leitura_cartao/dados/fontes_dados/fonte_leitura_mock.dart';
 import '../funcionalidades/leitura_cartao/dados/fontes_dados/fonte_recurso_item.dart';
+import '../funcionalidades/leitura_cartao/dados/fontes_dados/gateway_nfc_channel.dart';
+import '../funcionalidades/leitura_cartao/dados/fontes_dados/gateway_nfc_indisponivel.dart';
 import '../funcionalidades/leitura_cartao/dados/repositorios/repositorio_leitura_impl.dart';
 import '../funcionalidades/leitura_cartao/dominio/casos_uso/caso_uso_ler_cartao.dart';
+import '../funcionalidades/leitura_cartao/dominio/repositorios/gateway_nfc.dart';
 import '../funcionalidades/leitura_cartao/dominio/repositorios/repositorio_leitura.dart';
-import '../funcionalidades/pagamento/dados/fontes_dados/fonte_pagamento_mock.dart';
+import '../funcionalidades/pagamento/apresentacao/controladores/provedor_adquirente.dart';
+import '../funcionalidades/pagamento/dados/fontes_dados/gateway_pagamento_channel.dart';
+import '../funcionalidades/pagamento/dados/fontes_dados/gateway_pagamento_mock.dart';
 import '../funcionalidades/pagamento/dados/repositorios/repositorio_pagamento_impl.dart';
 import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_gerar_pix.dart';
+import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_iniciar_pagamento.dart';
 import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_processar_pagamento.dart';
 import '../funcionalidades/pagamento/dominio/casos_uso/caso_uso_verificar_pagamento.dart';
+import '../funcionalidades/pagamento/dominio/entidades/metodo_pagamento.dart';
+import '../funcionalidades/pagamento/dominio/entidades/tipo_adquirente.dart';
+import '../funcionalidades/pagamento/dominio/repositorios/gateway_pagamento.dart';
 import '../funcionalidades/pagamento/dominio/repositorios/repositorio_pagamento.dart';
 import '../funcionalidades/encerramento/dados/fontes_dados/fonte_dispositivo.dart';
 import '../funcionalidades/encerramento/dados/fontes_dados/fonte_encerramento_atendimento.dart';
@@ -252,12 +261,12 @@ final provedorCasoUsoLerCartao = Provider<CasoUsoLerCartao>(
   (ref) => CasoUsoLerCartao(ref.watch(provedorRepositorioLeitura)),
 );
 
-final provedorFontePagamentoMock = Provider<FontePagamentoMock>(
-  (ref) => FontePagamentoMock(),
+final provedorGatewayPagamentoMock = Provider<GatewayPagamentoMock>(
+  (ref) => GatewayPagamentoMock(),
 );
 
 final provedorRepositorioPagamento = Provider<RepositorioPagamento>(
-  (ref) => RepositorioPagamentoImpl(ref.watch(provedorFontePagamentoMock)),
+  (ref) => RepositorioPagamentoImpl(ref.watch(provedorGatewayPagamentoMock)),
 );
 
 final provedorCasoUsoGerarPix = Provider<CasoUsoGerarPix>(
@@ -271,6 +280,42 @@ final provedorCasoUsoProcessarPagamento = Provider<CasoUsoProcessarPagamento>(
 final provedorCasoUsoVerificarPagamento = Provider<CasoUsoVerificarPagamento>(
   (ref) => CasoUsoVerificarPagamento(ref.watch(provedorRepositorioPagamento)),
 );
+
+// Cobrança no terminal físico. A adquirente entra como DADO na mesma
+// implementação de canal — o nome do canal é fixo em qualquer build, então
+// não há como (nem por que) descobrir a adquirente por ele.
+//
+// Na build genérica não existe camada nativa de pagamento: o gateway é o mock
+// sem método suportado nenhum, e o cartão segue indisponível como hoje.
+final provedorGatewayPagamento = Provider<GatewayPagamento>((ref) {
+  final adquirente = ref.watch(provedorAdquirente);
+  return switch (adquirente) {
+    TipoAdquirente.stone => GatewayPagamentoChannel(
+        adquirente: adquirente,
+        metodosSuportados: const {
+          MetodoPagamento.credito,
+          MetodoPagamento.debito,
+          MetodoPagamento.pix,
+        },
+      ),
+    TipoAdquirente.generico => ref.watch(provedorGatewayPagamentoMock),
+  };
+});
+
+final provedorCasoUsoIniciarPagamento = Provider<CasoUsoIniciarPagamento>(
+  (ref) => CasoUsoIniciarPagamento(ref.watch(provedorGatewayPagamento)),
+);
+
+// Leitura do código de atendimento por NFC (antena da maquininha). Mesmo
+// princípio do gateway de pagamento: build genérica não tem canal nativo,
+// então o leitor fica sempre indisponível.
+final provedorGatewayNfc = Provider<GatewayNfc>((ref) {
+  final adquirente = ref.watch(provedorAdquirente);
+  return switch (adquirente) {
+    TipoAdquirente.stone => GatewayNfcChannel(),
+    TipoAdquirente.generico => const GatewayNfcIndisponivel(),
+  };
+});
 
 // ---------------------------------------------------------------------------
 // Encerramento financeiro da comanda: ação 10 e 30 na API da LOJA, fatura na

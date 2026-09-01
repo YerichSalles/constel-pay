@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:constel_pay/aplicativo/injecao.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/componentes/card_scanner.dart';
@@ -8,7 +8,7 @@ import 'package:constel_pay/nucleo/configuracao/ambiente.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/controladores/controlador_fluxo_pagamento.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/paginas/pagina_chat.dart';
 import 'package:constel_pay/funcionalidades/leitura_cartao/dados/fontes_dados/fonte_leitura_mock.dart';
-import 'package:constel_pay/funcionalidades/pagamento/dados/fontes_dados/fonte_pagamento_mock.dart';
+import 'package:constel_pay/funcionalidades/pagamento/dados/fontes_dados/gateway_pagamento_mock.dart';
 import 'package:constel_pay/funcionalidades/propaganda/apresentacao/componentes/publicidade_barra_superior.dart';
 import 'package:constel_pay/funcionalidades/propaganda/dados/repositorios/repositorio_publicidade_impl.dart';
 import 'package:constel_pay/funcionalidades/propaganda/dominio/entidades/publicidade_barra.dart';
@@ -63,8 +63,8 @@ void main() {
           provedorAtrasoBot.overrideWithValue(Duration.zero),
           provedorFonteLeituraMock
               .overrideWithValue(FonteLeituraMock(atraso: Duration.zero)),
-          provedorFontePagamentoMock
-              .overrideWithValue(FontePagamentoMock(atraso: Duration.zero)),
+          provedorGatewayPagamentoMock
+              .overrideWithValue(GatewayPagamentoMock(atraso: Duration.zero)),
         ],
         child: MaterialApp.router(
           routerConfig: roteador,
@@ -139,8 +139,8 @@ void main() {
           provedorAtrasoBot.overrideWithValue(Duration.zero),
           provedorFonteLeituraMock
               .overrideWithValue(FonteLeituraMock(atraso: Duration.zero)),
-          provedorFontePagamentoMock
-              .overrideWithValue(FontePagamentoMock(atraso: Duration.zero)),
+          provedorGatewayPagamentoMock
+              .overrideWithValue(GatewayPagamentoMock(atraso: Duration.zero)),
         ],
         child: MaterialApp.router(
           routerConfig: roteador,
@@ -201,8 +201,8 @@ void main() {
           provedorAtrasoBot.overrideWithValue(Duration.zero),
           provedorFonteLeituraMock
               .overrideWithValue(FonteLeituraMock(atraso: Duration.zero)),
-          provedorFontePagamentoMock
-              .overrideWithValue(FontePagamentoMock(atraso: Duration.zero)),
+          provedorGatewayPagamentoMock
+              .overrideWithValue(GatewayPagamentoMock(atraso: Duration.zero)),
         ],
         child: MaterialApp.router(
           routerConfig: roteador,
@@ -239,8 +239,8 @@ void main() {
           provedorAtrasoBot.overrideWithValue(Duration.zero),
           provedorFonteLeituraMock
               .overrideWithValue(FonteLeituraMock(atraso: Duration.zero)),
-          provedorFontePagamentoMock
-              .overrideWithValue(FontePagamentoMock(atraso: Duration.zero)),
+          provedorGatewayPagamentoMock
+              .overrideWithValue(GatewayPagamentoMock(atraso: Duration.zero)),
         ],
         child: MaterialApp.router(
           routerConfig: roteador,
@@ -310,8 +310,8 @@ Future<void> _montarChatComConfiguracao(
         provedorAtrasoBot.overrideWithValue(Duration.zero),
         provedorFonteLeituraMock
             .overrideWithValue(FonteLeituraMock(atraso: Duration.zero)),
-        provedorFontePagamentoMock
-            .overrideWithValue(FontePagamentoMock(atraso: Duration.zero)),
+        provedorGatewayPagamentoMock
+            .overrideWithValue(GatewayPagamentoMock(atraso: Duration.zero)),
       ],
       child: MaterialApp.router(
         routerConfig: roteador,

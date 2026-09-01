@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "es",
 
   "welcomeMessage": "¡Hola! Te damos la bienvenida. Te ayudaré a pagar tu cuenta en pocos segundos. 😊",
@@ -36,6 +36,7 @@
   "totalBarServiceSuffix": " · incluye servicio",
 
   "scanPositionHint": "Coloca el código de la tarjeta dentro del área",
+  "nfcApproachCardHint": "Acerque la tarjeta al lector",
 
   "homologationBadge": "Homologación",
   "manualEntryButton": "Escribir el código manualmente",
@@ -84,6 +85,9 @@
   "errorServer": "Error al comunicarse con el servidor.",
   "errorUnauthorized": "Acceso no autorizado. Verifica el usuario y la contraseña.",
   "errorUnknown": "Ocurrió un error inesperado.",
+  "errorPaymentTerminal": "La terminal no respondió. Llama al encargado e inténtalo de nuevo.",
+  "terminalFollowInstructions": "Sigue las instrucciones de la terminal para completar el pago.",
+  "errorPaymentUndetermined": "No fue posible confirmar el pago. Llama al encargado antes de intentarlo de nuevo.",
 
   "paymentMethodPix": "Pix",
   "paymentMethodCredit": "Crédito",
@@ -119,5 +123,8 @@
   "closingPreparing": "Preparando el cierre…",
   "closingGeneratingInvoice": "Generando la factura…",
   "closingConfirming": "Confirmando el cierre…",
-  "closingErrorTitle": "No fue posible cerrar la cuenta"
+  "closingErrorTitle": "No fue posible cerrar la cuenta",
+  "closingErrorAlreadyChargedTitle": "¡Pago aprobado! Solo falta cerrar la cuenta",
+  "closingErrorAlreadyChargedSubtitle": "Tu pago se completó y no se cobrará de nuevo. Toca abajo para finalizar.",
+  "retryClosingButton": "Intentar cerrar de nuevo"
 }

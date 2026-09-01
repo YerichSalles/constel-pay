@@ -8,6 +8,7 @@ import '../../../../compartilhado/widgets/botao_secundario.dart';
 import '../../../../compartilhado/widgets/cartao.dart';
 import '../../../../compartilhado/widgets/dialogo_confirmacao.dart';
 import '../../../../nucleo/formatadores/formatador_data.dart';
+import '../../../pagamento/apresentacao/controladores/provedor_adquirente.dart';
 import '../controladores/controlador_diagnostico.dart';
 
 class AbaDiagnostico extends ConsumerWidget {
@@ -44,6 +45,9 @@ class AbaDiagnostico extends ConsumerWidget {
             children: [
               _linha('Versão do aplicativo', estado.versaoApp),
               _linha('Ambiente atual', estado.ambienteRotulo),
+              // Confirma no próprio terminal qual build está instalada: é como
+              // se verifica que a flag --dart-define=ADQUIRENTE chegou.
+              _linha('Adquirente', ref.watch(provedorAdquirente).rotulo),
               _linha('IP', estado.ip),
               _linha(
                 'Última sincronização',

@@ -128,7 +128,8 @@ void main() {
         requestOptions: opcoes,
         type: DioExceptionType.badResponse,
         response: Response(requestOptions: opcoes, statusCode: 422)));
-    expect(semCorpo.mensagem, 'Erro ao comunicar com o servidor.');
+    expect(
+        semCorpo.mensagem, 'Servidor (422): Erro ao comunicar com o servidor.');
   });
 
   test('get usa a URL base do ambiente ativo', () async {

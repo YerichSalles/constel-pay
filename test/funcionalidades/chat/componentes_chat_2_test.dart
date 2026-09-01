@@ -77,6 +77,7 @@ void main() {
       aoNovaOperacao: () {},
       aoTentarNovamente: () {},
       aoContinuarComCartoes: () {},
+      aoTentarEncerrarNovamente: () {},
     )));
     await tester.tap(find.text('Adicionar outro cartão'));
     expect(leuOutro, isTrue);

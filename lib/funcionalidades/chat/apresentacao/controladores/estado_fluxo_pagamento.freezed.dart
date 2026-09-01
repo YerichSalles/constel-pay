@@ -21,6 +21,12 @@ mixin _$EstadoFluxoPagamento {
   List<CartaoConsumo> get cartoes => throw _privateConstructorUsedError;
   int get cartoesRestantes => throw _privateConstructorUsedError;
   DadosPix? get dadosPix => throw _privateConstructorUsedError;
+
+  /// Método em cobrança. Fica no estado porque as etapas seguintes
+  /// (processando, erro, comprovante) precisam saber por onde a cobrança
+  /// entrou — o PIX por QR na tela e o cartão na maquininha voltam para
+  /// pontos diferentes quando dá errado.
+  MetodoPagamento? get metodoSelecionado => throw _privateConstructorUsedError;
   bool get digitando => throw _privateConstructorUsedError;
   bool get copiado => throw _privateConstructorUsedError;
 
@@ -43,6 +49,7 @@ abstract class $EstadoFluxoPagamentoCopyWith<$Res> {
       List<CartaoConsumo> cartoes,
       int cartoesRestantes,
       DadosPix? dadosPix,
+      MetodoPagamento? metodoSelecionado,
       bool digitando,
       bool copiado});
 
@@ -70,6 +77,7 @@ class _$EstadoFluxoPagamentoCopyWithImpl<$Res,
     Object? cartoes = null,
     Object? cartoesRestantes = null,
     Object? dadosPix = freezed,
+    Object? metodoSelecionado = freezed,
     Object? digitando = null,
     Object? copiado = null,
   }) {
@@ -94,6 +102,10 @@ class _$EstadoFluxoPagamentoCopyWithImpl<$Res,
           ? _value.dadosPix
           : dadosPix // ignore: cast_nullable_to_non_nullable
               as DadosPix?,
+      metodoSelecionado: freezed == metodoSelecionado
+          ? _value.metodoSelecionado
+          : metodoSelecionado // ignore: cast_nullable_to_non_nullable
+              as MetodoPagamento?,
       digitando: null == digitando
           ? _value.digitando
           : digitando // ignore: cast_nullable_to_non_nullable
@@ -134,6 +146,7 @@ abstract class _$$EstadoFluxoPagamentoImplCopyWith<$Res>
       List<CartaoConsumo> cartoes,
       int cartoesRestantes,
       DadosPix? dadosPix,
+      MetodoPagamento? metodoSelecionado,
       bool digitando,
       bool copiado});
 
@@ -159,6 +172,7 @@ class __$$EstadoFluxoPagamentoImplCopyWithImpl<$Res>
     Object? cartoes = null,
     Object? cartoesRestantes = null,
     Object? dadosPix = freezed,
+    Object? metodoSelecionado = freezed,
     Object? digitando = null,
     Object? copiado = null,
   }) {
@@ -183,6 +197,10 @@ class __$$EstadoFluxoPagamentoImplCopyWithImpl<$Res>
           ? _value.dadosPix
           : dadosPix // ignore: cast_nullable_to_non_nullable
               as DadosPix?,
+      metodoSelecionado: freezed == metodoSelecionado
+          ? _value.metodoSelecionado
+          : metodoSelecionado // ignore: cast_nullable_to_non_nullable
+              as MetodoPagamento?,
       digitando: null == digitando
           ? _value.digitando
           : digitando // ignore: cast_nullable_to_non_nullable
@@ -204,6 +222,7 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
       final List<CartaoConsumo> cartoes = const [],
       this.cartoesRestantes = 0,
       this.dadosPix,
+      this.metodoSelecionado,
       this.digitando = false,
       this.copiado = false})
       : _mensagens = mensagens,
@@ -236,6 +255,13 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
   final int cartoesRestantes;
   @override
   final DadosPix? dadosPix;
+
+  /// Método em cobrança. Fica no estado porque as etapas seguintes
+  /// (processando, erro, comprovante) precisam saber por onde a cobrança
+  /// entrou — o PIX por QR na tela e o cartão na maquininha voltam para
+  /// pontos diferentes quando dá errado.
+  @override
+  final MetodoPagamento? metodoSelecionado;
   @override
   @JsonKey()
   final bool digitando;
@@ -245,7 +271,7 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
 
   @override
   String toString() {
-    return 'EstadoFluxoPagamento(etapa: $etapa, mensagens: $mensagens, cartoes: $cartoes, cartoesRestantes: $cartoesRestantes, dadosPix: $dadosPix, digitando: $digitando, copiado: $copiado)';
+    return 'EstadoFluxoPagamento(etapa: $etapa, mensagens: $mensagens, cartoes: $cartoes, cartoesRestantes: $cartoesRestantes, dadosPix: $dadosPix, metodoSelecionado: $metodoSelecionado, digitando: $digitando, copiado: $copiado)';
   }
 
   @override
@@ -261,6 +287,8 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
                 other.cartoesRestantes == cartoesRestantes) &&
             (identical(other.dadosPix, dadosPix) ||
                 other.dadosPix == dadosPix) &&
+            (identical(other.metodoSelecionado, metodoSelecionado) ||
+                other.metodoSelecionado == metodoSelecionado) &&
             (identical(other.digitando, digitando) ||
                 other.digitando == digitando) &&
             (identical(other.copiado, copiado) || other.copiado == copiado));
@@ -274,6 +302,7 @@ class _$EstadoFluxoPagamentoImpl extends _EstadoFluxoPagamento {
       const DeepCollectionEquality().hash(_cartoes),
       cartoesRestantes,
       dadosPix,
+      metodoSelecionado,
       digitando,
       copiado);
 
@@ -295,6 +324,7 @@ abstract class _EstadoFluxoPagamento extends EstadoFluxoPagamento {
       final List<CartaoConsumo> cartoes,
       final int cartoesRestantes,
       final DadosPix? dadosPix,
+      final MetodoPagamento? metodoSelecionado,
       final bool digitando,
       final bool copiado}) = _$EstadoFluxoPagamentoImpl;
   const _EstadoFluxoPagamento._() : super._();
@@ -309,6 +339,13 @@ abstract class _EstadoFluxoPagamento extends EstadoFluxoPagamento {
   int get cartoesRestantes;
   @override
   DadosPix? get dadosPix;
+
+  /// Método em cobrança. Fica no estado porque as etapas seguintes
+  /// (processando, erro, comprovante) precisam saber por onde a cobrança
+  /// entrou — o PIX por QR na tela e o cartão na maquininha voltam para
+  /// pontos diferentes quando dá errado.
+  @override
+  MetodoPagamento? get metodoSelecionado;
   @override
   bool get digitando;
   @override

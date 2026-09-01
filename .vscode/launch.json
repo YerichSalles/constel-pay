@@ -24,6 +24,13 @@
       "program": "lib/main.dart",
       "deviceId": "windows",
       "flutterMode": "profile"
+    },
+    {
+      "name": "Stone (Dev)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["--flavor", "dev", "--dart-define=ADQUIRENTE=stone"]
     }
   ]
 }

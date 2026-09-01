@@ -46,6 +46,17 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Mesma coisa para a variante da adquirente Stone (trocada com android/ antes
+# do build). O codigo-fonte dela E versionado; so os artefatos ficam de fora.
+/android_STONE/build/
+/android_STONE/app/debug
+/android_STONE/app/profile
+/android_STONE/app/release
+
+# Projeto legado consultado ao portar a integracao Stone. Fica so na maquina:
+# e o app antigo inteiro, nao uma variante do Constel Pay.
+/android_STONE_legado/
+
 # Project internal task-management docs (not part of the app)
 .superpowers/
 
@@ -54,3 +65,9 @@ app.*.map.json
 
 # Scratch/leftover edit artifacts
 *.fix
+
+# FVM Version Cache
+.fvm/
+
+# Heap dumps deixados pela JVM do Gradle quando um build estoura memoria.
+*.hprof

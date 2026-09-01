@@ -53,6 +53,30 @@ abstract final class ConstantesApp {
   // por espécie, sem depender de fatura anterior.
   static const String caminhoForma = 'financeiro/forma';
 
+  // Canal de comunicação com a camada nativa de pagamento. O nome é o MESMO
+  // em qualquer build: a pasta nativa muda por adquirente, o canal não. Saber
+  // qual adquirente está embarcada é papel do TipoAdquirente, nunca do nome
+  // do canal.
+  static const String canalPagamentoNativo = 'com.constelpay.pagamento';
+
+  // Canal de comunicação com a leitura por NFC da maquininha (antena da
+  // Stone, não o NfcAdapter do Android). Mesmo princípio do canal de
+  // pagamento: nome fixo, a pasta nativa é que muda por adquirente.
+  static const String canalNfcNativo = 'com.constelpay.nfc';
+
+  // Tempo máximo que o app espera a leitura por NFC. O nativo responde antes
+  // (90s) com o motivo real; esta é só a rede de segurança do lado Dart.
+  static const Duration tempoLimiteLeituraNfc = Duration(seconds: 95);
+
+  // Teto de parcelas no crédito. O fluxo atual cobra sempre à vista; a
+  // constante existe para o caso de uso validar o argumento recebido em vez
+  // de carregar um número solto.
+  static const int parcelasMaximasCredito = 12;
+
+  // Tempo máximo que o app espera a maquininha responder. Estourado o limite,
+  // o resultado é INDETERMINADO (pode ter cobrado), nunca recusa.
+  static const Duration tempoLimitePagamentoNativo = Duration(minutes: 3);
+
   // Chaves de SharedPreferences que SOBREVIVEM ao "Limpar dados locais":
   // registros transacionais cuja perda deixaria dado financeiro órfão no
   // retaguarda. Toda feature com dado desse tipo registra a chave aqui.

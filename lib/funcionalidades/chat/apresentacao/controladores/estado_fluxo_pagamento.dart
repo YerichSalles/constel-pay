@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../leitura_cartao/dominio/entidades/cartao_consumo.dart';
 import '../../../pagamento/dominio/entidades/dados_pix.dart';
+import '../../../pagamento/dominio/entidades/metodo_pagamento.dart';
 import '../../dominio/entidades/mensagem.dart';
 
 part 'estado_fluxo_pagamento.freezed.dart';
@@ -15,6 +16,12 @@ enum EtapaFluxo {
   escolhaMetodo,
   pixAguardando,
   processando,
+
+  /// Cobrança já aprovada na maquininha (crédito, débito ou PIX), mas o
+  /// encerramento financeiro falhou. NUNCA volta para `escolhaMetodo` —
+  /// cobrar de novo aqui debitaria o cliente duas vezes. Só oferece repetir
+  /// o encerramento com os mesmos dados da transação já aprovada.
+  falhaAposCobranca,
   sucessoComRestante,
   sucessoCompleto,
   encerramento,
@@ -30,6 +37,12 @@ class EstadoFluxoPagamento with _$EstadoFluxoPagamento {
     @Default([]) List<CartaoConsumo> cartoes,
     @Default(0) int cartoesRestantes,
     DadosPix? dadosPix,
+
+    /// Método em cobrança. Fica no estado porque as etapas seguintes
+    /// (processando, erro, comprovante) precisam saber por onde a cobrança
+    /// entrou — o PIX por QR na tela e o cartão na maquininha voltam para
+    /// pontos diferentes quando dá errado.
+    MetodoPagamento? metodoSelecionado,
     @Default(false) bool digitando,
     @Default(false) bool copiado,
   }) = _EstadoFluxoPagamento;

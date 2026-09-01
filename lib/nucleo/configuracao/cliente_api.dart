@@ -61,6 +61,7 @@ class ClienteApi {
       return Sucesso(
           await _dio.get<dynamic>(caminho, queryParameters: parametros));
     } on DioException catch (excecao) {
+      _logarCorpoErro(excecao);
       return Erro(mapearFalha(excecao));
     }
   }
@@ -84,6 +85,7 @@ class ClienteApi {
         ),
       );
     } on DioException catch (excecao) {
+      _logarCorpoErro(excecao);
       return Erro(mapearFalha(excecao));
     }
   }
@@ -98,10 +100,9 @@ class ClienteApi {
             when excecao.response?.statusCode == 401 ||
                 excecao.response?.statusCode == 403 =>
           const FalhaNaoAutorizado(),
-        DioExceptionType.badResponse => switch (_mensagemServidor(excecao)) {
-            final mensagem? => FalhaServidor('Servidor: $mensagem'),
-            null => const FalhaServidor(),
-          },
+        DioExceptionType.badResponse => FalhaServidor(
+            'Servidor (${excecao.response?.statusCode}): '
+            '${_mensagemServidor(excecao) ?? 'Erro ao comunicar com o servidor.'}'),
         DioExceptionType.cancel => const FalhaValidacao(
             'Configure a URL do ambiente nas configurações.'),
         DioExceptionType.unknown when _falhaDeTls(excecao) => const FalhaRede(
@@ -122,19 +123,54 @@ class ClienteApi {
   static bool _falhaDeSocket(DioException excecao) =>
       '${excecao.error}'.contains('SocketException');
 
-  /// Extrai a mensagem de erro do corpo da resposta (campo `message`),
-  /// quando o servidor devolve JSON. Ajuda o operador a ver o motivo real
-  /// de recusas de validação (ex.: 422) sem expor headers nem payload.
+  /// Extrai a mensagem de erro do corpo da resposta, quando o servidor
+  /// devolve JSON. Procura as chaves mais comuns usadas pelo retaguarda para
+  /// carregar o motivo real de uma recusa (ex.: 422) sem expor headers nem
+  /// payload financeiro — e cai para o corpo cru quando vem como texto puro.
   static String? _mensagemServidor(DioException excecao) {
     final dados = excecao.response?.data;
+    if (dados is String && dados.isNotEmpty) return _truncar(dados);
     if (dados is! Map) return null;
-    final mensagem = dados['message'];
-    final texto = switch (mensagem) {
-      final String valor when valor.isNotEmpty => valor,
-      final List valores when valores.isNotEmpty => valores.join(' · '),
-      _ => null,
-    };
-    if (texto == null) return null;
-    return texto.length > 160 ? '${texto.substring(0, 160)}…' : texto;
+    for (final chave in const [
+      'message',
+      'error',
+      'erro',
+      'mensagem',
+      'detail',
+      'title',
+      'errors',
+    ]) {
+      final texto = _textoDe(dados[chave]);
+      if (texto != null) return _truncar(texto);
+    }
+    return null;
+  }
+
+  static String? _textoDe(Object? valor) => switch (valor) {
+        final String v when v.isNotEmpty => v,
+        final List v when v.isNotEmpty => v.map(_textoBruto).join(' · '),
+        final Map v when v.isNotEmpty => v.values.map(_textoBruto).join(' · '),
+        _ => null,
+      };
+
+  static String _textoBruto(Object? valor) => switch (valor) {
+        final String v => v,
+        final List v => v.map(_textoBruto).join(', '),
+        final Map v => v.values.map(_textoBruto).join(', '),
+        _ => '$valor',
+      };
+
+  static String _truncar(String texto) =>
+      texto.length > 160 ? '${texto.substring(0, 160)}…' : texto;
+
+  /// Loga o corpo bruto de respostas de erro (4xx/5xx) para diagnóstico —
+  /// é resposta de erro do retaguarda, não dado de cartão. Trunca para não
+  /// estourar o buffer de memória do registrador (`SaidaMemoria`).
+  static void _logarCorpoErro(DioException excecao) {
+    final status = excecao.response?.statusCode;
+    if (status == null || status < 400) return;
+    final corpo = '${excecao.response?.data}';
+    registrador.w('Corpo do erro HTTP ($status): '
+        '${corpo.length > 500 ? '${corpo.substring(0, 500)}…' : corpo}');
   }
 }

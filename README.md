@@ -1,4 +1,4 @@
-# Constel Pay
+﻿# Constel Pay
 
 Terminal de autoatendimento (totem) para pagamento de consumo em restaurantes, do ecossistema Constel.
 
@@ -197,6 +197,41 @@ O `android/settings.gradle.kts` fixa o **AGP 8.13.2**. Não é desatualização 
 
 Com `android.builtInKotlin=false`, o Kotlin do file_picker não compila e o `GeneratedPluginRegistrant` não acha `FilePickerPlugin`. Com `true`, os outros três quebram. As duas exigências não coexistem. O AGP 8.x satisfaz todos. Voltar ao 9.x só quando esses plugins migrarem.
 
+## Pagamento por cartão: adquirente Stone (Android)
+
+O terminal cobra crédito, débito e Pix pela adquirente **Stone** numa variante nativa separada, seguindo o mesmo princípio de `android/`: SDKs de adquirente são proprietários e não coexistem no mesmo binário, então cada adquirente vive em sua própria pasta, trocada manualmente antes do build.
+
+- `android/` — build genérica em produção. Só Pix, por QR Code na tela. Nunca depende de hardware de maquininha.
+- `android_STONE/` — build com o SDK da Stone embarcado. Crédito, débito e Pix são cobrados pelo aplicativo de pagamento da Stone via deep link (`payment-app://pay`), não pelo `TransactionProvider` do SDK. **Não existe código de ativação no app**: quem é credenciado na Stone é o aplicativo de pagamento instalado no aparelho, fora do Constel Pay.
+
+O nome do `MethodChannel` (`com.constelpay.pagamento`) é o mesmo em qualquer build — o lado Dart nunca descobre a adquirente pelo canal. A adquirente ativa entra como estado explícito (`TipoAdquirente`, populado uma vez no startup a partir de `--dart-define=ADQUIRENTE=stone|generico`) porque o comportamento de negócio diverge por adquirente, não só a chamada nativa: na build Stone, o Pix também vai pela maquininha; na genérica, continua QR Code.
+
+Camada Dart: `lib/funcionalidades/pagamento/dominio/repositorios/gateway_pagamento.dart` é o contrato (`GatewayPagamento`); `GatewayPagamentoChannel` é a implementação única via canal, servindo qualquer adquirente que responda ao mesmo contrato; `GatewayPagamentoMock` cobre a build genérica (nenhum método suportado) e a fonte do Pix por QR. `CasoUsoIniciarPagamento` valida antes de tocar no terminal.
+
+Hoje o deep link para o aplicativo de pagamento da Stone (`payment-app://pay`, em `PontePagamentoStone.kt`) não envia a chave de idempotência, seguindo o mesmo contrato validado no app irmão `autoatendimento`. A proteção contra cobrança dupla continua do lado Constel Pay: em resultado indeterminado, o app nunca tenta de novo sozinho — volta para a escolha do método com aviso, e uma nova tentativa exige toque consciente do operador.
+
+A ponte nativa tem um timeout próprio de 2m30s, mais curto que o do lado Dart (3min): se a Stone rejeitar a transação antes de abrir a tela de cobrança, ela pode nunca disparar o retorno via deep link — sem esse timeout, a trava de "uma cobrança por vez" ficava presa até a Activity ser destruída, e toda tentativa seguinte falhava com "terminal em andamento".
+
+Build (um APK por modelo de maquininha, exigido pela homologação Stone):
+
+```bash
+# Troca de pasta ANTES do build — nunca as duas coexistindo como android/
+mv android android_GENERICO
+mv android_STONE android
+
+flutter build apk --release --dart-define=ADQUIRENTE=stone --flavor gertecGpos700
+# ... um comando por flavor: dev, sunmi, sunmiSeriesP, ingenico,
+#     gertecGpos700, gertecGpos760, tectoySeriesT, positivoSeriesL
+
+# Restaurar
+mv android android_STONE
+mv android_GENERICO android
+```
+
+Configurações → Diagnóstico mostra a adquirente ativa da build instalada — é como se confirma que a flag chegou, sem abrir o APK.
+
+**Dívida de segurança conhecida em `android_STONE/`:** o token do Maven privado da Stone e os keystores de homologação (Gertec/Positivo) estão versionados como estão, incluindo dois arquivos `.properties` que na verdade são JKS binários renomeados (o `keyAlias`/senha carregado sempre cai no default hardcoded, e por terem o mesmo conteúdo, o flavor Positivo assina com o certificado Gertec). Serve para destravar a homologação; o token precisa ser rotacionado e os keystores reais recuperados antes de qualquer distribuição fora de homologação.
+
 ## Testes
 
 78 arquivos em `test/`, espelhando a estrutura de `lib/`: unitários (domínio, dados, núcleo), de widget (compartilhados, páginas e componentes) e de integração de fluxo (`test/integracao/`). Mocks com `mocktail`; as fontes mockadas expõem `atraso` no construtor para testes determinísticos.
@@ -204,7 +239,7 @@ Com `android.builtInKotlin=false`, o Kotlin do file_picker não compila e o `Gen
 ## Segurança e pontos de atenção
 
 - **Validação de certificado TLS está desligada em todo o app.** `instalarConfiancaTlsGlobal()` (`main.dart` + `nucleo/configuracao/confianca_tls_io.dart`) instala um `HttpOverrides` cujo `badCertificateCallback` sempre aceita. É intencional — cobre o Dio e o `Image.network` das fotos dos itens em PCs sem as raízes atualizadas —, mas o app deixa de garantir a identidade do servidor: a conexão continua criptografada, porém exposta a MITM. A correção adequada é ajustar o certificado (SAN/cadeia) ou instalar as raízes na máquina.
-- **A feature `pagamento` ainda é mock.** `FontePagamentoMock` sempre aprova após um atraso e o payload PIX é rotulado `…CONSTEL-PAY-MOCK…` — não é PIX real. `RepositorioPagamentoImpl` depende da classe concreta do mock, então a troca pela fonte real exige alterar o Impl ou introduzir a interface.
+- **O Pix por QR Code (build genérica) ainda é mock.** `GatewayPagamentoMock` sempre aprova após um atraso e o payload é rotulado `…CONSTEL-PAY-MOCK…` — não é Pix real. `RepositorioPagamentoImpl` já depende da interface `FontePagamento`, não da classe concreta, então trocar por uma fonte real de QR Code não exige alterar o Impl. O pagamento por cartão real já existe na build Stone — veja "Pagamento por cartão: adquirente Stone".
 - **`FonteLeituraMock` (`lerCartao`) não tem mais chamador em produção** — a leitura real entra por `consultarPorCodigo`. A cadeia mock segue no projeto, exercitada apenas por testes; é dívida técnica consciente.
 - **Sem plano B na tela de leitura:** não há busca manual nem botão de simular. No Windows o atendimento depende inteiramente do leitor físico; no Android há a câmera, se o operador ligar.
 - **Versões presas de propósito, não por desatualização:** o `mobile_scanner` fica no 6.x (o 7.x exige Flutter ≥ 3.29, acima da stack alvo) e o AGP no 8.x — veja a nota abaixo.

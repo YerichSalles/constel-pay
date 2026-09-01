@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../aplicativo/injecao.dart';
@@ -107,6 +107,7 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
     String? identificadorDispositivo,
     String? idDispositivo,
     bool? leituraPorCamera,
+    bool? leituraPorNfc,
   }) async {
     state = state.copyWith(salvando: true, mensagem: null);
     if (usuario.isNotEmpty || senha.isNotEmpty) {
@@ -120,6 +121,7 @@ class ControladorConfiguracoes extends StateNotifier<EstadoConfiguracoes> {
           identificadorDispositivo?.trim() ?? anterior.identificadorDispositivo,
       idDispositivo: idDispositivo?.trim() ?? anterior.idDispositivo,
       leituraPorCamera: leituraPorCamera ?? anterior.leituraPorCamera,
+      leituraPorNfc: leituraPorNfc ?? anterior.leituraPorNfc,
       urlBaseProducao: comBarraFinal(urlProducao.trim()),
       urlBaseHomologacao: comBarraFinal(urlHomologacao.trim()),
       urlNuvemProducao:

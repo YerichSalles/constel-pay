@@ -1,4 +1,4 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+﻿import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../nucleo/configuracao/ambiente.dart';
 import '../../../../nucleo/utils/url_base.dart';
@@ -19,6 +19,12 @@ class ConfiguracaoTerminal with _$ConfiguracaoTerminal {
     /// sistema como teclado comum e só dá sinal quando digita — por isso a
     /// escolha é do operador, por dispositivo.
     @Default(false) bool leituraPorCamera,
+
+    /// Liga a leitura pela antena NFC da maquininha, para terminais sem
+    /// leitor de código de barras nem câmera (ex.: maquininhas de mão). Só
+    /// funciona na build com adquirente embarcada — o mesmo motivo pelo qual
+    /// é configurável em vez de detectado sozinho.
+    @Default(false) bool leituraPorNfc,
     @Default(Ambiente.homologacao) Ambiente ambiente,
     // URLs da API local (consumo do cartão no estabelecimento).
     @Default('') String urlBaseProducao,

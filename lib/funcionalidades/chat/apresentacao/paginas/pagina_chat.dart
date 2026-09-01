@@ -31,6 +31,7 @@ import '../componentes/banner_boas_vindas.dart';
 import '../componentes/bolha_mensagem.dart';
 import '../componentes/card_comanda.dart';
 import '../componentes/card_metodos_pagamento.dart';
+import '../componentes/card_nfc.dart';
 import '../componentes/card_pix.dart';
 import '../componentes/card_scanner.dart';
 import '../componentes/card_sucesso.dart';
@@ -53,6 +54,11 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
   /// configurações. No totem Windows a leitura é sempre pelo leitor físico.
   bool _cameraDisponivel = false;
 
+  /// Leitura por NFC: mesmo critério da câmera (Android + ligado nas
+  /// configurações) — os dois nunca aparecem juntos, a NFC tem prioridade
+  /// quando ligada.
+  bool _nfcDisponivel = false;
+
   /// Digitação manual do código: atalho de teste, liberado só quando o
   /// terminal está em homologação e com a URL desse ambiente preenchida —
   /// sem ela a consulta não teria para onde ir.
@@ -69,6 +75,8 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
         setState(() {
           _nomeRestaurante = configuracao.nomeRestaurante;
           _cameraDisponivel = configuracao.leituraPorCamera &&
+              defaultTargetPlatform == TargetPlatform.android;
+          _nfcDisponivel = configuracao.leituraPorNfc &&
               defaultTargetPlatform == TargetPlatform.android;
           _digitacaoManualDisponivel =
               configuracao.ambiente == Ambiente.homologacao &&
@@ -164,13 +172,21 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
         // acenderia a câmera de todas as tentativas passadas ao mesmo tempo.
         final atual = mensagem.id == _ultimoScannerId(estado);
         final lendo = estado.etapa == EtapaFluxo.lendo && !estado.digitando;
+        final aoDigitarManual = _digitacaoManualDisponivel && atual && lendo
+            ? () => _digitarCodigoManual(controlador)
+            : null;
+        if (_nfcDisponivel) {
+          return recuado(CardNfc(
+            ativo: atual && lendo,
+            aoLer: controlador.consultarPorCodigo,
+            aoDigitarManual: aoDigitarManual,
+          ));
+        }
         return recuado(CardScanner(
           aoLerPorCamera:
               _cameraDisponivel ? controlador.consultarPorCodigo : null,
           cameraAtiva: atual && lendo,
-          aoDigitarManual: _digitacaoManualDisponivel && atual && lendo
-              ? () => _digitarCodigoManual(controlador)
-              : null,
+          aoDigitarManual: aoDigitarManual,
         ));
       case TipoMensagem.metodos:
         return recuado(CardMetodosPagamento(
@@ -297,6 +313,7 @@ class _PaginaChatState extends ConsumerState<PaginaChat> {
               aoNovaOperacao: _novaOperacao,
               aoTentarNovamente: controlador.tentarNovamente,
               aoContinuarComCartoes: controlador.continuarComCartoes,
+              aoTentarEncerrarNovamente: controlador.tentarEncerrarNovamente,
             ),
           ],
         ),

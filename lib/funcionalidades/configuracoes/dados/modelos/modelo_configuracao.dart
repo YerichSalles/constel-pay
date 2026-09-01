@@ -1,4 +1,4 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+﻿import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../nucleo/configuracao/ambiente.dart';
 import '../../dominio/entidades/configuracao_terminal.dart';
@@ -15,6 +15,7 @@ class ModeloConfiguracao with _$ModeloConfiguracao {
     required String identificadorDispositivo,
     @Default('') String idDispositivo,
     @Default(false) bool leituraPorCamera,
+    @Default(false) bool leituraPorNfc,
     required Ambiente ambiente,
     required String urlBaseProducao,
     required String urlBaseHomologacao,
@@ -31,6 +32,7 @@ class ModeloConfiguracao with _$ModeloConfiguracao {
         identificadorDispositivo: entidade.identificadorDispositivo,
         idDispositivo: entidade.idDispositivo,
         leituraPorCamera: entidade.leituraPorCamera,
+        leituraPorNfc: entidade.leituraPorNfc,
         ambiente: entidade.ambiente,
         urlBaseProducao: entidade.urlBaseProducao,
         urlBaseHomologacao: entidade.urlBaseHomologacao,
@@ -43,6 +45,7 @@ class ModeloConfiguracao with _$ModeloConfiguracao {
         identificadorDispositivo: identificadorDispositivo,
         idDispositivo: idDispositivo,
         leituraPorCamera: leituraPorCamera,
+        leituraPorNfc: leituraPorNfc,
         ambiente: ambiente,
         urlBaseProducao: urlBaseProducao,
         urlBaseHomologacao: urlBaseHomologacao,

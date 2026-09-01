@@ -168,6 +168,10 @@
   "@scanPositionHint": {
     "description": "Texto sobreposto ao visor do scanner simulado."
   },
+  "nfcApproachCardHint": "Aproxime o cartão do leitor",
+  "@nfcApproachCardHint": {
+    "description": "Texto sobreposto ao visor de leitura por NFC."
+  },
 
   "homologationBadge": "Homologação",
   "@homologationBadge": {
@@ -340,6 +344,18 @@
   "@errorUnknown": {
     "description": "Mensagem padrão de FalhaDesconhecida e chave genérica de fallback para FalhaValidacao sem mensagem customizada."
   },
+  "errorPaymentTerminal": "A maquininha não respondeu. Chame o atendente e tente novamente.",
+  "@errorPaymentTerminal": {
+    "description": "Mensagem de FalhaTerminalPagamento. Nada foi cobrado: repetir é seguro."
+  },
+  "errorPaymentUndetermined": "Não foi possível confirmar o pagamento. Chame o atendente antes de tentar de novo.",
+  "@errorPaymentUndetermined": {
+    "description": "Mensagem de FalhaPagamentoIndeterminado. A cobrança pode ter ocorrido: nunca oferecer repetição automática."
+  },
+  "terminalFollowInstructions": "Siga as instruções na maquininha para concluir o pagamento.",
+  "@terminalFollowInstructions": {
+    "description": "Orientação exibida quando a cobrança passa para o terminal físico da adquirente."
+  },
 
   "paymentMethodPix": "Pix",
   "@paymentMethodPix": {"description": "Rótulo do método de pagamento Pix."},
@@ -429,5 +445,17 @@
   "closingErrorTitle": "Não foi possível encerrar a conta",
   "@closingErrorTitle": {
     "description": "Título da mensagem quando o encerramento financeiro falha; o detalhe vem da falha."
+  },
+  "closingErrorAlreadyChargedTitle": "Pagamento aprovado! Só falta fechar a conta",
+  "@closingErrorAlreadyChargedTitle": {
+    "description": "Falado ao cliente no totem quando o encerramento falha DEPOIS do pagamento aprovado: o pagamento dele deu certo, só o fechamento da comanda não concluiu."
+  },
+  "closingErrorAlreadyChargedSubtitle": "Seu pagamento foi concluído e não será cobrado de novo. Toque abaixo para finalizar.",
+  "@closingErrorAlreadyChargedSubtitle": {
+    "description": "Tranquiliza o cliente de que não haverá nova cobrança e indica a ação seguinte."
+  },
+  "retryClosingButton": "Tentar encerrar novamente",
+  "@retryClosingButton": {
+    "description": "Ação que repete só o fechamento da comanda, sem novo pagamento."
   }
 }

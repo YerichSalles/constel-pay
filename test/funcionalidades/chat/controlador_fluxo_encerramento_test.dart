@@ -1,4 +1,4 @@
-import 'package:constel_pay/funcionalidades/chat/apresentacao/controladores/controlador_fluxo_pagamento.dart';
+﻿import 'package:constel_pay/funcionalidades/chat/apresentacao/controladores/controlador_fluxo_pagamento.dart';
 import 'package:constel_pay/funcionalidades/chat/apresentacao/controladores/estado_fluxo_pagamento.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/entidades/configuracao_terminal.dart';
 import 'package:constel_pay/funcionalidades/configuracoes/dominio/repositorios/repositorio_configuracao.dart';
@@ -11,11 +11,12 @@ import 'package:constel_pay/funcionalidades/leitura_cartao/dados/fontes_dados/fo
 import 'package:constel_pay/funcionalidades/leitura_cartao/dados/repositorios/repositorio_leitura_impl.dart';
 import 'package:constel_pay/funcionalidades/leitura_cartao/dominio/casos_uso/caso_uso_ler_cartao.dart';
 import 'package:constel_pay/funcionalidades/leitura_cartao/dominio/entidades/atendimento.dart';
-import 'package:constel_pay/funcionalidades/pagamento/dados/fontes_dados/fonte_pagamento_mock.dart';
+import 'package:constel_pay/funcionalidades/pagamento/dados/fontes_dados/gateway_pagamento_mock.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dados/repositorios/repositorio_pagamento_impl.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/casos_uso/caso_uso_gerar_pix.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/casos_uso/caso_uso_processar_pagamento.dart';
 import 'package:constel_pay/funcionalidades/pagamento/dominio/entidades/metodo_pagamento.dart';
+import 'package:constel_pay/funcionalidades/pagamento/dominio/entidades/resultado_transacao.dart';
 import 'package:constel_pay/l10n/app_localizations.dart';
 import 'package:constel_pay/nucleo/erros/falha.dart';
 import 'package:constel_pay/nucleo/erros/resultado.dart';
@@ -75,6 +76,7 @@ class _CasoUsoEncerrarFake implements CasoUsoEncerrarAtendimentos {
     required MetodoPagamento metodo,
     int? valorRecebidoCentavos,
     void Function(FaseEncerramento fase)? aoMudarFase,
+    ResultadoTransacao? transacaoEletronica,
   }) async {
     chamadas.add([for (final a in atendimentos) a.id]);
     if (resultado is Sucesso<ResultadoEncerramento>) {
@@ -117,7 +119,7 @@ void main() {
     final fonteLeitura = FonteLeituraMock(atraso: Duration.zero);
     final repositorioLeitura = RepositorioLeituraImpl(fonteLeitura);
     final repositorioPagamento =
-        RepositorioPagamentoImpl(FontePagamentoMock(atraso: Duration.zero));
+        RepositorioPagamentoImpl(GatewayPagamentoMock(atraso: Duration.zero));
     casoUsoEncerrar = _CasoUsoEncerrarFake();
     controlador = ControladorFluxoPagamento(
       casoUsoLerCartao: CasoUsoLerCartao(repositorioLeitura),

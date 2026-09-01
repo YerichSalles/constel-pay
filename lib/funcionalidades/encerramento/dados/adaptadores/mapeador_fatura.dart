@@ -1,5 +1,7 @@
 import '../../../../nucleo/utils/json_leniente.dart';
 import '../../../leitura_cartao/dominio/entidades/atendimento.dart';
+import '../../../pagamento/dominio/entidades/resultado_transacao.dart';
+import '../../dominio/entidades/codigo_adquirente.dart';
 import '../../dominio/entidades/configuracao_faturamento.dart';
 import '../../dominio/entidades/fatura_enums.dart';
 import '../modelos/requisicao_fatura.dart';
@@ -27,6 +29,7 @@ abstract final class MapeadorFatura {
     required DateTime momentoUtc,
     required DateTime dataOperacional,
     int trocoCentavos = 0,
+    ResultadoTransacao? transacaoEletronica,
   }) {
     final brutos = [for (final a in atendimentos) a.bruto];
     final primeiro = brutos.first;
@@ -77,11 +80,30 @@ abstract final class MapeadorFatura {
           subtotalCentavos: totalCentavos,
           trocoCentavos: trocoCentavos,
           totalCentavos: totalCentavos,
+          faturaPagamentoEletronico: _pagamentoEletronico(transacaoEletronica),
         ),
       ],
       pessoas: brutos.fold(0, (soma, b) => soma + _inteiro(b['pessoas'])),
       sessaoId: atendimentos.first.sessaoId,
     );
+  }
+
+  /// `null` quando a cobrança não passou pela maquininha (dinheiro, ou PIX
+  /// por QR Code na tela). `integracao: 10` (pos) e `adquirente` fixo em
+  /// Stone — único aplicativo de pagamento integrado hoje. `adquirente` e
+  /// `bandeira` vão como valor cru (não como objeto com id): é uma decisão
+  /// deliberada para esta etapa, viram objeto completo quando houver busca
+  /// por id no retaguarda.
+  static Map<String, dynamic>? _pagamentoEletronico(
+      ResultadoTransacao? transacao) {
+    if (transacao == null) return null;
+    return {
+      'integracao': 10,
+      'adquirente': CodigoAdquirente.stone.value,
+      'bandeira': transacao.bandeira,
+      'nsu': transacao.nsu,
+      'autorizacao': transacao.codigoAutorizacao,
+    };
   }
 
   static List<RequisicaoFaturaItem> _itens(

@@ -156,6 +156,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get scanPositionHint => 'Posicione o código do cartão dentro da área';
 
   @override
+  String get nfcApproachCardHint => 'Aproxime o cartão do leitor';
+
+  @override
   String get homologationBadge => 'Homologação';
 
   @override
@@ -286,6 +289,18 @@ class AppLocalizationsPt extends AppLocalizations {
   String get errorUnknown => 'Ocorreu um erro inesperado.';
 
   @override
+  String get errorPaymentTerminal =>
+      'A maquininha não respondeu. Chame o atendente e tente novamente.';
+
+  @override
+  String get errorPaymentUndetermined =>
+      'Não foi possível confirmar o pagamento. Chame o atendente antes de tentar de novo.';
+
+  @override
+  String get terminalFollowInstructions =>
+      'Siga as instruções na maquininha para concluir o pagamento.';
+
+  @override
   String get paymentMethodPix => 'Pix';
 
   @override
@@ -379,4 +394,15 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get closingErrorTitle => 'Não foi possível encerrar a conta';
+
+  @override
+  String get closingErrorAlreadyChargedTitle =>
+      'Pagamento aprovado! Só falta fechar a conta';
+
+  @override
+  String get closingErrorAlreadyChargedSubtitle =>
+      'Seu pagamento foi concluído e não será cobrado de novo. Toque abaixo para finalizar.';
+
+  @override
+  String get retryClosingButton => 'Tentar encerrar novamente';
 }

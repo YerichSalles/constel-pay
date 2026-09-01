@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../aplicativo/tema/cores_app.dart';
 import '../../../../compartilhado/widgets/cartao.dart';
 import '../../../../compartilhado/widgets/leitor_camera.dart';
+import '../../../../compartilhado/widgets/rodape_leitura_homologacao.dart';
 import '../../../../l10n/app_localizations.dart';
 
 /// Visor de leitura. Por padrão só orienta o cliente a posicionar o código: a
@@ -244,57 +244,6 @@ class _CardScannerState extends State<CardScanner>
     );
   }
 
-  /// Selo que deixa claro que a digitação manual é recurso de homologação, e
-  /// não parte do atendimento normal.
-  Widget _seloHomologacao(AppLocalizations t) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: CoresApp.textoPrincipal.withValues(alpha: .07),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        t.homologationBadge.toUpperCase(),
-        style: const TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w800,
-          letterSpacing: .5,
-          color: CoresApp.textoPrincipal,
-        ),
-      ),
-    );
-  }
-
-  Widget _atalhoDigitacaoManual(Color primaria, AppLocalizations t) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 12),
-        _seloHomologacao(t),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            key: const Key('botao_digitar_codigo_manual'),
-            onPressed: widget.aoDigitarManual,
-            icon: const Icon(Icons.keyboard_alt_outlined, size: 18),
-            label: Text(t.manualEntryButton),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: primaria,
-              side:
-                  BorderSide(color: primaria.withValues(alpha: .4), width: 1.5),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14)),
-              textStyle:
-                  const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final primaria = Theme.of(context).colorScheme.primary;
@@ -316,7 +265,9 @@ class _CardScannerState extends State<CardScanner>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 leitura,
-                _atalhoDigitacaoManual(primaria, t),
+                RodapeLeituraHomologacao(
+                    corPrimaria: primaria,
+                    aoDigitarManual: widget.aoDigitarManual),
               ],
             ),
     );
